@@ -12,7 +12,9 @@ $ npm install agent-js-cypress --save-dev
 ## Usage
 
 
-#### With CLI
+#### Cypress.json
+
+Add the following options to cypress.json
 
 
 ```json
