@@ -1,9 +1,9 @@
 const { reporters } = require('mocha'),
     RPClient = require('reportportal-client'),
 
-    { testItemStatuses, logLevels } = require('./constants'),
+    { testItemStatuses, logLevels } = require('./src/constants'),
     { promiseErrorHandler, getStartLaunchObject, getSuiteStartObject,
-        getTestStartObject, getBase64FileObject } = require('./reporter-utilities');
+        getTestStartObject, getBase64FileObject } = require('./src/reporter-utilities');
 
 const { PASSED, FAILED, SKIPPED } = testItemStatuses,
     { ERROR } = logLevels;

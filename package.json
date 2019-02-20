@@ -1,7 +1,7 @@
 {
   "name": "agent-js-cypress",
-  "version": "1.0.1",
-  "description": "This client helps Cypress to communicate with Report Portal",
+  "version": "1.0.2",
+  "description": "This agent helps Cypress to communicate with Report Portal",
   "main": "rp-reporter.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
