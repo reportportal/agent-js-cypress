@@ -22,5 +22,10 @@
     "reportportal-client": "^5.1.0"
   },
   "author": "Vladislav Akulich",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "eslint": "^5.14.1",
+    "eslint-plugin-jsdoc": "^4.1.0",
+    "eslint-plugin-lodash": "^5.1.0"
+  }
 }
