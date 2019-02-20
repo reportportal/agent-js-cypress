@@ -1,0 +1,22 @@
+{
+  "name": "agent-js-cypress",
+  "version": "1.0.1",
+  "description": "This client helps Cypress to communicate with Report Portal",
+  "main": "rp-reporter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Report",
+    "Portal",
+    "Cypress",
+    "reporting"
+  ],
+  "devDependencies": {
+    "glob": "^7.1.3",
+    "mocha": "^6.0.0",
+    "reportportal-client": "^5.1.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
