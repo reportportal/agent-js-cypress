@@ -6,7 +6,7 @@ Cypress js agent is runtime reporter for [EPAM report portal](https://github.com
 
 
 ```console
-$ npm install agent-js-cypress
+$ npm install agent-js-cypress --save-dev
 ```
 
 ## Usage
@@ -15,14 +15,25 @@ $ npm install agent-js-cypress
 #### With CLI
 
 
-```console
+```json
+
+{
+    "reporter": "agent-js-cypress/rp-reporter.js",
+    "reporterOptions": {
+        "endpoint": "http://your-instance.com:8080/api/v1",
+        "token": "00000000-0000-0000-0000-000000000000",
+        "launch": "LAUNCH_NAME",
+        "project": "PROJECT_NAME",
+        "description": "PROJECT_DESCRIPTION"
+    }
+}
 
 ```
 
 
 #### Options
 
-Both CLI and programmatic runs support following options:
+Runs support following options:
 
 | Parameter | Description                                                                                                       |
 | --------- | ----------------------------------------------------------------------------------------------------------------- |
