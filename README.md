@@ -45,6 +45,16 @@ Runs support following options:
 | project   | The name of the project in which the launches will be created.                                                    |
 | debug     | Determines whether newman's run should be logged in details.                                                      |
 
+#### Screenshot support
+
+Curently supported only default usage of Cypress screenshot function. Using custom filename **is not supported** yet. Will be added in future versions. 
+
+```javascript
+
+cy.screenshot()
+cy.get('.post').screenshot()
+
+```
 
 # Copyright Notice
 
