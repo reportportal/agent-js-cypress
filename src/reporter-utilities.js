@@ -17,7 +17,7 @@ const promiseErrorHandler = promise => {
     },
 
     getBase64FileObject = testTitle => {
-        let pattern = `${__dirname}/../../../cypress/screenshots/*/* -- ${testTitle}*.png`,
+        let pattern = `**/*${testTitle}*.png`,
             files = glob.sync(pattern),
             image = base64_encode(files[0]);
 
