@@ -77,8 +77,6 @@ class ReportPortalReporter extends reporters.Base {
 
         promise.then(() => {
             done = true;
-            // eslint-disable-next-line no-console
-            console.log('FIX sllep');
         });
         require('deasync').loopWhile(() => !done);
     }
