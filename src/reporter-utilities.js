@@ -17,7 +17,8 @@ const promiseErrorHandler = promise => {
     },
 
     getBase64FileObject = testTitle => {
-        let pattern = `**/*${testTitle}*.png`,
+        let title = testTitle.replace(/./g, ''),
+            pattern = `**/*${title}*.png`,
             files = glob.sync(pattern),
             image = base64_encode(files[0]);
 

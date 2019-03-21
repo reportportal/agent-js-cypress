@@ -1,6 +1,6 @@
 {
   "name": "agent-js-cypress",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "This agent helps Cypress to communicate with Report Portal",
   "main": "rp-reporter.js",
   "scripts": {
@@ -17,6 +17,7 @@
     "url": "https://github.com/reportportal/agent-js-cypress"
   },
   "dependencies": {
+    "deasync": "^0.1.14",
     "glob": "^7.1.3",
     "mocha": "^6.0.0",
     "reportportal-client": "^5.1.0"
@@ -24,7 +25,6 @@
   "author": "Vladislav Akulich",
   "license": "Apache-2.0",
   "devDependencies": {
-    "deasync": "^0.1.14",
     "eslint": "^5.14.1",
     "eslint-plugin-jsdoc": "^4.1.0",
     "eslint-plugin-lodash": "^5.1.0"
