@@ -31,7 +31,8 @@ const promiseErrorHandler = promise => {
     getStartLaunchObject = reporterOptions => ({
         name: reporterOptions.launch,
         start_time: new Date().valueOf(),
-        description: reporterOptions.description
+        description: reporterOptions.description,
+        tags: reporterOptions.tags
     }),
 
     getSuiteStartObject = suite => {
