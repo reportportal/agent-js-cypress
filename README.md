@@ -7,6 +7,7 @@ Cypress js agent is runtime reporter for [EPAM report portal](https://github.com
 
 ```console
 $ npm install agent-js-cypress --save-dev
+$ npm install reportportal-client --save-dev
 ```
 
 ## Usage
