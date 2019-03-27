@@ -16,10 +16,9 @@ class ReportPortalReporter extends reporters.Base {
         super(runner);
         this.runner = runner;
         this.client = new RPClient(config.reporterOptions);
-        this.testStartRequestsPromises = {};
-        this.lastFailedTestRequestPromises = {};
         this.currentSuiteId = null;
         this.currentTestId = null;
+        this.list = [];
 
         runner.on('start', () => {
             let requestObj = getStartLaunchObject(config.reporterOptions);
@@ -27,7 +26,7 @@ class ReportPortalReporter extends reporters.Base {
 
             promiseErrorHandler(promise);
             this.tempLaunchId = tempId;
-            this.parentIds = {};
+            this.list.push(tempId);
         });
 
         runner.on('suite', suite => {
@@ -60,11 +59,10 @@ class ReportPortalReporter extends reporters.Base {
         runner.on('fail', test => {
             test.cid = runnerTestId;
             this.testFinishedFail(test);
-            this.lastFailedTestRequestPromises[test.cid] = this.testStartRequestsPromises[test.cid];
         });
 
         runner.on('end', () => {
-            this.client.finishLaunch(this.tempLaunchId);
+            this.finishLaunch();
         });
 
         runner.on('rp:log', (level, message) => {
@@ -72,36 +70,15 @@ class ReportPortalReporter extends reporters.Base {
         });
     }
 
-    getParentIds (suiteId) {
-        if (this.parentIds[suiteId]) {
-            return this.parentIds[suiteId];
-        }
+    finishLaunch () {
+        let launchId = this.list.pop();
+        const { promise } = this.client.finishLaunch(launchId);
+        let done = false;
 
-        this.parentIds[suiteId] = [];
-
-        return this.parentIds[suiteId];
-    }
-
-    getParentId (suiteId) {
-        const parentIds = this.getParentIds(suiteId);
-
-        if (!parentIds.length) {
-            return null;
-        }
-
-        return parentIds[parentIds.length - 1];
-    }
-
-    addParentId (suiteId, id) {
-        const parentIds = this.getParentIds(suiteId);
-
-        parentIds.push(id);
-    }
-
-    clearParent (suiteId) {
-        const parentIds = this.getParentIds(suiteId);
-
-        parentIds.pop();
+        promise.then(() => {
+            done = true;
+        });
+        require('deasync').loopWhile(() => !done);
     }
 
     suiteStart (suite) {
@@ -112,43 +89,49 @@ class ReportPortalReporter extends reporters.Base {
         const suiteStartObj = getSuiteStartObject(suite);
 
         this.currentSuiteId = suite.cid;
+        if (this.list.length === 1) {
+            const { tempId, promise } = this.client.startTestItem(suiteStartObj,
+                this.tempLaunchId);
 
-        const { tempId, promise } = this.client.startTestItem(suiteStartObj,
-            this.tempLaunchId,
-            this.getParentId(suite.cid));
+            promiseErrorHandler(promise);
+            this.currentSuiteId = tempId;
+            this.list.push(tempId);
+        }
+        else {
+            let parentId = this.list[this.list.length - 1];
+            const { tempId, promise } = this.client.startTestItem(suiteStartObj,
+                this.tempLaunchId,
+                parentId);
 
-        promiseErrorHandler(promise);
-        this.addParentId(suite.cid, tempId);
-        this.currentSuiteId = tempId;
+            promiseErrorHandler(promise);
+            this.currentSuiteId = tempId;
+            this.list.push(tempId);
+        }
     }
 
     suiteEnd (suite) {
-        const parentId = this.getParentId(suite.cid);
-
-        if (parentId === null) {
+        if (!suite.title) {
             return;
         }
-
-        const { promise } = this.client.finishTestItem(parentId, {});
+        let suiteId = this.list.pop();
+        const { promise } = this.client.finishTestItem(suiteId, {});
 
         promiseErrorHandler(promise);
-        this.clearParent(suite.cid);
     }
 
     testStart (test) {
         if (!test.title) {
             return;
         }
+        let suiteid = this.list[this.list.length - 1];
         const testStartObj = getTestStartObject(test.title),
 
             { tempId, promise } = this.client.startTestItem(testStartObj,
                 this.tempLaunchId,
-                this.currentSuiteId);// this.getParentId(test.cid)
+                suiteid);
 
-
+        this.list.push(tempId);
         promiseErrorHandler(promise);
-        this.testStartRequestsPromises[test.cid] = promise;
-        this.addParentId(test.cid, tempId);
         this.currentTestId = tempId;
     }
 
@@ -165,8 +148,8 @@ class ReportPortalReporter extends reporters.Base {
     }
 
     testFinishedFail (test, issue) {
-        const parentId = this.getParentId(test.cid);
-        let screenShotObj = getBase64FileObject(test.title),
+        let parentId = this.list[this.list.length - 1],
+            screenShotObj = getBase64FileObject(test.title),
             message = `Stacktrace: ${test.err.stack}\n`,
             finishTestObj = {
                 status: FAILED,
@@ -184,16 +167,12 @@ class ReportPortalReporter extends reporters.Base {
     }
 
     testFinished (test, finishTestObj) {
-        const parentId = this.getParentId(test.cid),
-            { promise } = this.client.finishTestItem(parentId, finishTestObj);
+        const testID = this.list.pop(),
+            { promise } = this.client.finishTestItem(testID, finishTestObj);
 
         promiseErrorHandler(promise);
-
-        this.clearParent(test.cid);
-        delete this.testStartRequestsPromises[test.cid];
     }
 
-    // NOTE: Check how it used
     sendLog (level, message) {
         const { promise } = this.client.sendLog(this.currentTestId, {
             message: String(message),
