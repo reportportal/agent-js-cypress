@@ -66,7 +66,7 @@ cypress.run().then(
         }
 
         let config = JSON.parse(data);
-            
+
         if (config.reporterOptions.isLaunchMergeRequired) {
             let client = new RPClient(config.reporterOptions);
             client.mergeLaunches();
@@ -77,9 +77,9 @@ cypress.run().then(
     },
     error => {
       console.error(error)
-      
+
       let files = getLaunchTempFiles();
-      files.map(deleteTempFiles);
+      files.map(deleteTempFile);
       process.exit(1)
     }
 );
@@ -102,18 +102,18 @@ cypress.run().then(
 
 Runs support following options:
 
-| Parameter | Description                                                                                                       |
-| --------- | ----------------------------------------------------------------------------------------------------------------- |
-| token     | User's Report Portal toke from which you want to send requests. It can be found on the profile page of this user. |
-| endpoint  | URL of your server. For example 'https://server:8080/api/v1'.                                                     |
-| launch    | Name of launch at creation.                                                                                       |
-| project   | The name of the project in which the launches will be created.                                                    |
-| debug     | Determines whether Cypress run should be logged in details.                                                      |
-| isLaunchMergeRequired     | Determines merge Cypress run's in to one launch or not                                                      |
+| Parameter             | Description                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| token                 | User's Report Portal toke from which you want to send requests. It can be found on the profile page of this user. |
+| endpoint              | URL of your server. For example 'https://server:8080/api/v1'.                                                     |
+| launch                | Name of launch at creation.                                                                                       |
+| project               | The name of the project in which the launches will be created.                                                    |
+| debug                 | Determines whether Cypress run should be logged in details.                                                       |
+| isLaunchMergeRequired | Determines merge Cypress run's in to one launch or not                                                            |
 
 ## Screenshot support
 
-Curently supported only default usage of Cypress screenshot function. Using custom filename **is not supported** yet. Will be added in future versions. 
+Curently supported only default usage of Cypress screenshot function. Using custom filename **is not supported** yet. Will be added in future versions.
 
 ```javascript
 
