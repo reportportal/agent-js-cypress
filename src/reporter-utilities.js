@@ -1,64 +1,24 @@
-const fs = require('fs'),
-    glob = require('glob'),
+const fs = require("fs");
+const glob = require("glob");
 
-    { entityType } = require('./constants');
+const base64_encode = file => {
+  var bitmap = fs.readFileSync(file);
 
+  return new Buffer.from(bitmap).toString("base64");
+};
 
-const promiseErrorHandler = promise => {
-        promise.catch(err => {
-            console.error(err);
-        });
-    },
+const getBase64FileObject = testTitle => {
+  let pattern = `**/*${testTitle}*.png`,
+    files = glob.sync(pattern),
+    image = base64_encode(files[0]);
 
-    base64_encode = file => {
-        var bitmap = fs.readFileSync(file);
-
-        return new Buffer.from(bitmap).toString('base64');
-    },
-
-    getBase64FileObject = testTitle => {
-        let title = testTitle.replace(/./g, ''),
-            pattern = `**/*${title}*.png`,
-            files = glob.sync(pattern),
-            image = base64_encode(files[0]);
-
-        return {
-            name: 'Screenshot',
-            type: 'image/png',
-            content: image
-        };
-    },
-
-    getStartLaunchObject = reporterOptions => ({
-        name: reporterOptions.launch,
-        start_time: new Date().valueOf(),
-        description: reporterOptions.description,
-        tags: reporterOptions.tags
-    }),
-
-    getSuiteStartObject = suite => {
-        const suiteStartObj = { type: entityType.SUITE, name: suite.title.slice(0, 255).toString() };
-
-        if (suite.tags && suite.tags.length > 0) {
-            suiteStartObj.tags = suite.tags.map(tag => tag.name);
-        }
-
-        if (suite.description) {
-            suiteStartObj.description = suite.description;
-        }
-
-        return suiteStartObj;
-    },
-
-    getTestStartObject = testTitle => ({
-        type: entityType.TEST,
-        name: testTitle.slice(0, 255).toString()
-    });
+  return {
+    name: "Screenshot",
+    type: "image/png",
+    content: image
+  };
+};
 
 module.exports = {
-    getBase64FileObject,
-    getStartLaunchObject,
-    getSuiteStartObject,
-    getTestStartObject,
-    promiseErrorHandler
+  getBase64FileObject,
 };

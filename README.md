@@ -7,7 +7,6 @@ Cypress js agent is runtime reporter for [EPAM report portal](https://github.com
 
 ```console
 $ npm install agent-js-cypress --save-dev
-$ npm install reportportal-client --save-dev
 ```
 
 ## Usage
@@ -28,16 +27,27 @@ Add the following options to cypress.json
         "launch": "LAUNCH_NAME",
         "project": "PROJECT_NAME",
         "description": "PROJECT_DESCRIPTION",
-        "isLaunchMergeRequired": true
+        "isLaunchMergeRequired": false
     }
 }
 
 ```
 
+To run example tests also add the following settings to cypress.json and use command `npm test`
+
+```json
+
+{
+  ...
+  "integrationFolder": "example/integration",
+  "screenshotsFolder": "example/screenshots"
+}
+
+```
 
 #### Add file to run Cypress with custom behavior
 
-Create folder "scripts" on project folder. Copy the following script into "cypress.js" file and put in to "scripts"
+Create folder "scripts" on project folder. Copy the following script into "cypress.js" file and put it to "scripts"
 folder.
 
 ```javascript
@@ -126,8 +136,6 @@ cy.get('.post').screenshot()
 
 Licensed under the [Apache License v2.0](LICENSE)
 
-# Contribution and Support
+# Contribution
 
 <img src="img/ahold-delhaize-logo-green.jpg" width="250">
-
-**Implemented and supported by Ahold Delheize**
