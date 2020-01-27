@@ -1,5 +1,3 @@
-/// <reference types="Cypress" />
-
 context("Example Cypress Test", () => {
   context("Check Cypress page", () => {
     beforeEach(() => {

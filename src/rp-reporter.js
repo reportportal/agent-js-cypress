@@ -3,8 +3,8 @@ const RPClient = require("reportportal-client");
 const  { testItemStatuses, logLevels, entityType } = require("./constants");
 const { getBase64FileObject } = require("./reporter-utilities");
 
-const { PASSED, FAILED, SKIPPED } = testItemStatuses,
-  { ERROR } = logLevels;
+const { FAILED, SKIPPED } = testItemStatuses;
+const { ERROR } = logLevels;
 
 class ReportPortalReporter extends reporters.Base {
   constructor(runner, config) {
@@ -17,7 +17,7 @@ class ReportPortalReporter extends reporters.Base {
 
     runner.on("start", async () => {
       try {
-        let launch = {
+        const launch = {
           token: config.reporterOptions.token,
           name: config.reporterOptions.launch,
           description: config.reporterOptions.description,

@@ -25,12 +25,12 @@ cypress
           throw err;
         }
 
-        let config = JSON.parse(data);
+        const config = JSON.parse(data);
 
         if (config.reporterOptions.isLaunchMergeRequired) {
-          let client = new RPClient(config.reporterOptions);
+          const client = new RPClient(config.reporterOptions);
           client.mergeLaunches();
-          let files = getLaunchTempFiles();
+          const files = getLaunchTempFiles();
           files.map(deleteTempFile);
         }
       });
@@ -39,7 +39,7 @@ cypress
     error => {
       console.error(error);
 
-      let files = getLaunchTempFiles();
+      const files = getLaunchTempFiles();
       files.map(deleteTempFile);
       process.exit(1);
     }

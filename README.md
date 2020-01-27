@@ -20,7 +20,7 @@ Add the following options to cypress.json
 ```json
 
 {
-    "reporter": "agent-js-cypress/rp-reporter.js",
+    "reporter": "agent-js-cypress",
     "reporterOptions": {
         "endpoint": "http://your-instance.com:8080/api/v1",
         "token": "00000000-0000-0000-0000-000000000000",
@@ -33,7 +33,7 @@ Add the following options to cypress.json
 
 ```
 
-To run example tests also add the following settings to cypress.json and use command `npm test`
+To run example tests also add the following settings to cypress.json, replace `"reporter": "agent-js-cypress"` by `"reporter": "index.js"` and use command `npm test`.
 
 ```json
 
@@ -75,12 +75,12 @@ cypress.run().then(
             throw err;
         }
 
-        let config = JSON.parse(data);
+        const config = JSON.parse(data);
 
         if (config.reporterOptions.isLaunchMergeRequired) {
-            let client = new RPClient(config.reporterOptions);
+            const client = new RPClient(config.reporterOptions);
             client.mergeLaunches();
-            let files = getLaunchTempFiles();
+            const files = getLaunchTempFiles();
             files.map(deleteTempFile);
         }
       });
@@ -88,7 +88,7 @@ cypress.run().then(
     error => {
       console.error(error)
 
-      let files = getLaunchTempFiles();
+      const files = getLaunchTempFiles();
       files.map(deleteTempFile);
       process.exit(1)
     }
