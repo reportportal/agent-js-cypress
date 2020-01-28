@@ -4,7 +4,9 @@
   "description": "This agent helps Cypress to communicate with Report Portal",
   "main": "rp-reporter.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "eslint": "eslint \"./**/*.js\"",
+    "format": "npm run eslint -- --fix",
+    "test": "node ./example/main.js"
   },
   "keywords": [
     "ReportPortal",
@@ -17,16 +19,19 @@
     "url": "https://github.com/reportportal/agent-js-cypress"
   },
   "dependencies": {
-    "deasync": "^0.1.14",
-    "glob": "^7.1.3",
-    "mocha": "^6.0.0",
-    "reportportal-client": "^5.2.1"
+    "glob": "7.1.3",
+    "mocha": "6.0.0",
+    "reportportal-client": "^5.5.0"
   },
-  "author": "Vladislav Akulich",
   "license": "Apache-2.0",
   "devDependencies": {
-    "eslint": "^5.14.1",
-    "eslint-plugin-jsdoc": "^4.1.0",
-    "eslint-plugin-lodash": "^5.1.0"
+    "cypress": "3.8.2",
+    "eslint": "6.5.1",
+    "eslint-config-airbnb-base": "14.0.0",
+    "eslint-config-prettier": "6.9.0",
+    "eslint-plugin-cypress": "2.8.1",
+    "eslint-plugin-import": "2.20.0",
+    "eslint-plugin-prettier": "3.1.2",
+    "prettier": "1.19.1"
   }
 }

@@ -7,7 +7,6 @@ Cypress js agent is runtime reporter for [EPAM report portal](https://github.com
 
 ```console
 $ npm install agent-js-cypress --save-dev
-$ npm install reportportal-client --save-dev
 ```
 
 ## Usage
@@ -21,23 +20,34 @@ Add the following options to cypress.json
 ```json
 
 {
-    "reporter": "agent-js-cypress/rp-reporter.js",
+    "reporter": "agent-js-cypress",
     "reporterOptions": {
         "endpoint": "http://your-instance.com:8080/api/v1",
         "token": "00000000-0000-0000-0000-000000000000",
         "launch": "LAUNCH_NAME",
         "project": "PROJECT_NAME",
         "description": "PROJECT_DESCRIPTION",
-        "isLaunchMergeRequired": true
+        "isLaunchMergeRequired": false
     }
 }
 
 ```
 
+To run example tests also add the following settings to cypress.json, replace `"reporter": "agent-js-cypress"` by `"reporter": "index.js"` and use command `npm test`.
+
+```json
+
+{
+  ...
+  "integrationFolder": "example/integration",
+  "screenshotsFolder": "example/screenshots"
+}
+
+```
 
 #### Add file to run Cypress with custom behavior
 
-Create folder "scripts" on project folder. Copy the following script into "cypress.js" file and put in to "scripts"
+Create folder "scripts" on project folder. Copy the following script into "cypress.js" file and put it to "scripts"
 folder.
 
 ```javascript
@@ -65,12 +75,12 @@ cypress.run().then(
             throw err;
         }
 
-        let config = JSON.parse(data);
+        const config = JSON.parse(data);
 
         if (config.reporterOptions.isLaunchMergeRequired) {
-            let client = new RPClient(config.reporterOptions);
+            const client = new RPClient(config.reporterOptions);
             client.mergeLaunches();
-            let files = getLaunchTempFiles();
+            const files = getLaunchTempFiles();
             files.map(deleteTempFile);
         }
       });
@@ -78,7 +88,7 @@ cypress.run().then(
     error => {
       console.error(error)
 
-      let files = getLaunchTempFiles();
+      const files = getLaunchTempFiles();
       files.map(deleteTempFile);
       process.exit(1)
     }
@@ -126,8 +136,6 @@ cy.get('.post').screenshot()
 
 Licensed under the [Apache License v2.0](LICENSE)
 
-# Contribution and Support
+# Contribution
 
 <img src="img/ahold-delhaize-logo-green.jpg" width="250">
-
-**Implemented and supported by Ahold Delheize**
