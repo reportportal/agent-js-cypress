@@ -1,7 +1,7 @@
 context("Example Cypress Test", () => {
   context("Check Cypress page", () => {
     beforeEach(() => {
-      cy.visit("https://example.cypress.io");
+      return cy.visit("https://example.cypress.io");
     });
     context("Check content Cypress example page", () => {
       it("should contain Cypress", function() {
@@ -29,7 +29,7 @@ context("Example Cypress Test", () => {
   });
   context("Check content of Google", () => {
     beforeEach(() => {
-      cy.visit("https://www.google.com/");
+      return cy.visit("https://www.google.com/");
     });
     it("url should contain google", function() {
       cy.url().should("include", "google")

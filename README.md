@@ -114,12 +114,13 @@ Runs support following options:
 
 | Parameter             | Description                                                                                                       |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| token                 | User's Report Portal toke from which you want to send requests. It can be found on the profile page of this user. |
+| token                 | User's Report Portal token from which you want to send requests. It can be found on the profile page of this user. |
 | endpoint              | URL of your server. For example 'https://server:8080/api/v1'.                                                     |
 | launch                | Name of launch at creation.                                                                                       |
 | project               | The name of the project in which the launches will be created.                                                    |
-| debug                 | Determines whether Cypress run should be logged in details.                                                       |
 | isLaunchMergeRequired | Determines merge Cypress run's in to one launch or not                                                            |
+| rerun                 | Enable [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md)           |
+| rerunOf               | UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name|
 
 ## Screenshot support
 

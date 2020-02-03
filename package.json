@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "glob": "7.1.3",
-    "mocha": "6.0.0",
+    "mocha": "7.0.1",
     "reportportal-client": "^5.5.0"
   },
   "license": "Apache-2.0",

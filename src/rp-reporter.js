@@ -1,4 +1,12 @@
-const { reporters } = require("mocha");
+const Mocha = require("mocha");
+const {
+  EVENT_RUN_BEGIN,
+  EVENT_RUN_END,
+  EVENT_TEST_BEGIN,
+  EVENT_TEST_END,
+  EVENT_SUITE_BEGIN,
+  EVENT_SUITE_END
+} = Mocha.Runner.constants;
 const RPClient = require("reportportal-client");
 const  { testItemStatuses, logLevels, entityType } = require("./constants");
 const { getBase64FileObject } = require("./reporter-utilities");
@@ -6,7 +14,7 @@ const { getBase64FileObject } = require("./reporter-utilities");
 const { FAILED, SKIPPED } = testItemStatuses;
 const { ERROR } = logLevels;
 
-class ReportPortalReporter extends reporters.Base {
+class ReportPortalReporter extends Mocha.reporters.Base {
   constructor(runner, config) {
     super(runner);
     this.runner = runner;
@@ -15,16 +23,18 @@ class ReportPortalReporter extends reporters.Base {
     this.testItemIds = new Map();
     this.testIds = new Map();
 
-    runner.on("start", async () => {
+    runner.on(EVENT_RUN_BEGIN, async () => {
       try {
         const launch = {
           token: config.reporterOptions.token,
           name: config.reporterOptions.launch,
           description: config.reporterOptions.description,
           attributes: config.reporterOptions.attributes,
+          rerun: config.reporterOptions.rerun,
+          rerunOf: config.reporterOptions.rerunOf,
           startTime: new Date().valueOf()
         };
-        
+
         const { tempId, promise } = this.client.startLaunch(launch);
 
         this.tempLaunchId = tempId;
@@ -34,7 +44,7 @@ class ReportPortalReporter extends reporters.Base {
       }
     });
 
-    runner.on("suite", async (suite) => {
+    runner.on(EVENT_SUITE_BEGIN, async suite => {
       try {
         await this.suiteStart(suite);
       } catch (err) {
@@ -42,23 +52,23 @@ class ReportPortalReporter extends reporters.Base {
       }
     });
 
-    runner.on("suite end", async (suite) => {
+    runner.on(EVENT_SUITE_END, async suite => {
       try {
         await this.suiteEnd(suite);
-      } catch(err) {
+      } catch (err) {
         console.error(`Failed to finish suite. Error: ${err}`);
       }
     });
 
-    runner.on("test", async (test) => {
-      try{
+    runner.on(EVENT_TEST_BEGIN, async test => {
+      try {
         await this.testStart(test);
-      } catch(err) {
+      } catch (err) {
         console.error(`Failed to create test item. Error: ${err}`);
       }
     });
 
-    runner.on("test end", async (test) => {
+    runner.on(EVENT_TEST_END, async test => {
       const status = test.state === "pending" ? SKIPPED : test.state;
       try {
         if (status === FAILED) {
@@ -70,7 +80,7 @@ class ReportPortalReporter extends reporters.Base {
       }
     });
 
-    runner.on("end", async () => {
+    runner.on(EVENT_RUN_END, async () => {
       try {
         const { promise } = this.client.finishLaunch(this.tempLaunchId, {
           endTime: new Date().valueOf()
@@ -80,7 +90,6 @@ class ReportPortalReporter extends reporters.Base {
         console.error(`Failed to finish run. Error: ${err}`);
       }
     });
-
   }
 
   async suiteStart(suite) {
@@ -95,7 +104,9 @@ class ReportPortalReporter extends reporters.Base {
       description: suite.description,
       attributes: []
     };
-    const parentId = !suite.root ? this.testItemIds.get(suite.parent.id) : undefined;
+    const parentId = !suite.root
+      ? this.testItemIds.get(suite.parent.id)
+      : undefined;
 
     const { tempId, promise } = this.client.startTestItem(
       suiteStartObj,
@@ -135,7 +146,7 @@ class ReportPortalReporter extends reporters.Base {
     );
 
     this.testItemIds.set(test.id, tempId);
-    await promise;    
+    await promise;
   }
 
   async sendLog(test) {
@@ -148,18 +159,17 @@ class ReportPortalReporter extends reporters.Base {
       {
         message: message,
         level: ERROR,
-        time: new Date().valueOf(),
+        time: new Date().valueOf()
       },
       screenShotObj
     );
-
   }
 
   async testFinished(test, finishTestObj) {
     const testId = this.testItemIds.get(test.id);
     const { promise } = this.client.finishTestItem(testId, {
       endTime: new Date().valueOf(),
-      ...finishTestObj,
+      ...finishTestObj
     });
 
     await promise;
