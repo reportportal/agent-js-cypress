@@ -17,3 +17,10 @@ node_modules/
 
 # Mac files
 .DS_Store
+
+# Cypress
+cypress/
+cypress.json
+
+# Example attachments
+example/screenshots/
