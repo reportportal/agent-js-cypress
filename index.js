@@ -1,1 +1,1 @@
-module.exports = require("./src/rp-reporter");
+module.exports = require('./src/rp-reporter');

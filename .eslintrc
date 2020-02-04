@@ -3,7 +3,7 @@
     "es6": true,
     "node": true
   },
-  "extends": ["airbnb-base", "plugin:prettier/recommended", "cypress"],
+  "extends": ["airbnb-base", "plugin:prettier/recommended", "plugin:cypress/recommended"],
   "parserOptions": {
     "ecmaVersion": 2018
   },
@@ -24,6 +24,7 @@
     "lines-between-class-members": 0,
     "import/no-useless-path-segments": 0,
     "no-invalid-this": 0,
-    "prefer-object-spread": 0
+    "prefer-object-spread": 0,
+    "no-console": 0
   }
 }
