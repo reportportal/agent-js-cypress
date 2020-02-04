@@ -1,15 +1,16 @@
-const Mocha = require("mocha");
+const Mocha = require('mocha');
+
 const {
   EVENT_RUN_BEGIN,
   EVENT_RUN_END,
   EVENT_TEST_BEGIN,
   EVENT_TEST_END,
   EVENT_SUITE_BEGIN,
-  EVENT_SUITE_END
+  EVENT_SUITE_END,
 } = Mocha.Runner.constants;
-const RPClient = require("reportportal-client");
-const  { testItemStatuses, logLevels, entityType } = require("./constants");
-const { getBase64FileObject } = require("./reporter-utilities");
+const RPClient = require('reportportal-client');
+const { testItemStatuses, logLevels, entityType } = require('./constants');
+const { getBase64FileObject } = require('./reporter-utilities');
 
 const { FAILED, SKIPPED } = testItemStatuses;
 const { ERROR } = logLevels;
@@ -32,7 +33,7 @@ class ReportPortalReporter extends Mocha.reporters.Base {
           attributes: config.reporterOptions.attributes,
           rerun: config.reporterOptions.rerun,
           rerunOf: config.reporterOptions.rerunOf,
-          startTime: new Date().valueOf()
+          startTime: new Date().valueOf(),
         };
 
         const { tempId, promise } = this.client.startLaunch(launch);
@@ -44,7 +45,7 @@ class ReportPortalReporter extends Mocha.reporters.Base {
       }
     });
 
-    runner.on(EVENT_SUITE_BEGIN, async suite => {
+    runner.on(EVENT_SUITE_BEGIN, async (suite) => {
       try {
         await this.suiteStart(suite);
       } catch (err) {
@@ -52,7 +53,7 @@ class ReportPortalReporter extends Mocha.reporters.Base {
       }
     });
 
-    runner.on(EVENT_SUITE_END, async suite => {
+    runner.on(EVENT_SUITE_END, async (suite) => {
       try {
         await this.suiteEnd(suite);
       } catch (err) {
@@ -60,7 +61,7 @@ class ReportPortalReporter extends Mocha.reporters.Base {
       }
     });
 
-    runner.on(EVENT_TEST_BEGIN, async test => {
+    runner.on(EVENT_TEST_BEGIN, async (test) => {
       try {
         await this.testStart(test);
       } catch (err) {
@@ -68,8 +69,8 @@ class ReportPortalReporter extends Mocha.reporters.Base {
       }
     });
 
-    runner.on(EVENT_TEST_END, async test => {
-      const status = test.state === "pending" ? SKIPPED : test.state;
+    runner.on(EVENT_TEST_END, async (test) => {
+      const status = test.state === 'pending' ? SKIPPED : test.state;
       try {
         if (status === FAILED) {
           this.sendLog(test);
@@ -83,7 +84,7 @@ class ReportPortalReporter extends Mocha.reporters.Base {
     runner.on(EVENT_RUN_END, async () => {
       try {
         const { promise } = this.client.finishLaunch(this.tempLaunchId, {
-          endTime: new Date().valueOf()
+          endTime: new Date().valueOf(),
         });
         await promise;
       } catch (err) {
@@ -102,16 +103,14 @@ class ReportPortalReporter extends Mocha.reporters.Base {
       name: suite.title.slice(0, 255).toString(),
       startTime: new Date().valueOf(),
       description: suite.description,
-      attributes: []
+      attributes: [],
     };
-    const parentId = !suite.root
-      ? this.testItemIds.get(suite.parent.id)
-      : undefined;
+    const parentId = !suite.root ? this.testItemIds.get(suite.parent.id) : undefined;
 
     const { tempId, promise } = this.client.startTestItem(
       suiteStartObj,
       this.tempLaunchId,
-      parentId
+      parentId,
     );
     this.testItemIds.set(suite.id, tempId);
     await promise;
@@ -136,13 +135,13 @@ class ReportPortalReporter extends Mocha.reporters.Base {
       type: entityType.STEP,
       name: test.title.slice(0, 255).toString(),
       startTime: new Date().valueOf(),
-      attributes: []
+      attributes: [],
     };
 
     const { tempId, promise } = this.client.startTestItem(
       testStartObj,
       this.tempLaunchId,
-      parentId
+      parentId,
     );
 
     this.testItemIds.set(test.id, tempId);
@@ -157,11 +156,11 @@ class ReportPortalReporter extends Mocha.reporters.Base {
     await this.client.sendLog(
       testId,
       {
-        message: message,
+        message,
         level: ERROR,
-        time: new Date().valueOf()
+        time: new Date().valueOf(),
       },
-      screenShotObj
+      screenShotObj,
     );
   }
 
@@ -169,7 +168,7 @@ class ReportPortalReporter extends Mocha.reporters.Base {
     const testId = this.testItemIds.get(test.id);
     const { promise } = this.client.finishTestItem(testId, {
       endTime: new Date().valueOf(),
-      ...finishTestObj
+      ...finishTestObj,
     });
 
     await promise;

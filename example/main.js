@@ -1,26 +1,26 @@
-const cypress = require("cypress");
-const RPClient = require("reportportal-client");
-const fs = require("fs");
-const glob = require("glob");
+const cypress = require('cypress');
+const RPClient = require('reportportal-client');
+const fs = require('fs');
+const glob = require('glob');
 
-const cypressConfigFile = "cypress.json";
+const cypressConfigFile = 'cypress.json';
 
 const getLaunchTempFiles = () => {
-  return glob.sync("rplaunch-*.tmp");
+  return glob.sync('rplaunch-*.tmp');
 };
 
-const deleteTempFile = filename => {
+const deleteTempFile = (filename) => {
   fs.unlinkSync(filename);
 };
 
 cypress
   .run({
-    integrationFolder: "example",
-    screenshotsFolder: "example/screenshots"
+    integrationFolder: 'example',
+    screenshotsFolder: 'example/screenshots',
   })
   .then(
     () => {
-      fs.readFile(cypressConfigFile, "utf8", function(err, data) {
+      fs.readFile(cypressConfigFile, 'utf8', (err, data) => {
         if (err) {
           throw err;
         }
@@ -36,11 +36,10 @@ cypress
       });
       process.exit(0);
     },
-    error => {
+    (error) => {
       console.error(error);
-
       const files = getLaunchTempFiles();
       files.map(deleteTempFile);
       process.exit(1);
-    }
+    },
   );
