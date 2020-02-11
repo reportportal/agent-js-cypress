@@ -9,7 +9,7 @@ context('Example Cypress Test', () => {
       });
 
       it('should contain Commands', () => {
-        cy.contains('Commands');
+        cy.contains('Commands').screenshot();
       });
 
       it('should contain gfkjdgkjdfgl (failed)', () => {
@@ -34,6 +34,7 @@ context('Example Cypress Test', () => {
       cy.url().should('include', 'google');
     });
     it('check contain of google page (failed)', () => {
+      cy.get('#hplogo').screenshot();
       cy.contains('example').screenshot();
     });
   });
