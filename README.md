@@ -124,7 +124,7 @@ Runs support following options:
 
 ## Screenshot support
 
-Curently supported only default usage of Cypress screenshot function. Using custom filename **is not supported** yet. Will be added in future versions.
+Curently supported only default usage of Cypress screenshot function. Using custom filename **is not supported**.
 
 ```javascript
 

@@ -10,19 +10,16 @@ const {
 } = Mocha.Runner.constants;
 const RPClient = require('reportportal-client');
 const { testItemStatuses, logLevels, entityType } = require('./constants');
-const { getBase64FileObject } = require('./reporter-utilities');
+const { getFailedScreenshot, getPassedScreenshots } = require('./utils');
 
 const { FAILED, SKIPPED } = testItemStatuses;
-const { ERROR } = logLevels;
 
 class ReportPortalReporter extends Mocha.reporters.Base {
   constructor(runner, config) {
     super(runner);
     this.runner = runner;
     this.client = new RPClient(config.reporterOptions);
-    this.currentTestId = null;
     this.testItemIds = new Map();
-    this.testIds = new Map();
 
     runner.on(EVENT_RUN_BEGIN, async () => {
       try {
@@ -72,10 +69,8 @@ class ReportPortalReporter extends Mocha.reporters.Base {
     runner.on(EVENT_TEST_END, async (test) => {
       const status = test.state === 'pending' ? SKIPPED : test.state;
       try {
-        if (status === FAILED) {
-          this.sendLog(test);
-        }
-        await this.testFinished(test, { status });
+        await this.sendLog(test);
+        await this.testFinish(test, { status });
       } catch (err) {
         console.error(`Failed to finish failed test item. Error: ${err}`);
       }
@@ -150,21 +145,38 @@ class ReportPortalReporter extends Mocha.reporters.Base {
 
   async sendLog(test) {
     const testId = this.testItemIds.get(test.id);
-    const screenShotObj = getBase64FileObject(test.title);
-    const message = test.err.stack;
+    const level = test.state === FAILED ? logLevels.ERROR : logLevels.INFO;
 
-    await this.client.sendLog(
-      testId,
-      {
-        message,
-        level: ERROR,
-        time: new Date().valueOf(),
-      },
-      screenShotObj,
+    if (test.state === FAILED) {
+      await this.client.sendLog(
+        testId,
+        {
+          message: test.err.stack,
+          level,
+          time: new Date().valueOf(),
+        },
+        getFailedScreenshot(test.title),
+      ).promise;
+    }
+    const passedScreenshots = getPassedScreenshots(test.title);
+
+    await Promise.all(
+      passedScreenshots.map(
+        (file) =>
+          this.client.sendLog(
+            testId,
+            {
+              message: 'screenshot',
+              level,
+              time: new Date().valueOf(),
+            },
+            file,
+          ).promise,
+      ),
     );
   }
 
-  async testFinished(test, finishTestObj) {
+  async testFinish(test, finishTestObj) {
     const testId = this.testItemIds.get(test.id);
     const { promise } = this.client.finishTestItem(testId, {
       endTime: new Date().valueOf(),
