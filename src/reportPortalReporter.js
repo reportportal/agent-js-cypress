@@ -7,12 +7,17 @@ const {
   EVENT_TEST_END,
   EVENT_SUITE_BEGIN,
   EVENT_SUITE_END,
+  EVENT_HOOK_BEGIN,
+  EVENT_HOOK_END,
+  EVENT_TEST_FAIL,
 } = Mocha.Runner.constants;
 const RPClient = require('reportportal-client');
-const { testItemStatuses, logLevels, entityType } = require('./constants');
+const { testItemStatuses, logLevels, entityType, hookTypesMap } = require('./constants');
 const { getFailedScreenshot, getPassedScreenshots } = require('./utils');
 
-const { FAILED, SKIPPED } = testItemStatuses;
+const { FAILED, SKIPPED, PASSED } = testItemStatuses;
+
+const getHookId = (test) => `${test.hookId}_${test.id}`;
 
 class ReportPortalReporter extends Mocha.reporters.Base {
   constructor(runner, config) {
@@ -20,6 +25,8 @@ class ReportPortalReporter extends Mocha.reporters.Base {
     this.runner = runner;
     this.client = new RPClient(config.reporterOptions);
     this.testItemIds = new Map();
+    this.hooksForTest = new Map();
+    this.hooks = new Map();
 
     runner.on(EVENT_RUN_BEGIN, async () => {
       try {
@@ -42,21 +49,9 @@ class ReportPortalReporter extends Mocha.reporters.Base {
       }
     });
 
-    runner.on(EVENT_SUITE_BEGIN, async (suite) => {
-      try {
-        await this.suiteStart(suite);
-      } catch (err) {
-        console.error(`Failed to create suite. Error: ${err}`);
-      }
-    });
+    runner.on(EVENT_SUITE_BEGIN, (suite) => this.suiteStart(suite));
 
-    runner.on(EVENT_SUITE_END, async (suite) => {
-      try {
-        await this.suiteEnd(suite);
-      } catch (err) {
-        console.error(`Failed to finish suite. Error: ${err}`);
-      }
-    });
+    runner.on(EVENT_SUITE_END, (suite) => this.suiteEnd(suite));
 
     runner.on(EVENT_TEST_BEGIN, async (test) => {
       try {
@@ -67,12 +62,17 @@ class ReportPortalReporter extends Mocha.reporters.Base {
     });
 
     runner.on(EVENT_TEST_END, async (test) => {
-      const status = test.state === 'pending' ? SKIPPED : test.state;
+      let status = test.state === 'pending' || test.failedFromHookId ? SKIPPED : test.state;
       try {
-        await this.sendLog(test);
-        await this.testFinish(test, { status });
+        const tempTestId = this.testItemIds.get(test.id);
+        //  skipped test for failed hook
+        if (!tempTestId) {
+          await this.testStart(test);
+          status = SKIPPED;
+        }
+        this.testFinish(test, status);
       } catch (err) {
-        console.error(`Failed to finish failed test item. Error: ${err}`);
+        console.error(`Failed to start skipped test item. Error: ${err}`);
       }
     });
 
@@ -86,13 +86,33 @@ class ReportPortalReporter extends Mocha.reporters.Base {
         console.error(`Failed to finish run. Error: ${err}`);
       }
     });
+    runner.on(EVENT_HOOK_BEGIN, (hook) => {
+      if (!config.reporterOptions.reportHooks) return;
+      this.hookStart(hook);
+    });
+
+    runner.on(EVENT_HOOK_END, (hook) => {
+      if (!config.reporterOptions.reportHooks) return;
+      this.hookFinish(hook).catch((err) => {
+        console.error(`Failed to finish hook. Error: ${err}`);
+      });
+    });
+
+    runner.on(EVENT_TEST_FAIL, async (test, err) => {
+      if (test.failedFromHookId) {
+        const testHook = this.hooks.get(`${test.failedFromHookId}_${test.id}`);
+        if (testHook) {
+          this.hookFinish({ ...testHook, state: FAILED, err });
+        }
+        this.testFinish(test, FAILED);
+      }
+    });
   }
 
-  async suiteStart(suite) {
+  suiteStart(suite) {
     if (!suite.title) {
       return;
     }
-
     const suiteStartObj = {
       type: entityType.SUITE,
       name: suite.title.slice(0, 255).toString(),
@@ -108,23 +128,22 @@ class ReportPortalReporter extends Mocha.reporters.Base {
       parentId,
     );
     this.testItemIds.set(suite.id, tempId);
-    await promise;
+    promise.catch((err) => {
+      console.error(`Failed to create suite. Error: ${err}`);
+    });
   }
 
-  async suiteEnd(suite) {
+  suiteEnd(suite) {
     if (!suite.title) {
       return;
     }
     const suiteId = this.testItemIds.get(suite.id);
-    const { promise } = this.client.finishTestItem(suiteId, {});
-
-    await promise;
+    this.client.finishTestItem(suiteId, {}).promise.catch((err) => {
+      console.error(`Failed to finish suite. Error: ${err}`);
+    });
   }
 
   async testStart(test) {
-    if (!test.title) {
-      return;
-    }
     const parentId = this.testItemIds.get(test.parent.id);
     const testStartObj = {
       type: entityType.STEP,
@@ -143,32 +162,31 @@ class ReportPortalReporter extends Mocha.reporters.Base {
     await promise;
   }
 
-  async sendLog(test) {
-    const testId = this.testItemIds.get(test.id);
+  async sendLog(test, tempTestId, logTime) {
     const level = test.state === FAILED ? logLevels.ERROR : logLevels.INFO;
 
     if (test.state === FAILED) {
       await this.client.sendLog(
-        testId,
+        tempTestId,
         {
-          message: test.err.stack,
+          message: test.err.message,
           level,
-          time: new Date().valueOf(),
+          time: logTime || new Date().valueOf(),
         },
         getFailedScreenshot(test.title),
       ).promise;
     }
     const passedScreenshots = getPassedScreenshots(test.title);
 
-    await Promise.all(
+    Promise.all(
       passedScreenshots.map(
         (file) =>
           this.client.sendLog(
-            testId,
+            tempTestId,
             {
               message: 'screenshot',
               level,
-              time: new Date().valueOf(),
+              time: logTime || new Date().valueOf(),
             },
             file,
           ).promise,
@@ -176,14 +194,50 @@ class ReportPortalReporter extends Mocha.reporters.Base {
     );
   }
 
-  async testFinish(test, finishTestObj) {
+  async testFinish(test, status) {
     const testId = this.testItemIds.get(test.id);
-    const { promise } = this.client.finishTestItem(testId, {
-      endTime: new Date().valueOf(),
-      ...finishTestObj,
-    });
+    if (!testId) return;
+    await this.sendLog(test, testId);
+    this.client
+      .finishTestItem(testId, {
+        endTime: new Date().valueOf(),
+        status,
+      })
+      .promise.catch((err) => {
+        console.error(`Failed to finish test item. Error: ${err}`);
+      });
+    this.testItemIds.delete(test.id);
+  }
+
+  hookStart(hook) {
+    this.hooks.set(getHookId(hook), { ...hook, startTime: new Date().valueOf() });
+  }
+
+  async hookFinish(hook) {
+    const hookId = getHookId(hook);
+    const testHooks = this.hooks.get(hookId);
+    if (!testHooks) return;
+    const parentId = this.testItemIds.get(hook.parent.id);
+
+    const hookRPType = hookTypesMap[hook.hookName];
+    const hookName = hook.title.replace(`"${hook.hookName}" hook:`, '').trim();
+    const { tempId, promise } = this.client.startTestItem(
+      {
+        name: hookName,
+        startTime: testHooks.startTime,
+        type: hookRPType,
+      },
+      this.tempLaunchId,
+      parentId,
+    );
 
     await promise;
+    await this.sendLog(hook, tempId, testHooks.startTime);
+    this.hooks.delete(hookId);
+    this.client.finishTestItem(tempId, {
+      status: hook.state === FAILED ? FAILED : PASSED,
+      endTime: new Date().valueOf(),
+    });
   }
 }
 

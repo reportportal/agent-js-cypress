@@ -8,7 +8,7 @@ const base64Encode = (file) => {
 };
 
 const getPassedScreenshots = (testTitle) => {
-  const pattern = `**/*${testTitle}.png`;
+  const pattern = `**/*${testTitle.replace(/[",',:]/g, '')}.png`;
   const files = glob.sync(pattern);
   return (files || []).map((file, index) => ({
     name: `${testTitle}-${index + 1}`,
@@ -18,7 +18,7 @@ const getPassedScreenshots = (testTitle) => {
 };
 
 const getFailedScreenshot = (testTitle) => {
-  const pattern = `**/*${testTitle} (failed).png`;
+  const pattern = `**/*${testTitle.replace(/[",',:]/g, '')} (failed).png`;
   const files = glob.sync(pattern);
   return files.length
     ? {
