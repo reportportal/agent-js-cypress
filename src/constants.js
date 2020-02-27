@@ -33,4 +33,8 @@ const hookTypesMap = {
   [hookTypes.AFTER_ALL]: entityType.AFTER_SUITE,
 };
 
-module.exports = { testItemStatuses, logLevels, entityType, hookTypesMap };
+const reporterEvents = {
+  INIT: 'init',
+};
+
+module.exports = { testItemStatuses, logLevels, entityType, hookTypesMap, reporterEvents };

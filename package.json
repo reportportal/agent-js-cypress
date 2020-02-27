@@ -6,7 +6,7 @@
   "scripts": {
     "eslint": "eslint \"./**/*.js\"",
     "format": "npm run eslint -- --fix",
-    "test": "node ./example/main.js"
+    "test": "node ./example/main.js --headless"
   },
   "keywords": [
     "ReportPortal",
@@ -21,11 +21,11 @@
   "dependencies": {
     "glob": "7.1.3",
     "mocha": "7.0.1",
-    "reportportal-client": "^5.5.0"
+    "reportportal-client": "https://github.com/reportportal/client-javascript.git#master"
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "cypress": "3.8.2",
+    "cypress": "^4.0.2",
     "eslint": "6.5.1",
     "eslint-config-airbnb-base": "14.0.0",
     "eslint-config-prettier": "6.9.0",

@@ -1,1 +1,1 @@
-module.exports = require('./src/reportPortalReporter');
+module.exports = require('./src/cypressReporter');

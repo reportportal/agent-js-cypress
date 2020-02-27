@@ -1,7 +1,7 @@
 context('Example Cypress Test', () => {
   context('Check Cypress page', () => {
     beforeEach('Visit Cypress page', () => {
-      return cy.visit('https://example.cypress.io');
+      return cy.visit('https://example.cypress.io', { timeout: 10000 });
     });
     context('Check content Cypress example page', () => {
       it('should contain Cypress', () => {
