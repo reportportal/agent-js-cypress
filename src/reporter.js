@@ -24,12 +24,10 @@ class Reporter {
   }
 
   runEnd() {
-    return promiseErrorHandler(
-      this.client.finishLaunch(this.tempLaunchId, {
-        endTime: new Date().valueOf(),
-      }).promise,
-      'Fail to finish launch',
-    );
+    const finishLaunchPromise = this.client.finishLaunch(this.tempLaunchId, {
+      endTime: new Date().valueOf(),
+    }).promise;
+    return promiseErrorHandler(finishLaunchPromise, 'Fail to finish launch');
   }
 
   suiteStart(suite) {
@@ -41,7 +39,8 @@ class Reporter {
 
   suiteEnd(suite) {
     const suiteId = this.testItemIds.get(suite.id);
-    promiseErrorHandler(this.client.finishTestItem(suiteId, {}).promise, 'Fail to finish suite');
+    const finishTestItemPromise = this.client.finishTestItem(suiteId, {}).promise;
+    promiseErrorHandler(finishTestItemPromise, 'Fail to finish suite');
   }
 
   testStart(test) {
@@ -55,35 +54,31 @@ class Reporter {
     const level = test.status === FAILED ? logLevels.ERROR : logLevels.INFO;
 
     if (test.status === FAILED) {
-      promiseErrorHandler(
-        this.client.sendLog(
-          tempTestId,
-          {
-            message: test.error,
-            level,
-            time: logTime || new Date().valueOf(),
-          },
-          getFailedScreenshot(test.title),
-        ).promise,
-        'Fail to save error log',
-      );
+      const sendFailedLogPromise = this.client.sendLog(
+        tempTestId,
+        {
+          message: test.error,
+          level,
+          time: logTime || new Date().valueOf(),
+        },
+        getFailedScreenshot(test.title),
+      ).promise;
+      promiseErrorHandler(sendFailedLogPromise, 'Fail to save error log');
     }
     const passedScreenshots = getPassedScreenshots(test.title);
 
-    passedScreenshots.forEach((file) =>
-      promiseErrorHandler(
-        this.client.sendLog(
-          tempTestId,
-          {
-            message: 'screenshot',
-            level,
-            time: logTime || new Date().valueOf(),
-          },
-          file,
-        ).promise,
-        'Fail to save passed log',
-      ),
-    );
+    passedScreenshots.forEach((file) => {
+      const sendPassedScreenshotsPromise = this.client.sendLog(
+        tempTestId,
+        {
+          message: 'screenshot',
+          level,
+          time: logTime || new Date().valueOf(),
+        },
+        file,
+      ).promise;
+      promiseErrorHandler(sendPassedScreenshotsPromise, 'Fail to save passed log');
+    });
   }
 
   testEnd(test) {
@@ -93,7 +88,8 @@ class Reporter {
       testId = this.testItemIds.get(test.id);
     }
     this.sendLog(test, testId);
-    promiseErrorHandler(this.client.finishTestItem(testId, test).promise, 'Fail to finish test');
+    const finishTestItemPromise = this.client.finishTestItem(testId, test).promise;
+    promiseErrorHandler(finishTestItemPromise, 'Fail to finish test');
   }
 
   hookStart(hook) {
@@ -108,7 +104,8 @@ class Reporter {
     promiseErrorHandler(promise, 'Fail to start hook');
     this.sendLog(hook, tempId, startedHook.startTime);
     this.hooks.delete(hook.id);
-    promiseErrorHandler(this.client.finishTestItem(tempId, hook).promise, 'Fail to finish hook');
+    const finishHookPromise = this.client.finishTestItem(tempId, hook).promise;
+    promiseErrorHandler(finishHookPromise, 'Fail to finish hook');
   }
 }
 
