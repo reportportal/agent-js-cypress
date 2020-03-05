@@ -17,13 +17,11 @@ const {
   getLaunchStartObject,
   getSuiteStartObject,
   getSuiteEndObject,
-  getTestStartObject,
-  getTestEndObject,
-  getHookStartObject,
-  getHookEndObject,
+  getTestInfo,
+  getHookInfo,
 } = require('./utils');
 
-const { FAILED, SKIPPED } = testItemStatuses;
+const { FAILED } = testItemStatuses;
 
 class CypressReporter extends Mocha.reporters.Base {
   constructor(runner, config) {
@@ -55,13 +53,11 @@ class CypressReporter extends Mocha.reporters.Base {
     });
 
     runner.on(EVENT_TEST_BEGIN, (test) =>
-      this.worker.send({ event: EVENT_TEST_BEGIN, test: getTestStartObject(test) }),
+      this.worker.send({ event: EVENT_TEST_BEGIN, test: getTestInfo(test) }),
     );
 
     runner.on(EVENT_TEST_END, (test) => {
-      const status = test.state === 'pending' || test.failedFromHookId ? SKIPPED : test.state;
-      const testObj = getTestEndObject(test, status);
-      this.worker.send({ event: EVENT_TEST_END, test: testObj });
+      this.worker.send({ event: EVENT_TEST_END, test: getTestInfo(test) });
     });
 
     runner.on(EVENT_RUN_END, () =>
@@ -70,23 +66,23 @@ class CypressReporter extends Mocha.reporters.Base {
 
     runner.on(EVENT_HOOK_BEGIN, (hook) => {
       if (!config.reporterOptions.reportHooks) return;
-      this.worker.send({ event: EVENT_HOOK_BEGIN, hook: getHookStartObject(hook) });
+      this.worker.send({ event: EVENT_HOOK_BEGIN, hook: getHookInfo(hook) });
     });
 
     runner.on(EVENT_HOOK_END, (hook) => {
       if (!config.reporterOptions.reportHooks) return;
-      this.worker.send({ event: EVENT_HOOK_END, hook: getHookEndObject(hook) });
+      this.worker.send({ event: EVENT_HOOK_END, hook: getHookInfo(hook) });
     });
 
     runner.on(EVENT_TEST_FAIL, (test, err) => {
       if (test.failedFromHookId && config.reporterOptions.reportHooks) {
         this.worker.send({
           event: EVENT_HOOK_END,
-          hook: getHookEndObject(test, FAILED, err),
+          hook: getHookInfo(test, FAILED, err),
         });
         this.worker.send({
           event: EVENT_TEST_END,
-          test: getTestEndObject(test, FAILED, err),
+          test: getTestInfo(test, FAILED, err),
         });
       }
     });

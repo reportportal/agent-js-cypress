@@ -6,13 +6,15 @@ const { FAILED, PASSED } = testItemStatuses;
 
 const base64Encode = (file) => {
   const bitmap = fs.readFileSync(file);
-
   return Buffer.from(bitmap).toString('base64');
 };
 
 const getPassedScreenshots = (testTitle) => {
-  const pattern = `**/*${testTitle.replace(/[",',:]/g, '')}.png`;
-  const files = glob.sync(pattern);
+  const patternFirstScreenshot = `**/*${testTitle.replace(/[",',:]/g, '')}.png`;
+  const patternNumeratedScreenshots = `**/*${testTitle.replace(/[",',:]/g, '')} (*([0-9])).png`;
+  const firstScreenshot = glob.sync(patternFirstScreenshot) || [];
+  const numeratedScreenshots = glob.sync(patternNumeratedScreenshots) || [];
+  const files = firstScreenshot.concat(numeratedScreenshots);
   return (files || []).map((file, index) => ({
     name: `${testTitle}-${index + 1}`,
     type: 'image/png',
@@ -33,8 +35,7 @@ const getFailedScreenshot = (testTitle) => {
 };
 
 const getLaunchStartObject = (config) => ({
-  token: config.reporterOptions.token,
-  name: config.reporterOptions.launch,
+  launch: config.reporterOptions.launch,
   description: config.reporterOptions.description,
   attributes: config.reporterOptions.attributes,
   rerun: config.reporterOptions.rerun,
@@ -57,46 +58,39 @@ const getSuiteEndObject = (suite) => ({
   endTime: new Date().valueOf(),
 });
 
-const getTestStartObject = (test) => ({
+const getTestInfo = (test, status, err) => ({
   id: test.id,
+  status:
+    status ||
+    (test.state === 'pending' || test.failedFromHookId ? testItemStatuses.SKIPPED : test.state),
+  title: test.title,
+  parentId: test.parent.id,
+  err: (err && err.message) || err || (test.err && test.err.message),
+});
+
+const getTestStartObject = (test) => ({
   type: entityType.STEP,
   name: test.title.slice(0, 255).toString(),
   startTime: new Date().valueOf(),
   attributes: [],
-  parentId: test.parent.id,
 });
 
-const getTestEndObject = (test, status, err) => ({
-  id: test.id,
-  type: entityType.STEP,
-  name: test.title.slice(0, 255).toString(),
-  attributes: [],
-  endTime: new Date().valueOf(),
-  status: status || test.state,
-  title: test.title,
-  error: err || (test.err && test.err.message),
-  parentId: test.parent.id,
+const getHookInfo = (hook, status, err) => ({
+  id: hook.failedFromHookId ? `${hook.failedFromHookId}_${hook.id}` : `${hook.hookId}_${hook.id}`,
+  hookName: hook.hookName,
+  title: hook.title,
+  status: status || (hook.state === FAILED ? FAILED : PASSED),
+  parentId: hook.parent && hook.parent.id,
+  err: (err && err.message) || err || (hook.err && hook.err.message),
 });
 
 const getHookStartObject = (hook) => {
   const hookRPType = hookTypesMap[hook.hookName];
   const hookName = hook.title.replace(`"${hook.hookName}" hook:`, '').trim();
   return {
-    id: `${hook.hookId}_${hook.id}`,
     name: hookName,
     startTime: new Date().valueOf(),
     type: hookRPType,
-    parentId: hook.parent && hook.parent.id,
-  };
-};
-
-const getHookEndObject = (hook, status, err) => {
-  return {
-    id: hook.failedFromHookId ? `${hook.failedFromHookId}_${hook.id}` : `${hook.hookId}_${hook.id}`,
-    endTime: new Date().valueOf(),
-    status: status || (hook.state === FAILED ? FAILED : PASSED),
-    title: hook.title,
-    error: err || (hook.err && hook.err.message),
   };
 };
 
@@ -107,7 +101,7 @@ module.exports = {
   getSuiteStartObject,
   getSuiteEndObject,
   getTestStartObject,
-  getTestEndObject,
+  getTestInfo,
+  getHookInfo,
   getHookStartObject,
-  getHookEndObject,
 };

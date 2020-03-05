@@ -3,11 +3,11 @@
     "es6": true,
     "node": true
   },
-  "extends": ["airbnb-base", "plugin:prettier/recommended", "plugin:cypress/recommended"],
+  "extends": ["airbnb-base", "plugin:prettier/recommended", "plugin:cypress/recommended", "plugin:jest/recommended"],
   "parserOptions": {
     "ecmaVersion": 2018
   },
-  "plugins": ["prettier"],
+  "plugins": ["prettier", "jest"],
   "rules": {
     "prettier/prettier": 2,
     "no-unused-expressions": [

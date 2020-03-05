@@ -6,6 +6,9 @@ npm-debug.log*
 # Dependency directories
 node_modules/
 
+# Editor
+.idea/
+
 # Optional npm cache directory
 .npm
 
@@ -24,3 +27,6 @@ cypress.json
 
 # Example attachments
 example/screenshots/
+
+# Jest coverage
+coverage/

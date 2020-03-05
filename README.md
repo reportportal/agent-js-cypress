@@ -33,7 +33,7 @@ Add the following options to cypress.json
 
 ```
 
-To run example tests also add the following settings to cypress.json, replace `"reporter": "agent-js-cypress"` by `"reporter": "index.js"` and use command `npm test`.
+To run example tests also add the following settings to cypress.json, replace `"reporter": "agent-js-cypress"` by `"reporter": "index.js"` and use command `npm example`.
 
 ```json
 

@@ -6,7 +6,9 @@
   "scripts": {
     "eslint": "eslint \"./**/*.js\"",
     "format": "npm run eslint -- --fix",
-    "test": "node ./example/main.js --headless"
+    "example": "node ./example/main.js --headless",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "ReportPortal",
@@ -31,7 +33,17 @@
     "eslint-config-prettier": "6.9.0",
     "eslint-plugin-cypress": "2.8.1",
     "eslint-plugin-import": "2.20.0",
+    "eslint-plugin-jest": "^23.8.1",
     "eslint-plugin-prettier": "3.1.2",
+    "jest": "^25.1.0",
+    "mock-fs": "^4.11.0",
     "prettier": "1.19.1"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "<rootDir>/example/",
+      "<rootDir>/cypress/",
+      "<rootDir>/node_modules/"
+    ]
   }
 }
