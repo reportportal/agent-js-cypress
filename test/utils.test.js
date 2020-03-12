@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 const mock = require('mock-fs');
 const {
   getLaunchStartObject,
@@ -6,6 +5,7 @@ const {
   getSuiteEndObject,
   getTestInfo,
   getTestStartObject,
+  getTestEndObject,
   getHookInfo,
   getHookStartObject,
   getFailedScreenshot,
@@ -78,7 +78,7 @@ describe('utils script', () => {
       global.Date = RealDate;
     });
     describe('getLaunchStartObject', () => {
-      test('getLaunchStartObject: should return start launch object with correct values', () => {
+      test('should return start launch object with correct values', () => {
         const expectedStartLaunchObject = {
           launch: 'LauncherName',
           description: 'Launch description',
@@ -92,6 +92,24 @@ describe('utils script', () => {
 
         expect(startLaunchObject).toBeDefined();
         expect(startLaunchObject).toEqual(expectedStartLaunchObject);
+      });
+
+      test('skippedIssue=false: should add system attribute in launches attributes', () => {
+        const config = getDefaultConfig();
+        config.reporterOptions.skippedIssue = false;
+        const expectedAttributes = [
+          {
+            key: 'skippedIssue',
+            value: 'false',
+            system: true,
+          },
+        ];
+
+        const startLaunchObject = getLaunchStartObject(config);
+
+        expect(startLaunchObject.attributes).toBeDefined();
+        expect(startLaunchObject.attributes.length).toEqual(1);
+        expect(startLaunchObject.attributes).toEqual(expectedAttributes);
       });
     });
 
@@ -258,6 +276,68 @@ describe('utils script', () => {
 
         expect(testInfoObject).toBeDefined();
         expect(testInfoObject).toEqual(expectedTestStartObject);
+      });
+    });
+
+    describe('getTestEndObject', () => {
+      test('skippedIssue is not defined: should return test end object without issue', () => {
+        const testInfo = {
+          id: 'testId1',
+          title: 'test name',
+          status: 'skipped',
+          parent: {
+            id: 'parentSuiteId',
+          },
+        };
+        const expectedTestEndObject = {
+          endTime: currentDate,
+          status: testInfo.status,
+        };
+        const testEndObject = getTestEndObject(testInfo);
+
+        expect(testEndObject).toBeDefined();
+        expect(testEndObject).toEqual(expectedTestEndObject);
+      });
+
+      test('skippedIssue = true: should return test end object without issue', () => {
+        const testInfo = {
+          id: 'testId1',
+          title: 'test name',
+          status: 'skipped',
+          parent: {
+            id: 'parentSuiteId',
+          },
+        };
+        const expectedTestEndObject = {
+          endTime: currentDate,
+          status: testInfo.status,
+        };
+        const testEndObject = getTestEndObject(testInfo, true);
+
+        expect(testEndObject).toBeDefined();
+        expect(testEndObject).toEqual(expectedTestEndObject);
+      });
+
+      test('skippedIssue = false: should return test end object with issue NOT_ISSUE', () => {
+        const testInfo = {
+          id: 'testId1',
+          title: 'test name',
+          status: 'skipped',
+          parent: {
+            id: 'parentSuiteId',
+          },
+        };
+        const expectedTestEndObject = {
+          endTime: currentDate,
+          status: testInfo.status,
+          issue: {
+            issueType: 'NOT_ISSUE',
+          },
+        };
+        const testEndObject = getTestEndObject(testInfo, false);
+
+        expect(testEndObject).toBeDefined();
+        expect(testEndObject).toEqual(expectedTestEndObject);
       });
     });
 

@@ -2,7 +2,7 @@ const fs = require('fs');
 const glob = require('glob');
 const { entityType, hookTypesMap, testItemStatuses } = require('./constants');
 
-const { FAILED, PASSED } = testItemStatuses;
+const { FAILED, PASSED, SKIPPED } = testItemStatuses;
 
 const base64Encode = (file) => {
   const bitmap = fs.readFileSync(file);
@@ -34,14 +34,25 @@ const getFailedScreenshot = (testTitle) => {
     : undefined;
 };
 
-const getLaunchStartObject = (config) => ({
-  launch: config.reporterOptions.launch,
-  description: config.reporterOptions.description,
-  attributes: config.reporterOptions.attributes,
-  rerun: config.reporterOptions.rerun,
-  rerunOf: config.reporterOptions.rerunOf,
-  startTime: new Date().valueOf(),
-});
+const getLaunchStartObject = (config) => {
+  const launchesAttributes = config.reporterOptions.attributes || [];
+  if (config.reporterOptions.skippedIssue === false) {
+    const skippedIssueSysAttribute = {
+      key: 'skippedIssue',
+      value: 'false',
+      system: true,
+    };
+    launchesAttributes.push(skippedIssueSysAttribute);
+  }
+  return {
+    launch: config.reporterOptions.launch,
+    description: config.reporterOptions.description,
+    attributes: launchesAttributes,
+    rerun: config.reporterOptions.rerun,
+    rerunOf: config.reporterOptions.rerunOf,
+    startTime: new Date().valueOf(),
+  };
+};
 
 const getSuiteStartObject = (suite) => ({
   id: suite.id,
@@ -60,9 +71,7 @@ const getSuiteEndObject = (suite) => ({
 
 const getTestInfo = (test, status, err) => ({
   id: test.id,
-  status:
-    status ||
-    (test.state === 'pending' || test.failedFromHookId ? testItemStatuses.SKIPPED : test.state),
+  status: status || (test.state === 'pending' ? testItemStatuses.SKIPPED : test.state),
   title: test.title,
   parentId: test.parent.id,
   err: (err && err.message) || err || (test.err && test.err.message),
@@ -74,6 +83,19 @@ const getTestStartObject = (test) => ({
   startTime: new Date().valueOf(),
   attributes: [],
 });
+
+const getTestEndObject = (testInfo, skippedIssue) => {
+  const testEndObj = {
+    endTime: new Date().valueOf(),
+    status: testInfo.status,
+  };
+  if (testInfo.status === SKIPPED && skippedIssue === false) {
+    testEndObj.issue = {
+      issueType: 'NOT_ISSUE',
+    };
+  }
+  return testEndObj;
+};
 
 const getHookInfo = (hook, status, err) => ({
   id: hook.failedFromHookId ? `${hook.failedFromHookId}_${hook.id}` : `${hook.hookId}_${hook.id}`,
@@ -102,6 +124,7 @@ module.exports = {
   getSuiteEndObject,
   getTestStartObject,
   getTestInfo,
+  getTestEndObject,
   getHookInfo,
   getHookStartObject,
 };
