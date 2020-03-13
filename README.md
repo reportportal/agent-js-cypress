@@ -122,6 +122,7 @@ Runs support following options:
 | rerun                 | Enable [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md)           |
 | rerunOf               | UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name|
 | reportHooks           | Determines report before and after hooks or not.                                                                  |
+| skippedIssue          | ReportPortal provides feature to mark skipped tests as not 'To Investigate' items on WS side.<br> Parameter could be equal boolean values:<br> *TRUE* - skipped tests considered as issues and will be marked as 'To Investigate' on Report Portal (default value).<br> *FALSE* - skipped tests will not be marked as 'To Investigate' on application.|
 
 ## Screenshot support
 

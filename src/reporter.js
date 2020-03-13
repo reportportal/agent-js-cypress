@@ -4,6 +4,7 @@ const {
   getFailedScreenshot,
   getPassedScreenshots,
   getTestStartObject,
+  getTestEndObject,
   getHookStartObject,
 } = require('./utils');
 
@@ -17,7 +18,6 @@ class Reporter {
   constructor(config) {
     this.client = new RPClient(config.reporterOptions);
     this.testItemIds = new Map();
-    this.hooksForTest = new Map();
     this.hooks = new Map();
     this.config = config;
   }
@@ -99,10 +99,10 @@ class Reporter {
       testId = this.testItemIds.get(test.id);
     }
     this.sendLog(test, testId);
-    const finishTestItemPromise = this.client.finishTestItem(testId, {
-      endTime: new Date().valueOf(),
-      status: test.status,
-    }).promise;
+    const finishTestItemPromise = this.client.finishTestItem(
+      testId,
+      getTestEndObject(test, this.config.reporterOptions.skippedIssue),
+    ).promise;
     promiseErrorHandler(finishTestItemPromise, 'Fail to finish test');
   }
 
