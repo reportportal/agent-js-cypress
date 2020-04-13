@@ -10,7 +10,7 @@ const {
   getHookStartObject,
   getFailedScreenshot,
   getPassedScreenshots,
-} = require('./../src/utils');
+} = require('./../lib/utils');
 
 const { RealDate, MockedDate, currentDate, getDefaultConfig } = require('./mock/mock');
 
