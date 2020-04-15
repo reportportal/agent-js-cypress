@@ -40,7 +40,10 @@ To run example tests also add the following settings to cypress.json, replace `"
 {
   ...
   "integrationFolder": "example/integration",
-  "screenshotsFolder": "example/screenshots"
+  "screenshotsFolder": "example/screenshots",
+  "fixturesFolder": "example/fixtures",
+  "supportFile": "example/support/index.js",
+  "pluginsFile": "example/plugins/index.js",
 }
 
 ```
@@ -108,13 +111,33 @@ cypress.run().then(
 
 ```
 
+#### Setup [ReportPortal custom commands](#reportportal-custom-commands)
+
+Add the following to your custom commands file (cypress/support/commands.js):
+
+```javascript
+
+require('agent-js-cypress/lib/commands/reportPortalCommands');
+
+```
+
+Register ReportPortal plugin (cypress/plugins/index.js):
+
+```javascript
+
+const registerReportPortalPlugin = require('agent-js-cypress/lib/plugin');
+
+module.exports = (on) => registerReportPortalPlugin(on);
+
+```
+
 ## Options
 
 Runs support following options:
 
 | Parameter             | Description                                                                                                       |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| token                 | User's Report Portal token from which you want to send requests. It can be found on the profile page of this user. |
+| token                 | User's Report Portal token from which you want to send requests. It can be found on the profile page of this user.|
 | endpoint              | URL of your server. For example 'https://server:8080/api/v1'.                                                     |
 | launch                | Name of launch at creation.                                                                                       |
 | project               | The name of the project in which the launches will be created.                                                    |
@@ -123,6 +146,37 @@ Runs support following options:
 | rerunOf               | UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name|
 | reportHooks           | Determines report before and after hooks or not.                                                                  |
 | skippedIssue          | ReportPortal provides feature to mark skipped tests as not 'To Investigate' items on WS side.<br> Parameter could be equal boolean values:<br> *TRUE* - skipped tests considered as issues and will be marked as 'To Investigate' on Report Portal (default value).<br> *FALSE* - skipped tests will not be marked as 'To Investigate' on application.|
+
+## ReportPortal custom commands
+
+### Logging
+
+ReportPortal provides the following custom commands for reporting logs into the current test/step.
+
+* cy.log(*message*). Overrides standart Cypress `cy.log(log)`. Reports *message* as an info log of the current test.<br/>
+
+You can use the following methods to report logs and attachments with different log levels:
+* cy.trace (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with trace log level.
+* cy.debug (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with debug log level.
+* cy.info (*message* , *file*). Reports *message* and optional *file* as log of the current test/suite with info log level.
+* cy.warn (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with warning log level.
+* cy.error (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with error log level.
+* cy.fatal (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with fatal log level.
+* cy.launchTrace (*message* , *file*). Reports *message* and optional *file* as a log of the launch with trace log level.
+* cy.launchDebug (*message* , *file*). Reports *message* and optional *file* as a log of the launch with debug log level.
+* cy.launchInfo (*message* , *file*). Reports *message* and optional *file* as log of the launch with info log level.
+* cy.launchWarn (*message* , *file*). Reports *message* and optional *file* as a log of the launch with warning log level.
+* cy.launchError (*message* , *file*). Reports *message* and optional *file* as a log of the launch with error log level.
+* cy.launchFatal (*message* , *file*). Reports *message* and optional *file* as a log of the launch with fatal log level.
+
+*file* should be an object: <br/>
+```javascript
+{
+  name: "filename",
+  type: "image/png",  // media type
+  content: data,  // file content represented as 64base string
+}
+```
 
 ## Screenshot support
 

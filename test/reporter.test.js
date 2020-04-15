@@ -1,5 +1,5 @@
 const { getDefaultConfig, RPClient, MockedDate, RealDate, currentDate } = require('./mock/mock');
-const Reporter = require('./../src/reporter');
+const Reporter = require('./../lib/reporter');
 
 describe('reporter script', () => {
   let reporter;
@@ -198,7 +198,7 @@ describe('reporter script', () => {
     });
 
     it('end failed test: should call sendLog on test fail', function() {
-      const spySendLog = jest.spyOn(reporter, 'sendLog');
+      const spySendLogOnFinishItem = jest.spyOn(reporter, 'sendLogOnFinishItem');
       const testInfoObject = {
         id: 'testId',
         title: 'test name',
@@ -210,11 +210,11 @@ describe('reporter script', () => {
 
       reporter.testEnd(testInfoObject);
 
-      expect(spySendLog).toHaveBeenCalledTimes(1);
-      expect(spySendLog).toHaveBeenCalledWith(testInfoObject, 'tempTestItemId');
+      expect(spySendLogOnFinishItem).toHaveBeenCalledTimes(1);
+      expect(spySendLogOnFinishItem).toHaveBeenCalledWith(testInfoObject, 'tempTestItemId');
     });
   });
-  describe('sendLog', () => {
+  describe('sendLogOnFinishItem', () => {
     it('client.sendLog should be called with parameters', function() {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
       const testInfoObject = {
@@ -233,7 +233,7 @@ describe('reporter script', () => {
       reporter.testItemIds.set('suiteId', 'suiteTempId');
       reporter.testItemIds.set('testId', 'tempTestItemId');
 
-      reporter.sendLog(testInfoObject, 'tempTestItemId');
+      reporter.sendLogOnFinishItem(testInfoObject, 'tempTestItemId');
 
       expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
     });
@@ -309,7 +309,7 @@ describe('reporter script', () => {
 
     it('failed hook ends: sendLog and finishTestItem should be called with parameters', function() {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
-      const spySendLog = jest.spyOn(reporter, 'sendLog');
+      const spySendLogOnFinishItem = jest.spyOn(reporter, 'sendLogOnFinishItem');
       const hookInfoObject = {
         id: 'hookId_testId',
         title: '"before each" hook: hook name',
@@ -330,8 +330,60 @@ describe('reporter script', () => {
 
       reporter.hookEnd(hookInfoObject, 'error message');
 
-      expect(spySendLog).toHaveBeenCalledWith(hookInfoObject, 'testItemId');
+      expect(spySendLogOnFinishItem).toHaveBeenCalledWith(hookInfoObject, 'testItemId');
       expect(spyFinishTestItem).toHaveBeenCalledWith('testItemId', expectedHookFinishObj);
     });
+  });
+  describe('send log', () => {
+    it('sendLog: client.sendLog should be called with parameters', function() {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+      const logObj = {
+        level: 'error',
+        message: 'error message',
+      };
+      const expectedLogObj = {
+        level: 'error',
+        message: 'error message',
+        time: currentDate,
+      };
+
+      reporter.sendLog('tempTestItemId', logObj);
+
+      expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
+    });
+    it('sendLogToCurrentItem: client.sendLog should be called with parameters', function() {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+      const logObj = {
+        level: 'error',
+        message: 'error message',
+      };
+      const expectedLogObj = {
+        level: 'error',
+        message: 'error message',
+        time: currentDate,
+      };
+      reporter.currentTestTempId = 'tempTestItemId';
+
+      reporter.sendLogToCurrentItem(logObj);
+
+      expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
+    });
+  });
+  it('sendLaunchLog: client.sendLog should be called with parameters', function() {
+    const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+    const logObj = {
+      level: 'error',
+      message: 'error message',
+    };
+    const expectedLogObj = {
+      level: 'error',
+      message: 'error message',
+      time: currentDate,
+    };
+    reporter.tempLaunchId = 'tempLaunchId';
+
+    reporter.sendLaunchLog(logObj);
+
+    expect(spySendLog).toHaveBeenCalledWith('tempLaunchId', expectedLogObj, undefined);
   });
 });
