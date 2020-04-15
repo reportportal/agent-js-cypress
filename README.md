@@ -125,7 +125,7 @@ Register ReportPortal plugin (cypress/plugins/index.js):
 
 ```javascript
 
-const registerReportPortalPlugin = require('./../../lib/plugin');
+const registerReportPortalPlugin = require('agent-js-cypress/lib/plugin');
 
 module.exports = (on) => registerReportPortalPlugin(on);
 
@@ -153,7 +153,7 @@ Runs support following options:
 
 ReportPortal provides the following custom commands for reporting logs into the current test/step.
 
-* log(*message*). Overrides standart Cypress `cy.log(log)`. Reports *message* as an info log of the current test.<br/>
+* cy.log(*message*). Overrides standart Cypress `cy.log(log)`. Reports *message* as an info log of the current test.<br/>
 
 You can use the following methods to report logs and attachments with different log levels:
 * cy.trace (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with trace log level.

@@ -27,7 +27,7 @@ context('Example Cypress Test', () => {
     });
     context('logs example: Check content Cypress example page', () => {
       it('report logs', () => {
-        cy.log('cypress log message')
+        cy.log('cypress log message');
         cy.trace('trace message');
         cy.debug('debug message');
         cy.info('info message');
