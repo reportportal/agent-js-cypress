@@ -1,7 +1,7 @@
 const cypress = require('cypress');
-const RPClient = require('reportportal-client');
 const fs = require('fs');
 const glob = require('glob');
+const { mergeLaunches } = require('./../lib/mergeLaunches');
 
 const cypressConfigFile = 'cypress.json';
 
@@ -23,13 +23,13 @@ cypress.run().then(
       const config = JSON.parse(data);
 
       if (config.reporterOptions.isLaunchMergeRequired) {
-        const client = new RPClient(config.reporterOptions);
-        client.mergeLaunches();
-        const files = getLaunchTempFiles();
-        files.map(deleteTempFile);
+        mergeLaunches(config.reporterOptions).then(() => {
+          const files = getLaunchTempFiles();
+          files.map(deleteTempFile);
+          process.exit(0);
+        });
       }
     });
-    process.exit(0);
   },
   (error) => {
     console.error(error);

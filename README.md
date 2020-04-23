@@ -20,15 +20,15 @@ Add the following options to cypress.json
 ```json
 
 {
-    "reporter": "agent-js-cypress",
-    "reporterOptions": {
-        "endpoint": "http://your-instance.com:8080/api/v1",
-        "token": "00000000-0000-0000-0000-000000000000",
-        "launch": "LAUNCH_NAME",
-        "project": "PROJECT_NAME",
-        "description": "PROJECT_DESCRIPTION",
-        "isLaunchMergeRequired": false
-    }
+  "reporter": "agent-js-cypress",
+  "reporterOptions": {
+    "endpoint": "http://your-instance.com:8080/api/v1",
+    "token": "00000000-0000-0000-0000-000000000000",
+    "launch": "LAUNCH_NAME",
+    "project": "PROJECT_NAME",
+    "description": "PROJECT_DESCRIPTION",
+    "isLaunchMergeRequired": false
+  }
 }
 
 ```
@@ -45,69 +45,6 @@ To run example tests also add the following settings to cypress.json, replace `"
   "supportFile": "example/support/index.js",
   "pluginsFile": "example/plugins/index.js",
 }
-
-```
-
-#### Add file to run Cypress with custom behavior
-
-Create folder "scripts" on project folder. Copy the following script into "cypress.js" file and put it to "scripts"
-folder.
-
-```javascript
-
-const cypress = require('cypress'),
-    RPClient = require('reportportal-client')
-    fs = require('fs'),
-    glob = require("glob");
-
-const cypressConfigFile = "cypress.json";
-
-
-const getLaunchTempFiles = () => {
-    return glob.sync("rplaunch-*.tmp");
-}
-
-const deleteTempFile = (filename) => {
-    fs.unlinkSync(filename);
-}
-
-cypress.run().then(
-    () => {
-      fs.readFile(cypressConfigFile, 'utf8', function (err, data) {
-        if (err) {
-            throw err;
-        }
-
-        const config = JSON.parse(data);
-
-        if (config.reporterOptions.isLaunchMergeRequired) {
-            const client = new RPClient(config.reporterOptions);
-            client.mergeLaunches();
-            const files = getLaunchTempFiles();
-            files.map(deleteTempFile);
-        }
-      });
-    },
-    error => {
-      console.error(error)
-
-      const files = getLaunchTempFiles();
-      files.map(deleteTempFile);
-      process.exit(1)
-    }
-);
-
-```
-
-#### Update package.json "scripts" section
-
-```json
-
-"scripts": {
-    ...
-    "cypress": "node scripts/cypress.js",
-    ...
-},
 
 ```
 
@@ -141,7 +78,7 @@ Runs support following options:
 | endpoint              | URL of your server. For example 'https://server:8080/api/v1'.                                                     |
 | launch                | Name of launch at creation.                                                                                       |
 | project               | The name of the project in which the launches will be created.                                                    |
-| isLaunchMergeRequired | Determines merge Cypress run's in to one launch or not                                                            |
+| isLaunchMergeRequired | Determines merge Cypress run's in to one launch or not. Need extra setup. See [Merge launches](#merge-launches).  |
 | rerun                 | Enable [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md)           |
 | rerunOf               | UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name|
 | reportHooks           | Determines report before and after hooks or not.                                                                  |
@@ -186,6 +123,93 @@ Curently supported only default usage of Cypress screenshot function. Using cust
 
 cy.screenshot()
 cy.get('.post').screenshot()
+
+```
+
+## Merge launches
+
+By default Cypress create a separate run for each test file. This section describe how to merge all this launches into a single launch in the end of run.
+
+#### Set corresponding reporter options
+
+Edit cypress.json file. Set isLaunchMergeRequired option to **true** as shown below:
+
+```json
+
+{
+  ...
+  "reporterOptions": {
+    ...
+    "isLaunchMergeRequired": true
+  }
+}
+
+```
+
+#### Add file to run Cypress with custom behavior
+
+Create folder "scripts" on project folder. Copy the following script into "cypress.js" file and put it to "scripts"
+folder.
+
+```javascript
+
+const cypress = require('cypress');
+const fs = require('fs');
+const glob = require('glob');
+const { mergeLaunches } = require('agent-js-cypress/lib/mergeLaunches');
+
+const cypressConfigFile = 'cypress.json';
+
+const getLaunchTempFiles = () => {
+  return glob.sync('rplaunch-*.tmp');
+};
+
+const deleteTempFile = (filename) => {
+  fs.unlinkSync(filename);
+};
+
+cypress.run().then(
+  () => {
+    fs.readFile(cypressConfigFile, 'utf8', (err, data) => {
+      if (err) {
+        throw err;
+      }
+
+      const config = JSON.parse(data);
+
+      if (config.reporterOptions.isLaunchMergeRequired) {
+        mergeLaunches(config.reporterOptions)
+          .then(() => {
+            const files = getLaunchTempFiles();
+            files.map(deleteTempFile);
+          })
+          .then(() => process.exit(0))
+          .catch((err) => {
+            console.error(error);
+            process.exit(1);
+          });
+      }
+    });
+  },
+  (error) => {
+    console.error(error);
+    const files = getLaunchTempFiles();
+    files.map(deleteTempFile);
+    process.exit(1);
+  },
+);
+
+```
+
+#### Update package.json "scripts" section
+
+```json
+
+"scripts": {
+  ...
+  "cypress": "node scripts/cypress.js",
+  ...
+},
 
 ```
 
