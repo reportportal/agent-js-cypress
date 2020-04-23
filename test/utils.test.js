@@ -1,5 +1,6 @@
 const mock = require('mock-fs');
 const {
+  getSystemAttributes,
   getLaunchStartObject,
   getSuiteStartObject,
   getSuiteEndObject,
@@ -11,6 +12,7 @@ const {
   getFailedScreenshot,
   getPassedScreenshots,
 } = require('./../lib/utils');
+const pjson = require('./../package.json');
 
 const { RealDate, MockedDate, currentDate, getDefaultConfig } = require('./mock/mock');
 
@@ -77,12 +79,73 @@ describe('utils script', () => {
       jest.clearAllMocks();
       global.Date = RealDate;
     });
+
+    describe('getSystemAttributes', () => {
+      it('skippedIssue undefined. Should return attribute with agent name and version', function() {
+        const options = getDefaultConfig();
+        const expectedSystemAttributes = [
+          {
+            key: 'agent',
+            value: `${pjson.name}|${pjson.version}`,
+            system: true,
+          },
+        ];
+
+        const systemAttributes = getSystemAttributes(options);
+
+        expect(systemAttributes).toEqual(expectedSystemAttributes);
+      });
+
+      it('skippedIssue = true. Should return attribute with agent name and version', function() {
+        const options = getDefaultConfig();
+        options.reporterOptions.skippedIssue = true;
+        const expectedSystemAttributes = [
+          {
+            key: 'agent',
+            value: `${pjson.name}|${pjson.version}`,
+            system: true,
+          },
+        ];
+
+        const systemAttributes = getSystemAttributes(options);
+
+        expect(systemAttributes).toEqual(expectedSystemAttributes);
+      });
+
+      it('skippedIssue = false. Should return 2 attribute: with agent name/version and skippedIssue', function() {
+        const options = getDefaultConfig();
+        options.reporterOptions.skippedIssue = false;
+        const expectedSystemAttributes = [
+          {
+            key: 'agent',
+            value: `${pjson.name}|${pjson.version}`,
+            system: true,
+          },
+          {
+            key: 'skippedIssue',
+            value: 'false',
+            system: true,
+          },
+        ];
+
+        const systemAttributes = getSystemAttributes(options);
+
+        expect(systemAttributes).toEqual(expectedSystemAttributes);
+      });
+    });
+
     describe('getLaunchStartObject', () => {
       test('should return start launch object with correct values', () => {
         const expectedStartLaunchObject = {
           launch: 'LauncherName',
           description: 'Launch description',
-          attributes: [],
+          attributes: [
+            {
+              key: 'agent',
+              system: true,
+              value: `${pjson.name}|${pjson.version}`,
+            },
+          ],
           startTime: currentDate,
           rerun: undefined,
           rerunOf: undefined,
@@ -92,24 +155,6 @@ describe('utils script', () => {
 
         expect(startLaunchObject).toBeDefined();
         expect(startLaunchObject).toEqual(expectedStartLaunchObject);
-      });
-
-      test('skippedIssue=false: should add system attribute in launches attributes', () => {
-        const config = getDefaultConfig();
-        config.reporterOptions.skippedIssue = false;
-        const expectedAttributes = [
-          {
-            key: 'skippedIssue',
-            value: 'false',
-            system: true,
-          },
-        ];
-
-        const startLaunchObject = getLaunchStartObject(config);
-
-        expect(startLaunchObject.attributes).toBeDefined();
-        expect(startLaunchObject.attributes.length).toEqual(1);
-        expect(startLaunchObject.attributes).toEqual(expectedAttributes);
       });
     });
 
