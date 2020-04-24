@@ -181,20 +181,23 @@ cypress.run().then(
         mergeLaunches(config.reporterOptions)
           .then(() => {
             const files = getLaunchTempFiles();
-            files.map(deleteTempFile);
+            files.forEach(deleteTempFile);
+            console.log('Launches successfully merged!');
+            process.exit(0);
           })
-          .then(() => process.exit(0))
           .catch((err) => {
             console.error(error);
             process.exit(1);
           });
+      } else {
+        process.exit(0);
       }
     });
   },
   (error) => {
     console.error(error);
     const files = getLaunchTempFiles();
-    files.map(deleteTempFile);
+    files.forEach(deleteTempFile);
     process.exit(1);
   },
 );
