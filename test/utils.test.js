@@ -11,6 +11,7 @@ const {
   getHookStartObject,
   getFailedScreenshot,
   getPassedScreenshots,
+  getAgentInfo,
 } = require('./../lib/utils');
 const pjson = require('./../package.json');
 
@@ -457,6 +458,17 @@ describe('utils script', () => {
 
         expect(hookInfoObject).toBeDefined();
         expect(hookInfoObject).toEqual(expectedHookStartObject);
+      });
+    });
+  });
+
+  describe('common utils', () => {
+    describe('getAgentInfo', () => {
+      it('should contain version and name properties', () => {
+        const agentInfo = getAgentInfo();
+
+        expect(Object.keys(agentInfo)).toContain('version');
+        expect(Object.keys(agentInfo)).toContain('name');
       });
     });
   });
