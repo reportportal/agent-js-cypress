@@ -12,6 +12,7 @@ const {
   getFailedScreenshot,
   getPassedScreenshots,
   getAgentInfo,
+  getCodeRef,
 } = require('./../lib/utils');
 const pjson = require('./../package.json');
 
@@ -71,6 +72,8 @@ describe('utils script', () => {
   });
 
   describe('object creators', () => {
+    const testFileName = `test\\example.spec.js`;
+
     beforeEach(() => {
       global.Date = jest.fn(MockedDate);
       Object.assign(Date, RealDate);
@@ -166,6 +169,7 @@ describe('utils script', () => {
           title: 'suite name',
           description: 'suite description',
           root: true,
+          titlePath: () => ['suite name'],
         };
         const expectedSuiteStartObject = {
           id: 'suite1',
@@ -174,10 +178,11 @@ describe('utils script', () => {
           startTime: currentDate,
           description: 'suite description',
           attributes: [],
+          codeRef: 'test/example.spec.js/suite name',
           parentId: undefined,
         };
 
-        const suiteStartObject = getSuiteStartObject(suite);
+        const suiteStartObject = getSuiteStartObject(suite, testFileName);
 
         expect(suiteStartObject).toBeDefined();
         expect(suiteStartObject).toEqual(expectedSuiteStartObject);
@@ -191,6 +196,7 @@ describe('utils script', () => {
           parent: {
             id: 'parentSuiteId',
           },
+          titlePath: () => ['parent suite name', 'suite name'],
         };
         const expectedSuiteStartObject = {
           id: 'suite1',
@@ -199,10 +205,11 @@ describe('utils script', () => {
           startTime: currentDate,
           description: 'suite description',
           attributes: [],
+          codeRef: 'test/example.spec.js/parent suite name/suite name',
           parentId: 'parentSuiteId',
         };
 
-        const suiteStartObject = getSuiteStartObject(suite);
+        const suiteStartObject = getSuiteStartObject(suite, testFileName);
 
         expect(suiteStartObject).toBeDefined();
         expect(suiteStartObject).toEqual(expectedSuiteStartObject);
@@ -240,16 +247,18 @@ describe('utils script', () => {
             id: 'parentSuiteId',
           },
           state: 'passed',
+          titlePath: () => ['suite name', 'test name'],
         };
         const expectedTestInfoObject = {
           id: 'testId1',
           title: 'test name',
           status: 'passed',
           parentId: 'parentSuiteId',
+          codeRef: 'test/example.spec.js/suite name/test name',
           err: undefined,
         };
 
-        const testInfoObject = getTestInfo(test);
+        const testInfoObject = getTestInfo(test, testFileName);
 
         expect(testInfoObject).toBeDefined();
         expect(testInfoObject).toEqual(expectedTestInfoObject);
@@ -263,16 +272,18 @@ describe('utils script', () => {
             id: 'parentSuiteId',
           },
           state: 'pending',
+          titlePath: () => ['suite name', 'test name'],
         };
         const expectedTestInfoObject = {
           id: 'testId1',
           title: 'test name',
           status: 'skipped',
           parentId: 'parentSuiteId',
+          codeRef: 'test/example.spec.js/suite name/test name',
           err: undefined,
         };
 
-        const testInfoObject = getTestInfo(test);
+        const testInfoObject = getTestInfo(test, testFileName);
 
         expect(testInfoObject).toBeDefined();
         expect(testInfoObject).toEqual(expectedTestInfoObject);
@@ -286,16 +297,20 @@ describe('utils script', () => {
             id: 'parentSuiteId',
           },
           state: 'pending',
+          titlePath: () => ['suite name', 'test name'],
         };
         const expectedTestInfoObject = {
           id: 'testId',
           title: 'test name',
           status: 'failed',
           parentId: 'parentSuiteId',
+          codeRef: 'test/example.spec.js/suite name/test name',
           err: 'error message',
         };
 
-        const testInfoObject = getTestInfo(test, 'failed', { message: 'error message' });
+        const testInfoObject = getTestInfo(test, testFileName, 'failed', {
+          message: 'error message',
+        });
 
         expect(testInfoObject).toBeDefined();
         expect(testInfoObject).toEqual(expectedTestInfoObject);
@@ -310,12 +325,14 @@ describe('utils script', () => {
           parent: {
             id: 'parentSuiteId',
           },
+          codeRef: 'test/example.spec.js/suite name/test name',
         };
         const expectedTestStartObject = {
           name: 'test name',
           startTime: currentDate,
           attributes: [],
           type: 'step',
+          codeRef: 'test/example.spec.js/suite name/test name',
         };
 
         const testInfoObject = getTestStartObject(test);
@@ -398,6 +415,7 @@ describe('utils script', () => {
           state: 'passed',
           hookName: 'before each',
           hookId: 'hookId',
+          titlePath: () => ['suite name', 'hook name'],
         };
         const expectedHookInfoObject = {
           id: 'hookId_testId',
@@ -405,10 +423,11 @@ describe('utils script', () => {
           title: '"before each" hook: hook name',
           status: 'passed',
           parentId: 'parentSuiteId',
+          codeRef: 'test/example.spec.js/suite name/hook name',
           err: undefined,
         };
 
-        const hookInfoObject = getHookInfo(hook);
+        const hookInfoObject = getHookInfo(hook, testFileName);
 
         expect(hookInfoObject).toBeDefined();
         expect(hookInfoObject).toEqual(expectedHookInfoObject);
@@ -417,22 +436,26 @@ describe('utils script', () => {
       test('failed test: should return hook info with failed status', () => {
         const test = {
           id: 'testId',
+          hookName: 'before each',
           title: '"before each" hook: hook name',
           parent: {
             id: 'parentSuiteId',
           },
           state: 'failed',
           failedFromHookId: 'hookId',
+          titlePath: () => ['suite name', 'hook name'],
         };
         const expectedHookInfoObject = {
           id: 'hookId_testId',
+          hookName: 'before each',
           title: '"before each" hook: hook name',
           status: 'failed',
           parentId: 'parentSuiteId',
+          codeRef: 'test/example.spec.js/suite name/hook name',
           err: undefined,
         };
 
-        const hookInfoObject = getHookInfo(test);
+        const hookInfoObject = getHookInfo(test, testFileName);
 
         expect(hookInfoObject).toBeDefined();
         expect(hookInfoObject).toEqual(expectedHookInfoObject);
@@ -446,6 +469,7 @@ describe('utils script', () => {
           title: '"before each" hook: hook name',
           status: 'passed',
           parentId: 'parentSuiteId',
+          titlePath: () => ['suite name', 'hook name'],
           err: undefined,
         };
         const expectedHookStartObject = {
@@ -454,7 +478,9 @@ describe('utils script', () => {
           type: 'BEFORE_METHOD',
         };
 
-        const hookInfoObject = getHookStartObject(hookInfo, 'failed', { message: 'error message' });
+        const hookInfoObject = getHookStartObject(hookInfo, testFileName, 'failed', {
+          message: 'error message',
+        });
 
         expect(hookInfoObject).toBeDefined();
         expect(hookInfoObject).toEqual(expectedHookStartObject);
@@ -464,11 +490,44 @@ describe('utils script', () => {
 
   describe('common utils', () => {
     describe('getAgentInfo', () => {
-      it('should contain version and name properties', () => {
+      it('getAgentInfo: should contain version and name properties', () => {
         const agentInfo = getAgentInfo();
 
         expect(Object.keys(agentInfo)).toContain('version');
         expect(Object.keys(agentInfo)).toContain('name');
+      });
+    });
+    describe('getCodeRef', () => {
+      it('should return correct code ref for Windows paths', () => {
+        jest.mock('path', () => ({
+          sep: '\\',
+        }));
+        const file = `test\\example.spec.js`;
+        const titlePath = ['rootDescribe', 'parentDescribe', 'testTitle'];
+
+        const expectedCodeRef = `test/example.spec.js/rootDescribe/parentDescribe/testTitle`;
+
+        const codeRef = getCodeRef(titlePath, file);
+
+        expect(codeRef).toEqual(expectedCodeRef);
+
+        jest.clearAllMocks();
+      });
+
+      it('should return correct code ref for POSIX paths', () => {
+        jest.mock('path', () => ({
+          sep: '/',
+        }));
+        const file = `test/example.spec.js`;
+        const titlePath = ['rootDescribe', 'parentDescribe', 'testTitle'];
+
+        const expectedCodeRef = `test/example.spec.js/rootDescribe/parentDescribe/testTitle`;
+
+        const codeRef = getCodeRef(titlePath, file);
+
+        expect(codeRef).toEqual(expectedCodeRef);
+
+        jest.clearAllMocks();
       });
     });
   });

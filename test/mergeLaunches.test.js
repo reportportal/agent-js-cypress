@@ -2,7 +2,6 @@ const fs = require('fs');
 const mockFS = require('mock-fs');
 
 const mergeLaunchesUtils = require('./../lib/mergeLaunches');
-const { getDefaultConfig } = require('./mock/mock');
 
 describe('merge launches script', () => {
   describe('getLaunchLockFileName', () => {
