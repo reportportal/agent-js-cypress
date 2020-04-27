@@ -88,17 +88,17 @@ Runs support following options:
 
 ### Logging
 
-ReportPortal provides the following custom commands for reporting logs into the current test/step.
+ReportPortal provides the following custom commands for reporting logs into the current test.
 
 * cy.log(*message*). Overrides standart Cypress `cy.log(log)`. Reports *message* as an info log of the current test.<br/>
 
 You can use the following methods to report logs and attachments with different log levels:
-* cy.trace (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with trace log level.
-* cy.debug (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with debug log level.
-* cy.info (*message* , *file*). Reports *message* and optional *file* as log of the current test/suite with info log level.
-* cy.warn (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with warning log level.
-* cy.error (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with error log level.
-* cy.fatal (*message* , *file*). Reports *message* and optional *file* as a log of the current test/suite with fatal log level.
+* cy.trace (*message* , *file*). Reports *message* and optional *file* as a log of the current test with trace log level.
+* cy.debug (*message* , *file*). Reports *message* and optional *file* as a log of the current test with debug log level.
+* cy.info (*message* , *file*). Reports *message* and optional *file* as log of the current test with info log level.
+* cy.warn (*message* , *file*). Reports *message* and optional *file* as a log of the current test with warning log level.
+* cy.error (*message* , *file*). Reports *message* and optional *file* as a log of the current test with error log level.
+* cy.fatal (*message* , *file*). Reports *message* and optional *file* as a log of the current test with fatal log level.
 * cy.launchTrace (*message* , *file*). Reports *message* and optional *file* as a log of the launch with trace log level.
 * cy.launchDebug (*message* , *file*). Reports *message* and optional *file* as a log of the launch with debug log level.
 * cy.launchInfo (*message* , *file*). Reports *message* and optional *file* as log of the launch with info log level.
@@ -114,6 +114,18 @@ You can use the following methods to report logs and attachments with different 
   content: data,  // file content represented as 64base string
 }
 ```
+
+### Report attributes for tests
+
+**addTestAttributes (*attributes*)**. Add attributes(tags) to the current test. Should be called inside of corresponding test.</br> 
+*attributes* is array of pairs of key and value:
+```javascript
+[{
+  key: "attributeKey1",
+  value: "attributeValue2",
+}]
+```
+*Key* is optional field.
 
 ## Screenshot support
 

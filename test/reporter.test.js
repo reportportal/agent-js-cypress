@@ -169,6 +169,7 @@ describe('reporter script', () => {
       const expectedTestFinishObj = {
         endTime: currentDate,
         status: 'passed',
+        attributes: [],
       };
 
       reporter.testEnd(testInfoObject);
@@ -190,6 +191,7 @@ describe('reporter script', () => {
       const expectedTestFinishObj = {
         endTime: currentDate,
         status: 'failed',
+        attributes: [],
       };
 
       reporter.testEnd(testInfoObject);
@@ -212,6 +214,45 @@ describe('reporter script', () => {
 
       expect(spySendLogOnFinishItem).toHaveBeenCalledTimes(1);
       expect(spySendLogOnFinishItem).toHaveBeenCalledWith(testInfoObject, 'tempTestItemId');
+    });
+
+    it('end passed test with attributes: finishTestItem should be called with attributes', function() {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      const testInfoObject = {
+        id: 'testId',
+        title: 'test name',
+        status: 'passed',
+        parentId: 'suiteId',
+        err: undefined,
+      };
+      reporter.testItemIds.set('testId', 'tempTestItemId');
+      reporter.currentTestAttributes = [
+        {
+          key: 'attr1Key',
+          value: 'attr1Value',
+        },
+        {
+          value: 'attr2Value',
+        },
+      ];
+      const expectedTestFinishObj = {
+        endTime: currentDate,
+        status: 'passed',
+        attributes: [
+          {
+            key: 'attr1Key',
+            value: 'attr1Value',
+          },
+          {
+            value: 'attr2Value',
+          },
+        ],
+      };
+
+      reporter.testEnd(testInfoObject);
+
+      expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
+      expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
   });
   describe('sendLogOnFinishItem', () => {
@@ -368,22 +409,78 @@ describe('reporter script', () => {
 
       expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
     });
+    it('sendLaunchLog: client.sendLog should be called with parameters', function() {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+      const logObj = {
+        level: 'error',
+        message: 'error message',
+      };
+      const expectedLogObj = {
+        level: 'error',
+        message: 'error message',
+        time: currentDate,
+      };
+      reporter.tempLaunchId = 'tempLaunchId';
+
+      reporter.sendLaunchLog(logObj);
+
+      expect(spySendLog).toHaveBeenCalledWith('tempLaunchId', expectedLogObj, undefined);
+    });
   });
-  it('sendLaunchLog: client.sendLog should be called with parameters', function() {
-    const spySendLog = jest.spyOn(reporter.client, 'sendLog');
-    const logObj = {
-      level: 'error',
-      message: 'error message',
-    };
-    const expectedLogObj = {
-      level: 'error',
-      message: 'error message',
-      time: currentDate,
-    };
-    reporter.tempLaunchId = 'tempLaunchId';
+  describe('addAttributes', () => {
+    afterEach(() => {
+      reporter.currentTestAttributes = [];
+    });
 
-    reporter.sendLaunchLog(logObj);
+    it('should set attributes on the first call', () => {
+      const attributes = [
+        {
+          key: 'attr1Key',
+          value: 'attr1Value',
+        },
+        {
+          value: 'attr2Value',
+        },
+      ];
 
-    expect(spySendLog).toHaveBeenCalledWith('tempLaunchId', expectedLogObj, undefined);
+      reporter.addAttributes(attributes);
+
+      expect(reporter.currentTestAttributes).toEqual(attributes);
+    });
+
+    it('should append attributes in case of already existed attributes', () => {
+      reporter.currentTestAttributes = [
+        {
+          key: 'attr1Key',
+          value: 'attr1Value',
+        },
+      ];
+      const newAttributes = [
+        {
+          value: 'attr2Value',
+        },
+        {
+          key: 'attr3Key',
+          value: 'attr3Value',
+        },
+      ];
+      const expectedAttributes = [
+        {
+          key: 'attr1Key',
+          value: 'attr1Value',
+        },
+        {
+          value: 'attr2Value',
+        },
+        {
+          key: 'attr3Key',
+          value: 'attr3Value',
+        },
+      ];
+
+      reporter.addAttributes(newAttributes);
+
+      expect(reporter.currentTestAttributes).toEqual(expectedAttributes);
+    });
   });
 });

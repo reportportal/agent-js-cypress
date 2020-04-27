@@ -4,6 +4,12 @@ context('Example Cypress Test', () => {
   });
   context('Check content Cypress example page', () => {
     it('should contain Cypress', () => {
+      cy.addTestAttributes([
+        {
+          key: 'checkCypress',
+          value: 'success',
+        },
+      ]);
       cy.contains('Cypress');
     });
 
@@ -12,6 +18,15 @@ context('Example Cypress Test', () => {
     });
 
     it('should contain gfkjdgkjdfgl (failed)', () => {
+      cy.addTestAttributes([
+        {
+          key: 'state',
+          value: 'failed',
+        },
+        {
+          value: 'fost failed',
+        },
+      ]);
       cy.contains('gfkjdgkjdfgl').screenshot();
     });
   });
