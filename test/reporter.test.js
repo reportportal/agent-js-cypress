@@ -1,3 +1,4 @@
+const mockFS = require('mock-fs');
 const { getDefaultConfig, RPClient, MockedDate, RealDate, currentDate } = require('./mock/mock');
 const Reporter = require('./../lib/reporter');
 
@@ -151,6 +152,12 @@ describe('reporter script', () => {
   });
 
   describe('testEnd', function() {
+    beforeAll(() => {
+      mockFS();
+    });
+    afterAll(() => {
+      mockFS.restore();
+    });
     beforeEach(function() {
       reporter.tempLaunchId = 'tempLaunchId';
       reporter.testItemIds.set('suiteId', 'suiteTempId');
@@ -283,6 +290,12 @@ describe('reporter script', () => {
     });
   });
   describe('sendLogOnFinishItem', () => {
+    beforeAll(() => {
+      mockFS();
+    });
+    afterAll(() => {
+      mockFS.restore();
+    });
     it('client.sendLog should be called with parameters', function() {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
       const testInfoObject = {
@@ -339,6 +352,12 @@ describe('reporter script', () => {
   });
 
   describe('hookEnd', () => {
+    beforeAll(() => {
+      mockFS();
+    });
+    afterAll(() => {
+      mockFS.restore();
+    });
     beforeEach(function() {
       reporter.tempLaunchId = 'tempLaunchId';
       reporter.testItemIds.set('suiteId', 'suiteTempId');
