@@ -265,7 +265,7 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
 
-    it('end passed test with description: finishTestItem should be called with attributes', function() {
+    it('end passed test with description: finishTestItem should be called with description', function() {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const testInfoObject = {
         id: 'testId',
