@@ -10,6 +10,7 @@ context('Example Cypress Test', () => {
           value: 'success',
         },
       ]);
+      cy.setTestDescription('This test checks Cypress page');
       cy.contains('Cypress');
     });
 
@@ -27,6 +28,7 @@ context('Example Cypress Test', () => {
           value: 'fost failed',
         },
       ]);
+      cy.setTestDescription('This test is always failed');
       cy.contains('gfkjdgkjdfgl').screenshot();
     });
   });
