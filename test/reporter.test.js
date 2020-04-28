@@ -170,6 +170,7 @@ describe('reporter script', () => {
         endTime: currentDate,
         status: 'passed',
         attributes: [],
+        description: '',
       };
 
       reporter.testEnd(testInfoObject);
@@ -192,6 +193,7 @@ describe('reporter script', () => {
         endTime: currentDate,
         status: 'failed',
         attributes: [],
+        description: '',
       };
 
       reporter.testEnd(testInfoObject);
@@ -238,6 +240,7 @@ describe('reporter script', () => {
       const expectedTestFinishObj = {
         endTime: currentDate,
         status: 'passed',
+        description: '',
         attributes: [
           {
             key: 'attr1Key',
@@ -247,6 +250,30 @@ describe('reporter script', () => {
             value: 'attr2Value',
           },
         ],
+      };
+
+      reporter.testEnd(testInfoObject);
+
+      expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
+      expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
+    });
+
+    it('end passed test with description: finishTestItem should be called with attributes', function() {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      const testInfoObject = {
+        id: 'testId',
+        title: 'test name',
+        status: 'passed',
+        parentId: 'suiteId',
+        err: undefined,
+      };
+      reporter.testItemIds.set('testId', 'tempTestItemId');
+      reporter.currentTestDescription = 'test description';
+      const expectedTestFinishObj = {
+        endTime: currentDate,
+        status: 'passed',
+        description: 'test description',
+        attributes: [],
       };
 
       reporter.testEnd(testInfoObject);
@@ -481,6 +508,17 @@ describe('reporter script', () => {
       reporter.addAttributes(newAttributes);
 
       expect(reporter.currentTestAttributes).toEqual(expectedAttributes);
+    });
+  });
+  describe('setDescription', () => {
+    it('should set description', () => {
+      const description = 'test description';
+
+      reporter.setDescription(description);
+
+      expect(reporter.currentTestDescription).toEqual(description);
+
+      reporter.currentTestDescription = '';
     });
   });
 });

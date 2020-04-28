@@ -127,6 +127,10 @@ You can use the following methods to report logs and attachments with different 
 ```
 *Key* is optional field.
 
+### Report description for tests
+
+**setTestDescription (*description*)**. Set text description to the current test. Should be called inside of corresponding test.</br> 
+
 ## Screenshot support
 
 Curently supported only default usage of Cypress screenshot function. Using custom filename **is not supported**.
