@@ -12,10 +12,12 @@ context('Example Cypress Test', () => {
       ]);
       cy.setTestDescription('This test checks Cypress page');
       cy.contains('Cypress');
+      cy.setTestCaseId('testCaseID_test');
     });
 
     it('should contain Commands', () => {
       cy.contains('Commands').screenshot();
+      cy.setTestCaseId('suite_testCaseID_inner', 'Check content Cypress example page');
     });
 
     it('should contain gfkjdgkjdfgl (failed)', () => {
@@ -29,6 +31,7 @@ context('Example Cypress Test', () => {
         },
       ]);
       cy.setTestDescription('This test is always failed');
+      cy.setTestCaseId('suite_testCaseID_outer', 'Example Cypress Test');
       cy.contains('gfkjdgkjdfgl').screenshot();
     });
   });

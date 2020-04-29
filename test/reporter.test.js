@@ -120,6 +120,23 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempSuiteId', { endTime: currentDate });
     });
+    it('end suite with testCaseId: finishTestItem should be called with testCaseId', function() {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      reporter.testItemIds.set('suiteId', 'tempSuiteId');
+      reporter.suiteTestCaseIds.set('suite title', 'testCaseId');
+      const suiteEndObject = {
+        id: 'suiteId',
+        title: 'suite title',
+        endTime: currentDate,
+      };
+
+      reporter.suiteEnd(suiteEndObject);
+
+      expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
+      expect(spyFinishTestItem).toHaveBeenCalledWith('tempSuiteId', { endTime: currentDate, testCaseId: 'testCaseId' });
+
+      reporter.suiteTestCaseIds.clear();
+    });
   });
 
   describe('testStart', function() {
@@ -281,6 +298,31 @@ describe('reporter script', () => {
         status: 'passed',
         description: 'test description',
         attributes: [],
+      };
+
+      reporter.testEnd(testInfoObject);
+
+      expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
+      expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
+    });
+
+    it('end passed test with testCaseId: finishTestItem should be called with testCaseId', function() {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      const testInfoObject = {
+        id: 'testId',
+        title: 'test name',
+        status: 'passed',
+        parentId: 'suiteId',
+        err: undefined,
+      };
+      reporter.testItemIds.set('testId', 'tempTestItemId');
+      reporter.currentTestCaseId = 'testCaseId';
+      const expectedTestFinishObj = {
+        endTime: currentDate,
+        status: 'passed',
+        description: '',
+        attributes: [],
+        testCaseId: 'testCaseId',
       };
 
       reporter.testEnd(testInfoObject);
@@ -538,6 +580,29 @@ describe('reporter script', () => {
       expect(reporter.currentTestDescription).toEqual(description);
 
       reporter.currentTestDescription = '';
+    });
+  });
+  describe('setTestCaseId', () => {
+    it('suite parameter is empty: should set test case Id to current test', () => {
+      const testCaseId = 'test_testCaseID';
+
+      reporter.setTestCaseId({ testCaseId });
+
+      expect(reporter.currentTestCaseId).toEqual(testCaseId);
+
+      reporter.currentTestCaseId = '';
+    });
+
+    it('suite parameter is defined: should put test case Id to the map by suite title', () => {
+      const testCaseId = 'test_testCaseID';
+      const suite = 'suite title';
+
+      reporter.setTestCaseId({ testCaseId, suite });
+
+      expect(reporter.suiteTestCaseIds.has(suite)).toEqual(true);
+      expect(reporter.suiteTestCaseIds.get(suite)).toEqual(testCaseId);
+
+      reporter.suiteTestCaseIds.clear();
     });
   });
 });
