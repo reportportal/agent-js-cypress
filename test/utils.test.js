@@ -228,6 +228,7 @@ describe('utils script', () => {
         };
         const expectedSuiteEndObject = {
           id: 'suite1',
+          title: 'suite name',
           endTime: currentDate,
         };
 

@@ -117,7 +117,7 @@ You can use the following methods to report logs and attachments with different 
 
 ### Report attributes for tests
 
-**addTestAttributes (*attributes*)**. Add attributes(tags) to the current test. Should be called inside of corresponding test.</br> 
+**addTestAttributes (*attributes*)**. Add attributes(tags) to the current test. Should be called inside of corresponding test.<br/> 
 *attributes* is array of pairs of key and value:
 ```javascript
 [{
@@ -129,11 +129,17 @@ You can use the following methods to report logs and attachments with different 
 
 ### Report description for tests
 
-**setTestDescription (*description*)**. Set text description to the current test. Should be called inside of corresponding test.</br> 
+**setTestDescription (*description*)**. Set text description to the current test. Should be called inside of corresponding test.
 
-## Screenshot support
+### Report test case Id for tests and suites
 
-Curently supported only default usage of Cypress screenshot function. Using custom filename **is not supported**.
+**setTestCaseId (*id*, *suite*)**. Set test case id to the current test or suite. Should be called inside of corresponding test/suite.<br/> 
+*id* is a string test case Id.<br/>
+*suite* is the title of the suite to which the specified test case id belongs. 
+ 
+## Screenshots support
+
+Currently supported only default usage of Cypress screenshot function. Using custom filename **is not supported**.
 
 ```javascript
 
