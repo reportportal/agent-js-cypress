@@ -403,6 +403,26 @@ describe('utils script', () => {
         expect(testEndObject).toBeDefined();
         expect(testEndObject).toEqual(expectedTestEndObject);
       });
+
+      test('testCaseId is defined: should return test end object with testCaseId', () => {
+        const testInfo = {
+          id: 'testId1',
+          title: 'test name',
+          status: 'skipped',
+          parent: {
+            id: 'parentSuiteId',
+          },
+          testCaseId: 'testCaseId',
+        };
+        const expectedTestEndObject = {
+          endTime: currentDate,
+          status: testInfo.status,
+          testCaseId: 'testCaseId',
+        };
+        const testEndObject = getTestEndObject(testInfo);
+
+        expect(testEndObject).toEqual(expectedTestEndObject);
+      });
     });
 
     describe('getHookInfo', () => {
