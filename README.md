@@ -135,7 +135,7 @@ You can use the following methods to report logs and attachments with different 
 
 **setTestCaseId (*id*, *suite*)**. Set test case id to the current test or suite. Should be called inside of corresponding test/suite.<br/> 
 *id* is a string test case Id.<br/>
-*suite* is the title of the suite to which the specified test case id belongs. 
+*suite (optional)* is the title of the suite to which the specified test case id belongs. Should be provided just in case of reporting test case id for specified suite instead of current test.  
  
 ## Screenshots support
 

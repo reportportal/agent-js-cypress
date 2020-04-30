@@ -595,12 +595,12 @@ describe('reporter script', () => {
 
     it('suite parameter is defined: should put test case Id to the map by suite title', () => {
       const testCaseId = 'test_testCaseID';
-      const suite = 'suite title';
+      const suiteTitle = 'suite title';
 
-      reporter.setTestCaseId({ testCaseId, suite });
+      reporter.setTestCaseId({ testCaseId, suiteTitle });
 
-      expect(reporter.suiteTestCaseIds.has(suite)).toEqual(true);
-      expect(reporter.suiteTestCaseIds.get(suite)).toEqual(testCaseId);
+      expect(reporter.suiteTestCaseIds.has(suiteTitle)).toEqual(true);
+      expect(reporter.suiteTestCaseIds.get(suiteTitle)).toEqual(testCaseId);
 
       reporter.suiteTestCaseIds.clear();
     });
