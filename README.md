@@ -78,11 +78,12 @@ Runs support following options:
 | endpoint              | URL of your server. For example 'https://server:8080/api/v1'.                                                     |
 | launch                | Name of launch at creation.                                                                                       |
 | project               | The name of the project in which the launches will be created.                                                    |
-| isLaunchMergeRequired | Determines merge Cypress run's in to one launch or not. Need extra setup. See [Merge launches](#merge-launches).  |
 | rerun                 | Enable [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md)           |
 | rerunOf               | UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name|
+| autoMerge             | Enable automatical report test items of all runned spec into one launch. You should install plugin or setup additional settings in reporterOptions. See [Automatically merge launch](#automatically-merge-launches). |
 | reportHooks           | Determines report before and after hooks or not.                                                                  |
 | skippedIssue          | ReportPortal provides feature to mark skipped tests as not 'To Investigate' items on WS side.<br> Parameter could be equal boolean values:<br> *TRUE* - skipped tests considered as issues and will be marked as 'To Investigate' on Report Portal (default value).<br> *FALSE* - skipped tests will not be marked as 'To Investigate' on application.|
+| isLaunchMergeRequired | Allows to merge Cypress run's into one launch in the end of the run. Needs additional setup. See [Manual merge launches](#manual-merge-launches).  |
 
 ## ReportPortal custom commands
 
@@ -172,9 +173,37 @@ ReportPortal also provides the corresponding methods for setting status into the
 To use custom filename in cy.screenshot function you should [setup ReportRortal custom commands](#setup-reportportal-custom-commands).
 Default usage of Cypress screenshot function is supported without additional setup. 
 
-## Merge launches
+## Automatically merge launches
 
-By default Cypress create a separate run for each test file. This section describe how to merge all this launches into a single launch in the end of run.
+By default Cypress create a separate run for each test file. This section describe how to report test items of differents specs into the single launch.
+This feature needs information about Cypreess configuration. To provide it to the reporter you need to install reportPortal plugin (see how to in [this section](#setup-reportportal-custom-commands)) or to copy the following Cypress config options to the reporterOptions:
+* ignoreTestFiles
+* testFiles
+* integrationFolder
+* fixturesFolder
+* supportFile
+
+*Note: you need to specify only those options that are not the default.*
+
+**Enable auto-merge in reporterOptions as shown below:**
+
+```json
+
+{
+  ...
+  "reporterOptions": {
+    ...
+    "autoMerge": true
+  }
+}
+
+```
+
+
+## Manual merge launches
+
+There is a possibility to merge all launches into a single launch in the end of the run.
+We advice to use [autoMerge option](#automatically-merge-launches) to merge results in one launch but you can use this alternative option in case of you need to perform some additional actions before merge.
 
 #### Set corresponding reporter options
 
