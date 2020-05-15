@@ -6,7 +6,7 @@ context('Check content of Google', () => {
     cy.url().should('include', 'google');
   });
   it('check contain of google page (failed)', () => {
-    cy.get('#hplogo').screenshot();
+    cy.get('#hplogo').screenshot('customFileName');
     cy.contains('example').screenshot();
   });
 });

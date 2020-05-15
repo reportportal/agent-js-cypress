@@ -169,14 +169,8 @@ ReportPortal also provides the corresponding methods for setting status into the
  
 ## Screenshots support
 
-Currently supported only default usage of Cypress screenshot function. Using custom filename **is not supported**.
-
-```javascript
-
-cy.screenshot()
-cy.get('.post').screenshot()
-
-```
+To use custom filename in cy.screenshot function you should [setup ReportRortal custom commands](#setup-reportportal-custom-commands).
+Default usage of Cypress screenshot function is supported without additional setup. 
 
 ## Merge launches
 
