@@ -491,7 +491,7 @@ describe('reporter script', () => {
         message: 'error message',
         time: currentDate,
       };
-      reporter.currentTestTempId = 'tempTestItemId';
+      reporter.currentTestTempInfo = { tempId: 'tempTestItemId' };
 
       reporter.sendLogToCurrentItem(logObj);
 
