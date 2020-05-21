@@ -59,6 +59,17 @@ describe('reporter script', () => {
       expect(spyFinishLaunch).toHaveBeenCalledTimes(1);
       expect(spyFinishLaunch).toHaveBeenCalledWith('tempLaunchId', { endTime: currentDate });
     });
+
+    it('set custom launch status: finishLaunch should be called with parameters', () => {
+      const spyFinishLaunch = jest.spyOn(reporter.client, 'finishLaunch');
+      reporter.tempLaunchId = 'tempLaunchId';
+      reporter.setLaunchStatus({ status: 'warn' });
+
+      reporter.runEnd();
+
+      expect(spyFinishLaunch).toHaveBeenCalledTimes(1);
+      expect(spyFinishLaunch).toHaveBeenCalledWith('tempLaunchId', { endTime: currentDate, status: 'warn' });
+    });
   });
 
   describe('suiteStart', () => {
@@ -133,9 +144,32 @@ describe('reporter script', () => {
       reporter.suiteEnd(suiteEndObject);
 
       expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
-      expect(spyFinishTestItem).toHaveBeenCalledWith('tempSuiteId', { endTime: currentDate, testCaseId: 'testCaseId' });
+      expect(spyFinishTestItem).toHaveBeenCalledWith('tempSuiteId', {
+        endTime: currentDate,
+        testCaseId: 'testCaseId',
+      });
 
       reporter.suiteTestCaseIds.clear();
+    });
+    it('end suite with custom status: finishTestItem should be called with custom status', function() {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      reporter.testItemIds.set('suiteId', 'tempSuiteId');
+      reporter.setTestItemStatus({ status: 'failed', suiteTitle: 'suite title' });
+      const suiteEndObject = {
+        id: 'suiteId',
+        title: 'suite title',
+        endTime: currentDate,
+      };
+
+      reporter.suiteEnd(suiteEndObject);
+
+      expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
+      expect(spyFinishTestItem).toHaveBeenCalledWith('tempSuiteId', {
+        endTime: currentDate,
+        status: 'failed',
+      });
+
+      reporter.suiteStatuses.clear();
     });
   });
 
@@ -178,6 +212,10 @@ describe('reporter script', () => {
     beforeEach(function() {
       reporter.tempLaunchId = 'tempLaunchId';
       reporter.testItemIds.set('suiteId', 'suiteTempId');
+    });
+
+    afterEach(function() {
+      reporter.resetCurrentTestFinishParams();
     });
 
     it('end passed test: finishTestItem should be called with parameters', function() {
@@ -252,7 +290,7 @@ describe('reporter script', () => {
         err: undefined,
       };
       reporter.testItemIds.set('testId', 'tempTestItemId');
-      reporter.currentTestAttributes = [
+      reporter.addAttributes([
         {
           key: 'attr1Key',
           value: 'attr1Value',
@@ -260,7 +298,7 @@ describe('reporter script', () => {
         {
           value: 'attr2Value',
         },
-      ];
+      ]);
       const expectedTestFinishObj = {
         endTime: currentDate,
         status: 'passed',
@@ -292,7 +330,7 @@ describe('reporter script', () => {
         err: undefined,
       };
       reporter.testItemIds.set('testId', 'tempTestItemId');
-      reporter.currentTestDescription = 'test description';
+      reporter.setDescription('test description');
       const expectedTestFinishObj = {
         endTime: currentDate,
         status: 'passed',
@@ -316,13 +354,37 @@ describe('reporter script', () => {
         err: undefined,
       };
       reporter.testItemIds.set('testId', 'tempTestItemId');
-      reporter.currentTestCaseId = 'testCaseId';
+      reporter.setTestCaseId({ testCaseId: 'testCaseId' });
       const expectedTestFinishObj = {
         endTime: currentDate,
         status: 'passed',
         description: '',
         attributes: [],
         testCaseId: 'testCaseId',
+      };
+
+      reporter.testEnd(testInfoObject);
+
+      expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
+      expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
+    });
+
+    it('end passed test with custom status: finishTestItem should be called with custom status', function() {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      const testInfoObject = {
+        id: 'testId',
+        title: 'test name',
+        status: 'passed',
+        parentId: 'suiteId',
+        err: undefined,
+      };
+      reporter.testItemIds.set('testId', 'tempTestItemId');
+      reporter.setTestItemStatus({ status: 'failed' });
+      const expectedTestFinishObj = {
+        endTime: currentDate,
+        status: 'failed',
+        description: '',
+        attributes: [],
       };
 
       reporter.testEnd(testInfoObject);
@@ -517,7 +579,7 @@ describe('reporter script', () => {
   });
   describe('addAttributes', () => {
     afterEach(() => {
-      reporter.currentTestAttributes = [];
+      reporter.resetCurrentTestFinishParams();
     });
 
     it('should set attributes on the first call', () => {
@@ -533,11 +595,11 @@ describe('reporter script', () => {
 
       reporter.addAttributes(attributes);
 
-      expect(reporter.currentTestAttributes).toEqual(attributes);
+      expect(reporter.currentTestFinishParams.attributes).toEqual(attributes);
     });
 
     it('should append attributes in case of already existed attributes', () => {
-      reporter.currentTestAttributes = [
+      reporter.currentTestFinishParams.attributes = [
         {
           key: 'attr1Key',
           value: 'attr1Value',
@@ -568,7 +630,7 @@ describe('reporter script', () => {
 
       reporter.addAttributes(newAttributes);
 
-      expect(reporter.currentTestAttributes).toEqual(expectedAttributes);
+      expect(reporter.currentTestFinishParams.attributes).toEqual(expectedAttributes);
     });
   });
   describe('setDescription', () => {
@@ -577,9 +639,9 @@ describe('reporter script', () => {
 
       reporter.setDescription(description);
 
-      expect(reporter.currentTestDescription).toEqual(description);
+      expect(reporter.currentTestFinishParams.description).toEqual(description);
 
-      reporter.currentTestDescription = '';
+      reporter.resetCurrentTestFinishParams();
     });
   });
   describe('setTestCaseId', () => {
@@ -588,9 +650,9 @@ describe('reporter script', () => {
 
       reporter.setTestCaseId({ testCaseId });
 
-      expect(reporter.currentTestCaseId).toEqual(testCaseId);
+      expect(reporter.currentTestFinishParams.testCaseId).toEqual(testCaseId);
 
-      reporter.currentTestCaseId = '';
+      reporter.resetCurrentTestFinishParams();
     });
 
     it('suite parameter is defined: should put test case Id to the map by suite title', () => {

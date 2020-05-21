@@ -90,7 +90,7 @@ Runs support following options:
 
 ReportPortal provides the following custom commands for reporting logs into the current test.
 
-* cy.log(*message*). Overrides standart Cypress `cy.log(log)`. Reports *message* as an info log of the current test.<br/>
+* cy.log(*message*). Overrides standard Cypress `cy.log(log)`. Reports *message* as an info log of the current test.<br/>
 
 You can use the following methods to report logs and attachments with different log levels:
 * cy.trace (*message* , *file*). Reports *message* and optional *file* as a log of the current test with trace log level.
@@ -135,7 +135,37 @@ You can use the following methods to report logs and attachments with different 
 
 **setTestCaseId (*id*, *suite*)**. Set test case id to the current test or suite. Should be called inside of corresponding test/suite.<br/> 
 *id* is a string test case Id.<br/>
-*suite (optional)* is the title of the suite to which the specified test case id belongs. Should be provided just in case of reporting test case id for specified suite instead of current test.  
+*suite (optional)* is the title of the suite to which the specified test case id belongs. Should be provided just in case of reporting test case id for specified suite instead of current test.
+
+### Finish launch/test item with status
+
+ReportPortal provides the following custom commands for setting status to the current suite/spec.
+
+* cy.setStatus(*status*, *suite*). Assign *status* to the current test or suite. Should be called inside of corresponding test/suite.<br/>
+*status* should be equal to one of the following values: *passed*, *failed*, *stopped*, *skipped*, *interrupted*, *cancelled*, *info*, *warn*.<br/>
+*suite (optional)* is the title of the suite to which you wish to set the status (all suite descriptions must be unique). Should be provided just in case of assign status for specified suite instead of current test. <br/>
+
+You can use the shorthand forms of the cy.setStatus method:
+
+* cy.setStatusPassed(*suite*). Assign *passed* status to the current test or suite.
+* cy.setStatusFailed(*suite*). Assign *failed* status to the current test or suite.
+* cy.setStatusSkipped(*suite*). Assign *skipped* status to the current test or suite.
+* cy.setStatusStopped(*suite*). Assign *stopped* status to the current test or suite.
+* cy.setStatusInterrupted(*suite*). Assign *interrupted* status to the current test or suite.
+* cy.setStatusCancelled(*suite*). Assign *cancelled* status to the current test or suite.
+* cy.setStatusInfo(*suite*). Assign *info* status to the current test or suite.
+* cy.setStatusWarn(*suite*). Assign *warn* status to the current test or suite.
+
+ReportPortal also provides the corresponding methods for setting status into the launch:
+* setLaunchStatus(*status*). Assign *status* to the launch.<br/>
+*status* should be equal to one of the following values: *passed*, *failed*, *stopped*, *skipped*, *interrupted*, *cancelled*, *info*, *warn*.<br/>
+* cy.setLaunchStatusPassed(). Assign *passed* status to the launch.
+* cy.setLaunchStatusFailed(). Assign *failed* status to the launch.
+* cy.setLaunchStatusSkipped(). Assign *skipped* status to the launch.
+* cy.setLaunchStatusStopped(). Assign *stopped* status to the launch.
+* cy.setLaunchStatusInterrupted(). Assign *interrupted* status to the launch.
+* cy.setLaunchStatusCancelled(). Assign *cancelled* status to the launch.
+* cy.setLaunchStatusInfo(). Assign *info* status to the launch.
  
 ## Screenshots support
 
