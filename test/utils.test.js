@@ -1,4 +1,5 @@
 const mock = require('mock-fs');
+const path = require('path');
 const {
   getSystemAttributes,
   getLaunchStartObject,
@@ -11,6 +12,7 @@ const {
   getHookStartObject,
   getFailedScreenshot,
   getPassedScreenshots,
+  getCustomScreenshots,
   getAgentInfo,
   getCodeRef,
 } = require('./../lib/utils');
@@ -20,17 +22,21 @@ const { RealDate, MockedDate, currentDate, getDefaultConfig } = require('./mock/
 
 describe('utils script', () => {
   describe('attachment utils', () => {
-    beforeAll(() => {
+    beforeEach(() => {
       mock({
-        'example/screenshots': {
+        'example/screenshots/example.spec.js': {
           'suite name -- test name (failed).png': Buffer.from([8, 6, 7, 5, 3, 0, 9]),
           'suite name -- test name.png': Buffer.from([1, 2, 3, 4, 5, 6, 7]),
           'suite name -- test name (1).png': Buffer.from([8, 7, 6, 5, 4, 3, 2]),
+          'customScreenshot1.png': Buffer.from([1, 1, 1, 1, 1, 1, 1]),
+          customDir: {
+            'customScreenshot2.png': Buffer.from([2, 2, 2, 2, 2, 2, 2]),
+          },
         },
       });
     });
 
-    afterAll(() => {
+    afterEach(() => {
       mock.restore();
     });
 
@@ -68,6 +74,33 @@ describe('utils script', () => {
       expect(attachments).toBeDefined();
       expect(attachments.length).toEqual(2);
       expect(attachments).toEqual(expectedAttachments);
+    });
+
+    it('getCustomScreenshots: should return custom screenshot', () => {
+      jest.spyOn(path, 'parse').mockImplementation(() => ({
+        base: 'example.spec.js',
+      }));
+      const testFileName = `test\\example.spec.js`;
+      const customScreenshotNames = ['customScreenshot1', 'customDir/customScreenshot2'];
+      const expectedAttachments = [
+        {
+          name: 'customScreenshot1',
+          type: 'image/png',
+          content: Buffer.from([1, 1, 1, 1, 1, 1, 1]).toString('base64'),
+        },
+        {
+          name: 'customScreenshot2',
+          type: 'image/png',
+          content: Buffer.from([2, 2, 2, 2, 2, 2, 2]).toString('base64'),
+        },
+      ];
+
+      const attachments = getCustomScreenshots(customScreenshotNames, testFileName);
+
+      expect(attachments).toBeDefined();
+      expect(attachments.length).toEqual(2);
+      expect(attachments).toEqual(expectedAttachments);
+      jest.clearAllMocks();
     });
   });
 
@@ -257,6 +290,7 @@ describe('utils script', () => {
           parentId: 'parentSuiteId',
           codeRef: 'test/example.spec.js/suite name/test name',
           err: undefined,
+          testFileName,
         };
 
         const testInfoObject = getTestInfo(test, testFileName);
@@ -282,6 +316,7 @@ describe('utils script', () => {
           parentId: 'parentSuiteId',
           codeRef: 'test/example.spec.js/suite name/test name',
           err: undefined,
+          testFileName,
         };
 
         const testInfoObject = getTestInfo(test, testFileName);
@@ -307,6 +342,7 @@ describe('utils script', () => {
           parentId: 'parentSuiteId',
           codeRef: 'test/example.spec.js/suite name/test name',
           err: 'error message',
+          testFileName,
         };
 
         const testInfoObject = getTestInfo(test, testFileName, 'failed', {
@@ -446,6 +482,7 @@ describe('utils script', () => {
           parentId: 'parentSuiteId',
           codeRef: 'test/example.spec.js/suite name/hook name',
           err: undefined,
+          testFileName,
         };
 
         const hookInfoObject = getHookInfo(hook, testFileName);
@@ -474,6 +511,7 @@ describe('utils script', () => {
           parentId: 'parentSuiteId',
           codeRef: 'test/example.spec.js/suite name/hook name',
           err: undefined,
+          testFileName,
         };
 
         const hookInfoObject = getHookInfo(test, testFileName);
