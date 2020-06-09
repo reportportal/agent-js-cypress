@@ -1,26 +1,23 @@
-# agent-js-cypress
+# @reportportal/agent-js-cypress
 
-Cypress js agent is runtime reporter for [EPAM report portal](https://github.com/reportportal/reportportal) which provides information about collection run.
+agent-js-cypress is a runtime reporter for the [Report Portal](https://github.com/reportportal/reportportal) which provides information about collection run.
 
 ## Install
 
-
 ```console
-$ npm install agent-js-cypress --save-dev
+$ npm install @reportportal/agent-js-cypress
 ```
 
 ## Usage
-
 
 #### Cypress.json
 
 Add the following options to cypress.json
 
-
 ```json
 
 {
-  "reporter": "agent-js-cypress",
+  "reporter": "@reportportal/agent-js-cypress",
   "reporterOptions": {
     "endpoint": "http://your-instance.com:8080/api/v1",
     "token": "00000000-0000-0000-0000-000000000000",
@@ -33,18 +30,13 @@ Add the following options to cypress.json
 
 ```
 
-To run example tests also add the following settings to cypress.json, replace `"reporter": "agent-js-cypress"` by `"reporter": "index.js"` and use command `npm example`.
+#### Register ReportPortal plugin (cypress/plugins/index.js):
 
-```json
+```javascript
 
-{
-  ...
-  "integrationFolder": "example/integration",
-  "screenshotsFolder": "example/screenshots",
-  "fixturesFolder": "example/fixtures",
-  "supportFile": "example/support/index.js",
-  "pluginsFile": "example/plugins/index.js",
-}
+const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/plugin');
+
+module.exports = (on) => registerReportPortalPlugin(on);
 
 ```
 
@@ -54,19 +46,11 @@ Add the following to your custom commands file (cypress/support/commands.js):
 
 ```javascript
 
-require('agent-js-cypress/lib/commands/reportPortalCommands');
+require('@reportportal/agent-js-cypress/lib/commands/reportPortalCommands');
 
 ```
 
-Register ReportPortal plugin (cypress/plugins/index.js):
-
-```javascript
-
-const registerReportPortalPlugin = require('agent-js-cypress/lib/plugin');
-
-module.exports = (on) => registerReportPortalPlugin(on);
-
-```
+See examples of usage [here](https://github.com/reportportal/examples-js/example-cypress).
 
 ## Options
 
@@ -127,6 +111,21 @@ You can use the following methods to report logs and attachments with different 
 }]
 ```
 *Key* is optional field.
+
+
+### Integration with Sauce Labs
+
+To integrate with Sauce Labs just add attributes: 
+
+```javascript
+[{
+ "key": "SLID",
+ "value": "# of the job in Sauce Labs"
+}, {
+ "key": "SLDC",
+ "value": "EU (EU or US)"
+}]
+```
 
 ### Report description for tests
 
@@ -231,7 +230,7 @@ folder.
 const cypress = require('cypress');
 const fs = require('fs');
 const glob = require('glob');
-const { mergeLaunches } = require('agent-js-cypress/lib/mergeLaunches');
+const { mergeLaunches } = require('@reportportal/agent-js-cypress/lib/mergeLaunches');
 
 const cypressConfigFile = 'cypress.json';
 
