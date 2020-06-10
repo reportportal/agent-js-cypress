@@ -6,8 +6,7 @@
   "scripts": {
     "eslint": "eslint \"./**/*.js\"",
     "format": "npm run eslint -- --fix",
-    "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test": "jest --coverage --config ./jest.config.js"
   },
   "keywords": [
     "ReportPortal",
@@ -41,12 +40,5 @@
     "jest": "^25.1.0",
     "mock-fs": "^4.11.0",
     "prettier": "1.19.1"
-  },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "<rootDir>/example/",
-      "<rootDir>/cypress/",
-      "<rootDir>/node_modules/"
-    ]
   }
 }

@@ -1,74 +1,49 @@
-const fs = require('fs');
 const mockFS = require('mock-fs');
 
-const mergeLaunchesUtils = require('./../lib/mergeLaunches');
+const mergeLaunches = require('./../lib/mergeLaunches');
+const mergeLaunchesUtils = require('./../lib/mergeLaunchesUtils');
 
-describe('merge launches script', () => {
-  describe('getLaunchLockFileName', () => {
-    it('should return file name with launch name and temp id', () => {
-      const launchName = 'launchName';
-      const tempID = 'tempId';
-      const expectedFileName = 'rplaunchinprogress-launchName-tempId.tmp';
+describe('mergeLaunches', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  it('no launches in progress: should call callClientMergeLaunches immediately', () => {
+    jest.spyOn(mergeLaunchesUtils, 'isLaunchesInProgress').mockImplementation(() => false);
+    const spyCallClientMergeLaunches = jest
+      .spyOn(mergeLaunchesUtils, 'callClientMergeLaunches')
+      .mockImplementation(() => {});
+    const launch = 'foo-launchName';
 
-      const fileName = mergeLaunchesUtils.getLaunchLockFileName(launchName, tempID);
+    mergeLaunches.mergeLaunches({ launch });
 
-      expect(fileName).toEqual(expectedFileName);
-    });
+    expect(spyCallClientMergeLaunches).toHaveBeenCalled();
   });
 
-  describe('createMergeLaunchLockFile', () => {
-    it('should create lock file', () => {
-      const spyFSOpen = jest.spyOn(fs, 'open').mockImplementation(() => {});
-      const launchName = 'launchName';
-      const tempID = 'tempId';
+  it('launches will stop in 5 ms: should return promise', () => {
+    // jest.spyOn(mergeLaunchesUtils, 'isLaunchesInProgress').mockImplementation(() => {
+    //   let result = true;
+    //   setTimeout(() => {
+    //     result = false;
+    //   });
+    //   return result;
+    // });
+    jest.spyOn(mergeLaunchesUtils, 'isLaunchesInProgress').mockImplementation(() => true);
 
-      mergeLaunchesUtils.createMergeLaunchLockFile(launchName, tempID);
+    setTimeout(() => {
+      jest.spyOn(mergeLaunchesUtils, 'isLaunchesInProgress').mockImplementation(() => false);
+    }, 1);
 
-      expect(spyFSOpen).toHaveBeenCalled();
+    const spyCallClientMergeLaunches = jest
+      .spyOn(mergeLaunchesUtils, 'callClientMergeLaunches')
+      .mockImplementation(() => Promise.resolve());
+    const launch = 'foo-launchName';
 
-      jest.clearAllMocks();
-    });
-  });
+    const promise = mergeLaunches.mergeLaunches({ launch });
 
-  describe('deleteMergeLaunchLockFile', () => {
-    it('should delete lock file', () => {
-      const spyFSOpen = jest.spyOn(fs, 'unlink').mockImplementation(() => {});
-      const launchName = 'launchName';
-      const tempID = 'tempId';
+    expect(spyCallClientMergeLaunches).not.toHaveBeenCalled();
 
-      mergeLaunchesUtils.deleteMergeLaunchLockFile(launchName, tempID);
+    expect(promise.then).toBeDefined();
 
-      expect(spyFSOpen).toHaveBeenCalled();
-
-      jest.clearAllMocks();
-    });
-  });
-
-  describe('isLaunchesInProgress', () => {
-    it('should return true if lock files exist', () => {
-      mockFS({
-        'rplaunchinprogress-launchName-tempId.tmp': '',
-      });
-      const launchName = 'launchName';
-
-      const isInProgress = mergeLaunchesUtils.isLaunchesInProgress(launchName);
-
-      expect(isInProgress).toEqual(true);
-
-      mockFS.restore();
-    });
-
-    it("should return false if lock files don't exist", () => {
-      mockFS({
-        'foo-launchName.tmp': '',
-      });
-      const launchName = 'launchName';
-
-      const isInProgress = mergeLaunchesUtils.isLaunchesInProgress(launchName);
-
-      expect(isInProgress).toEqual(false);
-
-      mockFS.restore();
-    });
+    return promise.then(() => expect(spyCallClientMergeLaunches).toHaveBeenCalled());
   });
 });
