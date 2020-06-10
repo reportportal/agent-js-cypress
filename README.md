@@ -175,7 +175,7 @@ Default usage of Cypress screenshot function is supported without additional set
 
 ## Automatically merge launches
 
-By default Cypress create a separate run for each test file. This section describe how to report test items of differents specs into the single launch.
+By default Cypress create a separate run for each test file. This section describe how to report test items of different specs into the single launch.
 This feature needs information about Cypreess configuration. To provide it to the reporter you need to install reportPortal plugin (see how to in [this section](#setup-reportportal-custom-commands)) or to copy the following Cypress config options to the reporterOptions:
 * ignoreTestFiles
 * testFiles
