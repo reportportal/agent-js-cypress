@@ -1,3 +1,3 @@
 const registerReportPortalPlugin = require('./../../lib/plugin');
 
-module.exports = (on) => registerReportPortalPlugin(on);
+module.exports = (on, config) => registerReportPortalPlugin(on, config);
