@@ -68,7 +68,10 @@ describe('reporter script', () => {
       reporter.runEnd();
 
       expect(spyFinishLaunch).toHaveBeenCalledTimes(1);
-      expect(spyFinishLaunch).toHaveBeenCalledWith('tempLaunchId', { endTime: currentDate, status: 'warn' });
+      expect(spyFinishLaunch).toHaveBeenCalledWith('tempLaunchId', {
+        endTime: currentDate,
+        status: 'warn',
+      });
     });
   });
 
