@@ -9,8 +9,9 @@ node_modules/
 # Editor
 .idea/
 
-# Optional npm cache directory
+# Optional npm directory
 .npm
+.npmrc
 
 # Optional eslint cache
 .eslintcache

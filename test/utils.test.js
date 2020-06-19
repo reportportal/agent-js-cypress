@@ -15,6 +15,7 @@ const {
   getCustomScreenshots,
   getAgentInfo,
   getCodeRef,
+  getTotalSpecs,
 } = require('./../lib/utils');
 const pjson = require('./../package.json');
 
@@ -100,6 +101,20 @@ describe('utils script', () => {
       expect(attachments).toBeDefined();
       expect(attachments.length).toEqual(2);
       expect(attachments).toEqual(expectedAttachments);
+      jest.clearAllMocks();
+    });
+
+    it('getCustomScreenshots: should return [] in case of no corresponding files', () => {
+      jest.spyOn(path, 'parse').mockImplementation(() => ({
+        base: 'example.spec.js',
+      }));
+      const testFileName = `test\\example.spec.js`;
+      const customScreenshotNames = ['screenshotNotExist1', 'screenshotNotExist2'];
+
+      const attachments = getCustomScreenshots(customScreenshotNames, testFileName);
+
+      expect(attachments).toBeDefined();
+      expect(attachments.length).toEqual(0);
       jest.clearAllMocks();
     });
   });
@@ -462,7 +477,7 @@ describe('utils script', () => {
     });
 
     describe('getHookInfo', () => {
-      test('passed hook: should return hook info with passed status', () => {
+      test('passed before each hook: should return hook info with passed status', () => {
         const hook = {
           id: 'testId',
           title: '"before each" hook: hook name',
@@ -480,6 +495,40 @@ describe('utils script', () => {
           title: '"before each" hook: hook name',
           status: 'passed',
           parentId: 'parentSuiteId',
+          codeRef: 'test/example.spec.js/suite name/hook name',
+          err: undefined,
+          testFileName,
+        };
+
+        const hookInfoObject = getHookInfo(hook, testFileName);
+
+        expect(hookInfoObject).toBeDefined();
+        expect(hookInfoObject).toEqual(expectedHookInfoObject);
+      });
+
+      test('passed before all hook: should return correct hook info', () => {
+        const hook = {
+          id: 'testId',
+          title: '"before all" hook: hook name',
+          parent: {
+            id: 'parentSuiteId',
+            title: 'parent suite title',
+            parent: {
+              id: 'rootSuiteId',
+              title: 'root suite title',
+            },
+          },
+          state: 'passed',
+          hookName: 'before all',
+          hookId: 'hookId',
+          titlePath: () => ['suite name', 'hook name'],
+        };
+        const expectedHookInfoObject = {
+          id: 'hookId_testId',
+          hookName: 'before all',
+          title: '"before all" hook: hook name',
+          status: 'passed',
+          parentId: 'rootSuiteId',
           codeRef: 'test/example.spec.js/suite name/hook name',
           err: undefined,
           testFileName,
@@ -588,6 +637,51 @@ describe('utils script', () => {
 
         jest.clearAllMocks();
       });
+    });
+  });
+
+  describe('getTotalSpecs', () => {
+    beforeEach(() => {
+      mock({
+        'example/tests': {
+          'example1.spec.js': '',
+          'example2.spec.js': '',
+          'example3.spec.js': '',
+          'example.ignore.js': '',
+        },
+        'example/support': {
+          'support.js': '',
+        },
+      });
+    });
+
+    afterEach(() => {
+      mock.restore();
+    });
+
+    it('testFiles, integrationFolder, supportFile are specified: should count all files from integration folder', () => {
+      const specConfig = {
+        testFiles: '**/*.*',
+        integrationFolder: 'example/tests',
+        supportFile: 'example/support',
+      };
+
+      const specCount = getTotalSpecs(specConfig);
+
+      expect(specCount).toEqual(4);
+    });
+
+    it('ignoreTestFiles are specified: should ignore specified files', () => {
+      const specConfig = {
+        ignoreTestFiles: '*.ignore.js',
+        testFiles: '**/*.*',
+        integrationFolder: 'example/tests',
+        supportFile: 'example/support',
+      };
+
+      const specCount = getTotalSpecs(specConfig);
+
+      expect(specCount).toEqual(3);
     });
   });
 });

@@ -1,5 +1,3 @@
-const mockFS = require('mock-fs');
-
 const mergeLaunches = require('./../lib/mergeLaunches');
 const mergeLaunchesUtils = require('./../lib/mergeLaunchesUtils');
 

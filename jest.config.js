@@ -25,6 +25,7 @@ module.exports = {
       statements: 80,
     },
   },
+  coveragePathIgnorePatterns: ['/node_modules/', '/test/', '/lib/mergeLaunchesUtils.js'],
   testPathIgnorePatterns: [
     '<rootDir>/cypress/',
     '<rootDir>/node_modules/',

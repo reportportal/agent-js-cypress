@@ -1,12 +1,13 @@
 {
   "name": "@reportportal/agent-js-cypress",
-  "version": "5.0.0",
+  "version": "4.0.0",
   "description": "This agent helps Cypress to communicate with Report Portal",
   "main": "index.js",
   "scripts": {
-    "eslint": "eslint \"./**/*.js\"",
-    "format": "npm run eslint -- --fix",
-    "test": "jest --coverage --config ./jest.config.js"
+    "lint": "eslint . --quiet",
+    "format": "npm run lint -- --fix",
+    "test": "jest --detectOpenHandles --config ./jest.config.js",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "ReportPortal",
