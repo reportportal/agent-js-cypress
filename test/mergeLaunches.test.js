@@ -18,13 +18,6 @@ describe('mergeLaunches', () => {
   });
 
   it('launches will stop in 5 ms: should return promise', () => {
-    // jest.spyOn(mergeLaunchesUtils, 'isLaunchesInProgress').mockImplementation(() => {
-    //   let result = true;
-    //   setTimeout(() => {
-    //     result = false;
-    //   });
-    //   return result;
-    // });
     jest.spyOn(mergeLaunchesUtils, 'isLaunchesInProgress').mockImplementation(() => true);
 
     setTimeout(() => {
