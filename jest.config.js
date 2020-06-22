@@ -17,6 +17,17 @@
 module.exports = {
   moduleFileExtensions: ['js'],
   testRegex: '/test/.*\\.test.(js)$',
+  collectCoverageFrom: [
+    'lib/**/*.js',
+    '!lib/commands/**/*.js',
+    '!lib/plugin/**/*.js',
+    '!lib/mergeLaunchesUtils.js',
+    '!lib/cypressReporter.js',
+    '!lib/ipcEvents.js',
+    '!lib/ipcServer.js',
+    '!lib/testStatuses.js',
+    '!lib/worker.js',
+  ],
   coverageThreshold: {
     global: {
       branches: 80,

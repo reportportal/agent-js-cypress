@@ -266,6 +266,21 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
 
+    it('end not started test: should call testStart', function() {
+      const spyTestStart = jest.spyOn(reporter, 'testStart');
+      const testInfoObject = {
+        id: 'testId',
+        title: 'test name',
+        status: 'failed',
+        parentId: 'suiteId',
+        err: 'error message',
+      };
+
+      reporter.testEnd(testInfoObject);
+
+      expect(spyTestStart).toHaveBeenCalled();
+    });
+
     it('end failed test: should call sendLog on test fail', function() {
       const spySendLogOnFinishItem = jest.spyOn(reporter, 'sendLogOnFinishItem');
       const testInfoObject = {
@@ -396,14 +411,14 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
   });
-  describe('sendLogOnFinishItem', () => {
+  describe('sendLogOnFinishItem: without attachments', () => {
     beforeAll(() => {
       mockFS();
     });
     afterAll(() => {
       mockFS.restore();
     });
-    it('client.sendLog should be called with parameters', function() {
+    it('attachments do not exist: client.sendLog should be called with parameters', function() {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
       const testInfoObject = {
         id: 'testId',
@@ -427,6 +442,38 @@ describe('reporter script', () => {
     });
   });
 
+  describe('sendLogOnFinishItem: with attachments', () => {
+    beforeAll(() => {
+      mockFS({
+        'example/screenshots/example.spec.js': {
+          'suite name -- test name.png': Buffer.from([1, 2, 3, 4, 5, 6, 7]),
+          'suite name -- test name (1).png': Buffer.from([8, 7, 6, 5, 4, 3, 2]),
+        },
+      });
+    });
+    afterAll(() => {
+      mockFS.restore();
+    });
+    it('client.sendLog should be called 3 times (for each attachment)', function() {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+      const testInfoObject = {
+        id: 'testId',
+        title: 'test name',
+        status: 'failed',
+        parentId: 'suiteId',
+        err: 'error message',
+      };
+
+      reporter.tempLaunchId = 'tempLaunchId';
+      reporter.testItemIds.set('suiteId', 'suiteTempId');
+      reporter.testItemIds.set('testId', 'tempTestItemId');
+
+      reporter.sendLogOnFinishItem(testInfoObject, 'tempTestItemId');
+
+      expect(spySendLog).toHaveBeenCalledTimes(3);
+    });
+  });
+
   describe('hookStart', function() {
     beforeEach(function() {
       reporter.tempLaunchId = 'tempLaunchId';
@@ -438,7 +485,7 @@ describe('reporter script', () => {
       reporter.hooks.clear();
     });
 
-    it('start hook: should put hook start object in the map', function() {
+    it('start before each hook: should put hook start object in the map', function() {
       const hookInfoObject = {
         id: 'hookId_testId',
         hookName: 'before each',
@@ -455,6 +502,30 @@ describe('reporter script', () => {
       reporter.hookStart(hookInfoObject);
 
       expect(reporter.hooks.get('hookId_testId')).toEqual(expectedHookStartObject);
+    });
+
+    it('start before all hook: should put hook start object in the map', function() {
+      const hookInfoObject = {
+        id: 'hookId_testId',
+        hookName: 'before all',
+        title: '"before all" hook: hook name',
+        status: 'pending',
+        parentId: 'suiteId',
+      };
+      reporter.suitesStackTempInfo.push({
+        tempId: 'suiteTempId',
+        startTime: currentDate,
+      });
+      const expectedHookStartObject = {
+        name: 'hook name',
+        startTime: currentDate - 1,
+        type: 'BEFORE_SUITE',
+      };
+
+      reporter.hookStart(hookInfoObject);
+
+      expect(reporter.hooks.get('hookId_testId')).toEqual(expectedHookStartObject);
+      reporter.suitesStackTempInfo = [];
     });
   });
 
@@ -668,6 +739,52 @@ describe('reporter script', () => {
       expect(reporter.suiteTestCaseIds.get(suiteTitle)).toEqual(testCaseId);
 
       reporter.suiteTestCaseIds.clear();
+    });
+  });
+  describe('saveCustomScreenshotFilename', () => {
+    it('should set custom screenshot filename', () => {
+      const screenshotFilename = 'screenshot';
+
+      reporter.saveCustomScreenshotFilename({ fileName: screenshotFilename });
+
+      expect(reporter.currentTestCustomScreenshots).toContain(screenshotFilename);
+
+      reporter.currentTestCustomScreenshots = [];
+    });
+  });
+  describe('get current suite info', () => {
+    afterEach(() => {
+      reporter.suitesStackTempInfo = [];
+    });
+
+    it('getCurrentSuiteInfo, suite exists: should return tempId of current suite', () => {
+      reporter.suitesStackTempInfo = [
+        { tempId: 'firstSuiteTempId', startTime: currentDate },
+        { tempId: 'suiteTempId', startTime: currentDate },
+      ];
+
+      const currentSuiteTempId = reporter.getCurrentSuiteInfo();
+
+      expect(currentSuiteTempId).toEqual({ tempId: 'suiteTempId', startTime: currentDate });
+    });
+
+    it('getCurrentSuiteInfo, suite not exist: should return undefined', () => {
+      const currentSuiteTempId = reporter.getCurrentSuiteInfo();
+
+      expect(currentSuiteTempId).toBeUndefined();
+    });
+    it('getCurrentSuiteId, suite exists: should return tempId of current suite', () => {
+      reporter.suitesStackTempInfo = [{ tempId: 'firstSuiteTempId' }, { tempId: 'suiteTempId' }];
+
+      const currentSuiteTempId = reporter.getCurrentSuiteId();
+
+      expect(currentSuiteTempId).toEqual('suiteTempId');
+    });
+
+    it('getCurrentSuiteId, suite not exist: should return undefined', () => {
+      const currentSuiteTempId = reporter.getCurrentSuiteId();
+
+      expect(currentSuiteTempId).toBeUndefined();
     });
   });
 });

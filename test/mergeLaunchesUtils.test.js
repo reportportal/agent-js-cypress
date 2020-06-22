@@ -5,6 +5,9 @@ const mergeLaunchesUtils = require('./../lib/mergeLaunchesUtils');
 
 describe('merge launches script', () => {
   describe('getLaunchLockFileName', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
     it('should return file name with launch name and temp id', () => {
       const launchName = 'launchName';
       const tempID = 'tempId';
@@ -25,8 +28,6 @@ describe('merge launches script', () => {
       mergeLaunchesUtils.createMergeLaunchLockFile(launchName, tempID);
 
       expect(spyFSOpen).toHaveBeenCalled();
-
-      jest.clearAllMocks();
     });
   });
 
@@ -39,12 +40,13 @@ describe('merge launches script', () => {
       mergeLaunchesUtils.deleteMergeLaunchLockFile(launchName, tempID);
 
       expect(spyFSOpen).toHaveBeenCalled();
-
-      jest.clearAllMocks();
     });
   });
 
   describe('isLaunchesInProgress', () => {
+    afterEach(() => {
+      mockFS.restore();
+    });
     it('should return true if lock files exist', () => {
       mockFS({
         'rplaunchinprogress-launchName-tempId.tmp': '',
@@ -54,8 +56,6 @@ describe('merge launches script', () => {
       const isInProgress = mergeLaunchesUtils.isLaunchesInProgress(launchName);
 
       expect(isInProgress).toEqual(true);
-
-      mockFS.restore();
     });
 
     it("should return false if lock files don't exist", () => {
@@ -67,8 +67,6 @@ describe('merge launches script', () => {
       const isInProgress = mergeLaunchesUtils.isLaunchesInProgress(launchName);
 
       expect(isInProgress).toEqual(false);
-
-      mockFS.restore();
     });
   });
 });
