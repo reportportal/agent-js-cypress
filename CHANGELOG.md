@@ -1,4 +1,7 @@
 
+### Fixed
+- Fix merge launches for `isLaunchMergeRequired` option.
+
 ## [5.0.0] - 2020-06-22
 ### Added
 - Full compatibility with ReportPortal version 5.* (see [reportportal releases](https://github.com/reportportal/reportportal/releases))
