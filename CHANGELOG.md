@@ -1,4 +1,6 @@
 
+## [5.0.1] - 2020-06-30
+
 ### Fixed
 - [#53](https://github.com/reportportal/agent-js-cypress/issues/53) Fix merge launches for `isLaunchMergeRequired` option.
 
