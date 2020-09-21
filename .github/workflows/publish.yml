@@ -14,9 +14,8 @@
 name: publish
 
 on:
-  release:
-    types:
-      - published
+  repository_dispatch:
+    types: [version-released]
 
 jobs:
   build:
