@@ -99,7 +99,11 @@ describe('utils script', () => {
         },
       ];
 
-      const attachments = getCustomScreenshots(screenshotsPath, testFileName, customScreenshotNames);
+      const attachments = getCustomScreenshots(
+        screenshotsPath,
+        testFileName,
+        customScreenshotNames,
+      );
 
       expect(attachments).toBeDefined();
       expect(attachments.length).toEqual(2);
@@ -115,7 +119,11 @@ describe('utils script', () => {
       const testFileName = `test\\example.spec.js`;
       const customScreenshotNames = ['screenshotNotExist1', 'screenshotNotExist2'];
 
-      const attachments = getCustomScreenshots(screenshotsPath, testFileName, customScreenshotNames);
+      const attachments = getCustomScreenshots(
+        screenshotsPath,
+        testFileName,
+        customScreenshotNames,
+      );
 
       expect(attachments).toBeDefined();
       expect(attachments.length).toEqual(0);
