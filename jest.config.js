@@ -22,6 +22,7 @@ module.exports = {
     '!lib/commands/**/*.js',
     '!lib/plugin/**/*.js',
     '!lib/mergeLaunchesUtils.js',
+    '!lib/mergeLaunches.js',
     '!lib/cypressReporter.js',
     '!lib/ipcEvents.js',
     '!lib/ipcServer.js',
