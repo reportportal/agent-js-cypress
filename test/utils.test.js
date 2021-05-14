@@ -188,27 +188,6 @@ describe('utils script', () => {
     });
 
     describe('getConfig', () => {
-      it('should return config with updated attributes (including system attributes)', function() {
-        const initialConfig = getDefaultConfig();
-        const expectedConfig = {
-          ...initialConfig,
-          reporterOptions: {
-            ...initialConfig.reporterOptions,
-            attributes: [
-              {
-                key: 'agent',
-                value: `${pjson.name}|${pjson.version}`,
-                system: true,
-              },
-            ],
-          },
-        };
-
-        const config = getConfig(initialConfig);
-
-        expect(config).toEqual(expectedConfig);
-      });
-
       it('should not add an attribute with the CI_BUILD_ID value in case of parallel reporter option is false', function() {
         process.env.CI_BUILD_ID = 'buildId';
         const initialConfig = getDefaultConfig();
@@ -221,13 +200,7 @@ describe('utils script', () => {
           ...initialConfig,
           reporterOptions: {
             ...initialConfig.reporterOptions,
-            attributes: [
-              {
-                key: 'agent',
-                value: `${pjson.name}|${pjson.version}`,
-                system: true,
-              },
-            ],
+            attributes: [],
           },
         };
 
@@ -249,13 +222,7 @@ describe('utils script', () => {
           ...initialConfig,
           reporterOptions: {
             ...initialConfig.reporterOptions,
-            attributes: [
-              {
-                key: 'agent',
-                value: `${pjson.name}|${pjson.version}`,
-                system: true,
-              },
-            ],
+            attributes: [],
           },
         };
 
@@ -277,13 +244,7 @@ describe('utils script', () => {
           ...initialConfig,
           reporterOptions: {
             ...initialConfig.reporterOptions,
-            attributes: [
-              {
-                key: 'agent',
-                value: `${pjson.name}|${pjson.version}`,
-                system: true,
-              },
-            ],
+            attributes: [],
           },
         };
 
@@ -306,11 +267,6 @@ describe('utils script', () => {
             ...initialConfig.reporterOptions,
             attributes: [
               {
-                key: 'agent',
-                value: `${pjson.name}|${pjson.version}`,
-                system: true,
-              },
-              {
                 value: 'buildId',
               },
             ],
@@ -330,13 +286,7 @@ describe('utils script', () => {
           ...initialConfig,
           reporterOptions: {
             ...initialConfig.reporterOptions,
-            attributes: [
-              {
-                key: 'agent',
-                value: `${pjson.name}|${pjson.version}`,
-                system: true,
-              },
-            ],
+            attributes: [],
             token: 'secret',
           },
         };
@@ -353,7 +303,13 @@ describe('utils script', () => {
         const expectedStartLaunchObject = {
           launch: 'LauncherName',
           description: 'Launch description',
-          attributes: [],
+          attributes: [
+            {
+              key: 'agent',
+              system: true,
+              value: `${pjson.name}|${pjson.version}`,
+            },
+          ],
           startTime: currentDate,
           rerun: undefined,
           rerunOf: undefined,
