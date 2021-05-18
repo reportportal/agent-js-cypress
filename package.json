@@ -22,15 +22,15 @@
     "url": "https://github.com/reportportal/agent-js-cypress"
   },
   "dependencies": {
-    "@reportportal/client-javascript": "^5.0.0",
+    "@reportportal/client-javascript": "^5.0.4",
     "glob": "7.1.3",
     "minimatch": "^3.0.4",
-    "mocha": "7.0.1",
+    "mocha": "^8.3.2",
     "node-ipc": "9.1.1"
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "cypress": "^4.0.2",
+    "cypress": "^7.1.0",
     "eslint": "6.5.1",
     "eslint-config-airbnb-base": "14.0.0",
     "eslint-config-prettier": "6.9.0",

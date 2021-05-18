@@ -16,6 +16,7 @@ const {
   getAgentInfo,
   getCodeRef,
   getTotalSpecs,
+  getConfig,
 } = require('./../lib/utils');
 const pjson = require('./../package.json');
 
@@ -183,6 +184,117 @@ describe('utils script', () => {
         const systemAttributes = getSystemAttributes(options);
 
         expect(systemAttributes).toEqual(expectedSystemAttributes);
+      });
+    });
+
+    describe('getConfig', () => {
+      it('should not add an attribute with the CI_BUILD_ID value in case of parallel reporter option is false', function() {
+        process.env.CI_BUILD_ID = 'buildId';
+        const initialConfig = getDefaultConfig();
+        initialConfig.reporterOptions = {
+          ...initialConfig.reporterOptions,
+          autoMerge: true,
+          parallel: false,
+        };
+        const expectedConfig = {
+          ...initialConfig,
+          reporterOptions: {
+            ...initialConfig.reporterOptions,
+            attributes: [],
+          },
+        };
+
+        const config = getConfig(initialConfig);
+
+        expect(config).toEqual(expectedConfig);
+        process.env.CI_BUILD_ID = undefined;
+      });
+
+      it('should not add an attribute with the CI_BUILD_ID value in case of autoMerge reporter option is false', function() {
+        process.env.CI_BUILD_ID = 'buildId';
+        const initialConfig = getDefaultConfig();
+        initialConfig.reporterOptions = {
+          ...initialConfig.reporterOptions,
+          autoMerge: false,
+          parallel: true,
+        };
+        const expectedConfig = {
+          ...initialConfig,
+          reporterOptions: {
+            ...initialConfig.reporterOptions,
+            attributes: [],
+          },
+        };
+
+        const config = getConfig(initialConfig);
+
+        expect(config).toEqual(expectedConfig);
+        process.env.CI_BUILD_ID = undefined;
+      });
+
+      it('should not add an attribute with the value CI_BUILD_ID if the env variable CI_BUILD_ID does not exist', function() {
+        process.env.CI_BUILD_ID = undefined;
+        const initialConfig = getDefaultConfig();
+        initialConfig.reporterOptions = {
+          ...initialConfig.reporterOptions,
+          autoMerge: false,
+          parallel: true,
+        };
+        const expectedConfig = {
+          ...initialConfig,
+          reporterOptions: {
+            ...initialConfig.reporterOptions,
+            attributes: [],
+          },
+        };
+
+        const config = getConfig(initialConfig);
+
+        expect(config).toEqual(expectedConfig);
+      });
+
+      it('should return config with updated attributes (including attribute with CI_BUILD_ID value)', function() {
+        process.env.CI_BUILD_ID = 'buildId';
+        const initialConfig = getDefaultConfig();
+        initialConfig.reporterOptions = {
+          ...initialConfig.reporterOptions,
+          autoMerge: true,
+          parallel: true,
+        };
+        const expectedConfig = {
+          ...initialConfig,
+          reporterOptions: {
+            ...initialConfig.reporterOptions,
+            attributes: [
+              {
+                value: 'buildId',
+              },
+            ],
+          },
+        };
+
+        const config = getConfig(initialConfig);
+
+        expect(config).toEqual(expectedConfig);
+        process.env.CI_BUILD_ID = undefined;
+      });
+
+      it('should update token property if the env variable RP_TOKEN exists', function() {
+        process.env.RP_TOKEN = 'secret';
+        const initialConfig = getDefaultConfig();
+        const expectedConfig = {
+          ...initialConfig,
+          reporterOptions: {
+            ...initialConfig.reporterOptions,
+            attributes: [],
+            token: 'secret',
+          },
+        };
+
+        const config = getConfig(initialConfig);
+
+        expect(config).toEqual(expectedConfig);
+        process.env.RP_TOKEN = undefined;
       });
     });
 

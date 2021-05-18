@@ -63,10 +63,35 @@ Runs support following options:
 | project               | The name of the project in which the launches will be created.                                                    |
 | rerun                 | Enable [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md)           |
 | rerunOf               | UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name|
+| mode                  | *Default: "default".* Results will be submitting to Launches tab<br> *"debug"* - Results will be submitting to Debug tab. |
+| debug                 | This flag allows seeing the logs of the client-javascript. Useful for debugging. Parameter could be equal boolean values. |
 | autoMerge             | Enable automatical report test items of all runned spec into one launch. You should install plugin or setup additional settings in reporterOptions. See [Automatically merge launch](#automatically-merge-launches). |
 | reportHooks           | Determines report before and after hooks or not.                                                                  |
 | skippedIssue          | ReportPortal provides feature to mark skipped tests as not 'To Investigate' items on WS side.<br> Parameter could be equal boolean values:<br> *TRUE* - skipped tests considered as issues and will be marked as 'To Investigate' on Report Portal (default value).<br> *FALSE* - skipped tests will not be marked as 'To Investigate' on application.|
 | isLaunchMergeRequired | Allows to merge Cypress run's into one launch in the end of the run. Needs additional setup. See [Manual merge launches](#manual-merge-launches).  |
+| parallel              | Indicates to the reporter that spec files will be executed in parallel. Parameter could be equal boolean values. See [Parallel execution](#parallel-execution) |
+
+### Overwrite options from config file
+
+**If you run Cypress tests programmatically, you can simply overwrite them:**
+
+```javascript
+const updatedConfig = {
+  ...config,
+  reporterOptions: {
+    ...config.reporterOptions,
+    token: process.env.RP_TOKEN,
+  },
+};
+
+```
+
+**Overwrite by env variables:**
+
+| Parameter          | Env variable |
+| ------------------ | ---------- |
+| token              | RP_TOKEN |
+
 
 ## ReportPortal custom commands
 
@@ -286,6 +311,64 @@ cypress.run().then(
   "cypress": "node scripts/cypress.js",
   ...
 },
+
+```
+
+## Parallel execution
+
+Cypress can run recorded tests in parallel across multiple machines since version 3.1.0 ([Cypress docs](https://docs.cypress.io/guides/guides/parallelization)). <br/>
+By default Cypress create a separate run for each test file. To merge all runs into one launch in Report Portal you need to provide [autoMerge](#automatically-merge-launches) option together with parallel flag. <br/>
+Since Cypress does not provide the ci_build_id to the reporter, you need to provide it manually using the CI_BUILD_ID environment variable (see [Cypress docs](https://docs.cypress.io/guides/guides/parallelization#CI-Build-ID-environment-variables-by-provider) for details).
+
+**Enable parallel in reporterOptions as shown below:**
+
+```json
+
+{
+  ...
+  "reporterOptions": {
+    ...
+    "parallel": true
+  }
+}
+
+```
+
+**Here's an example of setting up parallel Cypress execution using GitHub Actions:**
+
+```yaml
+
+name: CI-pipeline
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: cypress/browsers:node12.18.3-chrome87-ff82
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2, 3]
+    env:
+      CI_BUILD_ID: ${{ github.sha }}-${{ github.workflow }}-${{ github.event_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: 'UI Tests - Chrome'
+        uses: cypress-io/github-action@v2
+        with:
+          config-file: cypress.json
+          group: 'UI Tests - Chrome'
+          spec: cypress/integration/*
+          record: true
+          parallel: true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTIONS_RUNNER_DEBUG: true
 
 ```
 

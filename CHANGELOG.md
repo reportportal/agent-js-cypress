@@ -1,6 +1,10 @@
+### Added
+- [#65](https://github.com/reportportal/agent-js-cypress/issues/65) Merge launches for parallel run.
+
+### Fixed
+- Vulnerabilities (axios, acorn, ini, y18n, hosted-git-info).
 
 ## [5.0.1] - 2020-06-30
-
 ### Fixed
 - [#53](https://github.com/reportportal/agent-js-cypress/issues/53) Fix merge launches for `isLaunchMergeRequired` option.
 
