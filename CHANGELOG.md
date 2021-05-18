@@ -1,3 +1,5 @@
+
+## [5.0.2] - 2021-05-18
 ### Added
 - [#65](https://github.com/reportportal/agent-js-cypress/issues/65) Merge launches for parallel run.
 
