@@ -49,7 +49,7 @@ require('@reportportal/agent-js-cypress/lib/commands/reportPortalCommands');
 
 ```
 
-See examples of usage [here](https://github.com/reportportal/examples-js/example-cypress).
+See examples of usage [here](https://github.com/reportportal/examples-js/tree/master/example-cypress).
 
 ## Options
 
