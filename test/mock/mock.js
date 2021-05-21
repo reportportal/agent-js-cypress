@@ -29,6 +29,7 @@ class RPClient {
 }
 
 const getDefaultConfig = () => ({
+  screenshotsFolder: 'example/screenshots',
   reporter: '@reportportal/agent-js-cypress',
   reporterOptions: {
     token: '00000000-0000-0000-0000-000000000000',
