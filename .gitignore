@@ -8,6 +8,7 @@ node_modules/
 
 # Editor
 .idea/
+.vscode/
 
 # Optional npm directory
 .npm
@@ -15,9 +16,6 @@ node_modules/
 
 # Optional eslint cache
 .eslintcache
-
-# VS code
-.vscode/
 
 # Mac files
 .DS_Store
