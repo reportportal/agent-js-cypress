@@ -104,7 +104,7 @@ ReportPortal provides the following custom commands for reporting logs into the 
 
 You can use the following methods to report logs and attachments with different log levels:
 * cy.trace (*message* , *file*). Reports *message* and optional *file* as a log of the current test with trace log level.
-* cy.debug (*message* , *file*). Reports *message* and optional *file* as a log of the current test with debug log level.
+* cy.logDebug (*message* , *file*). Reports *message* and optional *file* as a log of the current test with debug log level.
 * cy.info (*message* , *file*). Reports *message* and optional *file* as log of the current test with info log level.
 * cy.warn (*message* , *file*). Reports *message* and optional *file* as a log of the current test with warning log level.
 * cy.error (*message* , *file*). Reports *message* and optional *file* as a log of the current test with error log level.
