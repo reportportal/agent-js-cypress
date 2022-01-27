@@ -9,28 +9,26 @@
     "test": "jest --detectOpenHandles --config ./jest.config.js",
     "test:coverage": "jest --coverage"
   },
-  "keywords": [
-    "ReportPortal",
-    "rp",
-    "Cypress",
-    "reporting",
-    "reporter",
-    "epam"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/reportportal/agent-js-cypress"
   },
   "dependencies": {
-    "@reportportal/client-javascript": "^5.0.4",
+    "@reportportal/client-javascript": "^5.0.6",
     "glob": "7.1.3",
     "minimatch": "^3.0.4",
     "mocha": "^8.3.2",
     "node-ipc": "9.1.1"
   },
+  "directories": {
+    "lib": "./lib"
+  },
+  "files": [
+    "/lib"
+  ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "cypress": "^7.1.0",
+    "cypress": "^9.3.1",
     "eslint": "6.5.1",
     "eslint-config-airbnb-base": "14.0.0",
     "eslint-config-prettier": "6.9.0",
@@ -41,5 +39,13 @@
     "jest": "^25.3.0",
     "mock-fs": "^4.11.0",
     "prettier": "1.19.1"
-  }
+  },
+  "keywords": [
+    "ReportPortal",
+    "rp",
+    "Cypress",
+    "reporting",
+    "reporter",
+    "epam"
+  ]
 }

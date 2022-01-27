@@ -17,6 +17,10 @@ on:
   push:
     branches:
       - develop
+      - '!master'
+    paths-ignore:
+      - README.md
+      - CHANGELOG.md
   pull_request:
 
 jobs:
@@ -33,7 +37,5 @@ jobs:
         run: npm ci
       - name: Run lint
         run: npm run lint
-      - name: Run tests
-        run: npm test
-      - name: Check coverage
+      - name: Run tests and check coverage
         run: npm run test:coverage

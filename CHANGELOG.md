@@ -1,4 +1,11 @@
 
+### Fixed
+- [#76](https://github.com/reportportal/agent-js-cypress/issues/76) Custom screenshot command doesn't wait for image to be taken.
+- [95](https://github.com/reportportal/agent-js-cypress/issues/95) and [97](https://github.com/reportportal/agent-js-cypress/issues/97) with 9.* cypress versions support.
+
+### Changed
+- Package size reduced
+
 ## [5.0.2] - 2021-05-18
 ### Added
 - [#65](https://github.com/reportportal/agent-js-cypress/issues/65) Merge launches for parallel run.

@@ -49,7 +49,7 @@ require('@reportportal/agent-js-cypress/lib/commands/reportPortalCommands');
 
 ```
 
-See examples of usage [here](https://github.com/reportportal/examples-js/example-cypress).
+See examples of usage [here](https://github.com/reportportal/examples-js/tree/master/example-cypress).
 
 ## Options
 
@@ -70,6 +70,7 @@ Runs support following options:
 | skippedIssue          | ReportPortal provides feature to mark skipped tests as not 'To Investigate' items on WS side.<br> Parameter could be equal boolean values:<br> *TRUE* - skipped tests considered as issues and will be marked as 'To Investigate' on Report Portal (default value).<br> *FALSE* - skipped tests will not be marked as 'To Investigate' on application.|
 | isLaunchMergeRequired | Allows to merge Cypress run's into one launch in the end of the run. Needs additional setup. See [Manual merge launches](#manual-merge-launches).  |
 | parallel              | Indicates to the reporter that spec files will be executed in parallel. Parameter could be equal boolean values. See [Parallel execution](#parallel-execution) |
+| restClientConfig      | Optional property.<br/> The object with `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, may contain other client options eg. `timeout`.<br/> Visit [client-javascript](https://github.com/reportportal/client-javascript) for more details. |
 
 ### Overwrite options from config file
 
@@ -103,7 +104,7 @@ ReportPortal provides the following custom commands for reporting logs into the 
 
 You can use the following methods to report logs and attachments with different log levels:
 * cy.trace (*message* , *file*). Reports *message* and optional *file* as a log of the current test with trace log level.
-* cy.debug (*message* , *file*). Reports *message* and optional *file* as a log of the current test with debug log level.
+* cy.logDebug (*message* , *file*). Reports *message* and optional *file* as a log of the current test with debug log level.
 * cy.info (*message* , *file*). Reports *message* and optional *file* as log of the current test with info log level.
 * cy.warn (*message* , *file*). Reports *message* and optional *file* as a log of the current test with warning log level.
 * cy.error (*message* , *file*). Reports *message* and optional *file* as a log of the current test with error log level.
@@ -123,6 +124,8 @@ You can use the following methods to report logs and attachments with different 
   content: data,  // file content represented as 64base string
 }
 ```
+
+**Note:** The `cy.debug` RP command has been changed to `cy.logDebug` due to the command with the same name in Cypress 9.*.
 
 ### Report attributes for tests
 
@@ -199,7 +202,7 @@ Default usage of Cypress screenshot function is supported without additional set
 ## Automatically merge launches
 
 By default Cypress create a separate run for each test file. This section describe how to report test items of different specs into the single launch.
-This feature needs information about Cypreess configuration. To provide it to the reporter you need to install reportPortal plugin (see how to in [this section](#register-reportportal-plugin-cypresspluginsindexjs)) or to copy the following Cypress config options to the reporterOptions:
+This feature needs information about Cypress configuration. To provide it to the reporter you need to install reportPortal plugin (see how to in [this section](#register-reportportal-plugin-cypresspluginsindexjs)) or to copy the following Cypress config options to the reporterOptions:
 * ignoreTestFiles
 * testFiles
 * integrationFolder
@@ -375,7 +378,3 @@ jobs:
 # Copyright Notice
 
 Licensed under the [Apache License v2.0](LICENSE)
-
-# Contribution
-
-<img src="img/ahold-delhaize-logo-green.jpg" width="250">
