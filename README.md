@@ -125,6 +125,8 @@ You can use the following methods to report logs and attachments with different 
 }
 ```
 
+**Note:** The `cy.debug` RP command has been changed to `cy.logDebug` due to the command with the same name in Cypress 9.*.
+
 ### Report attributes for tests
 
 **addTestAttributes (*attributes*)**. Add attributes(tags) to the current test. Should be called inside of corresponding test.<br/> 
