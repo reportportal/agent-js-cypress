@@ -1,6 +1,8 @@
+### Fixed
+- 'Error: cannot read property toString of undefined' for _log_ command.
+- Vulnerabilities (minimist, follow-redirects).
 
 ## [5.0.3] - 2022-01-27
-
 ### Fixed
 - [#76](https://github.com/reportportal/agent-js-cypress/issues/76) Custom screenshot command doesn't wait for image to be taken.
 - [95](https://github.com/reportportal/agent-js-cypress/issues/95) and [97](https://github.com/reportportal/agent-js-cypress/issues/97) with 9.* cypress versions support.
