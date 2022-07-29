@@ -84,8 +84,8 @@ jobs:
           node-version: '12'
       - name: Configure git
         run: |
-          git config --global user.email "reportportal.io"
-          git config --global user.name "reportportal.io"
+          git config --global user.email "kormachev.t@gmail.com"
+          git config --global user.name "kormachevt"
           git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
       - name: Update VERSION file
         run: |

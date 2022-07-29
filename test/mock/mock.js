@@ -29,7 +29,7 @@ class RPClient {
 }
 
 const getDefaultConfig = () => ({
-  reporter: '@reportportal/agent-js-cypress',
+  reporter: '@kormachevt/agent-js-cypress',
   reporterOptions: {
     token: '00000000-0000-0000-0000-000000000000',
     endpoint: 'https://reportportal.server/api/v1',
