@@ -71,6 +71,7 @@ Runs support following options:
 | isLaunchMergeRequired | Allows to merge Cypress run's into one launch in the end of the run. Needs additional setup. See [Manual merge launches](#manual-merge-launches).  |
 | parallel              | Indicates to the reporter that spec files will be executed in parallel. Parameter could be equal boolean values. See [Parallel execution](#parallel-execution) |
 | restClientConfig      | Optional property.<br/> The object with `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, may contain other client options eg. `timeout`.<br/> Visit [client-javascript](https://github.com/reportportal/client-javascript) for more details. |
+| forceEndSkippedTests               | Default: `false`. Mocha doesn't emit `test end` event for skipped tests (or sometimes just for a single last one in a suite). If set to `true` reporter will finish this dangling tests with `skipped` status.
 
 ### Overwrite options from config file
 
