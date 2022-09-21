@@ -1,6 +1,8 @@
 # @reportportal/agent-js-cypress
 
-agent-js-cypress is a runtime reporter for the [Report Portal](https://github.com/reportportal/reportportal) which provides information about collection run.
+`agent-js-cypress` is a runtime reporter for the [Report Portal](https://github.com/reportportal/reportportal) which provides information about collection run.
+* More about [Cypress](https://cypress.io/)
+* More about [ReportPortal](http://reportportal.io/)
 
 ## Install
 
@@ -9,6 +11,62 @@ $ npm install @reportportal/agent-js-cypress
 ```
 
 ## Usage
+
+### Cypress version => 10
+
+There is a configuration guide for Cypress version 10 and above.
+
+#### cypress.config.js
+
+Add the following options to cypress.config.js.
+
+```javascript
+
+const { defineConfig } = require('cypress');
+const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/plugin');
+
+module.exports = defineConfig({
+  reporter: '@reportportal/agent-js-cypress',
+  reporterOptions: {
+    endpoint: 'http://your-instance.com:8080/api/v1',
+    token: '00000000-0000-0000-0000-000000000000',
+    launch: 'LAUNCH_NAME',
+    project: 'PROJECT_NAME',
+    description: 'LAUNCH_DESCRIPTION',
+    attributes: [
+      {
+        key: 'attributeKey',
+        value: 'attrbiuteValue',
+      },
+      {
+        value: 'anotherAttrbiuteValue',
+      },
+    ],
+  },
+  e2e: {
+    setupNodeEvents(on, config) {
+      return registerReportPortalPlugin(on, config);
+    },
+  },
+});
+```
+To see more options refer [Options](#options).
+
+#### Setup [ReportPortal custom commands](#reportportal-custom-commands)
+
+Add the following to your custom commands file (cypress/support/commands.js):
+
+```javascript
+
+require('@reportportal/agent-js-cypress/lib/commands/reportPortalCommands');
+
+```
+
+See examples of usage [here](https://github.com/reportportal/examples-js/tree/master/example-cypress).
+
+### Cypress version <= 9
+
+There is a configuration guide for Cypress version 9 and below.
 
 #### Cypress.json
 
@@ -23,11 +81,22 @@ Add the following options to cypress.json
     "token": "00000000-0000-0000-0000-000000000000",
     "launch": "LAUNCH_NAME",
     "project": "PROJECT_NAME",
-    "description": "LAUNCH_DESCRIPTION"
+    "description": "LAUNCH_DESCRIPTION",
+    "attributes": [
+      {
+        "key": "attributeKey",
+        "value": "attrbiuteValue"
+      },
+      {
+        "value": "anotherAttrbiuteValue"
+      }
+    ]
   }
 }
 
 ```
+
+To see more options refer [Options](#options).
 
 #### Register ReportPortal plugin (cypress/plugins/index.js):
 
@@ -49,32 +118,32 @@ require('@reportportal/agent-js-cypress/lib/commands/reportPortalCommands');
 
 ```
 
-See examples of usage [here](https://github.com/reportportal/examples-js/tree/master/example-cypress).
-
 ## Options
 
-Runs support following options:
+Reporter support following options:
 
-| Parameter             | Description                                                                                                       |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| token                 | User's Report Portal token from which you want to send requests. It can be found on the profile page of this user.|
-| endpoint              | URL of your server. For example 'https://server:8080/api/v1'.                                                     |
-| launch                | Name of launch at creation.                                                                                       |
-| project               | The name of the project in which the launches will be created.                                                    |
-| rerun                 | Enable [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md)           |
-| rerunOf               | UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name|
-| mode                  | *Default: "default".* Results will be submitting to Launches tab<br> *"debug"* - Results will be submitting to Debug tab. |
-| debug                 | This flag allows seeing the logs of the client-javascript. Useful for debugging. Parameter could be equal boolean values. |
-| autoMerge             | Enable automatical report test items of all runned spec into one launch. You should install plugin or setup additional settings in reporterOptions. See [Automatically merge launch](#automatically-merge-launches). |
-| reportHooks           | Determines report before and after hooks or not.                                                                  |
-| skippedIssue          | ReportPortal provides feature to mark skipped tests as not 'To Investigate' items on WS side.<br> Parameter could be equal boolean values:<br> *TRUE* - skipped tests considered as issues and will be marked as 'To Investigate' on Report Portal (default value).<br> *FALSE* - skipped tests will not be marked as 'To Investigate' on application.|
-| isLaunchMergeRequired | Allows to merge Cypress run's into one launch in the end of the run. Needs additional setup. See [Manual merge launches](#manual-merge-launches).  |
-| parallel              | Indicates to the reporter that spec files will be executed in parallel. Parameter could be equal boolean values. See [Parallel execution](#parallel-execution) |
-| restClientConfig      | Optional property.<br/> The object with `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, may contain other client options eg. `timeout`.<br/> Visit [client-javascript](https://github.com/reportportal/client-javascript) for more details. |
+| Parameter             | Description                                                                                                                                                                                                                                                                                                                                                                        |
+|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| token                 | (required) User's Report Portal token from which you want to send requests. It can be found on the profile page of this user.                                                                                                                                                                                                                                                      |
+| endpoint              | (required) URL of your server. For example 'https://server:8080/api/v1'.                                                                                                                                                                                                                                                                                                           |
+| launch                | (required) Name of launch at creation.                                                                                                                                                                                                                                                                                                                                             |
+| project               | (required) The name of the project in which the launches will be created.                                                                                                                                                                                                                                                                                                          |
+| attributes            | (optional) *Default: [].* Launch attributes.                                                                                                                                                                                                                                                                                                                                       |
+| description           | (optional) *Default: not set.* Launch description.                                                                                                                                                                                                                                                                                                                                 |
+| rerun                 | (optional) *Default: false.* Enable [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md).                                                                                                                                                                                                                                              |
+| rerunOf               | (optional) *Default: not set.* UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name.                                                                                                                                                                                                                                 |
+| mode                  | (optional) *Default: DEFAULT.* Results will be submitting to Launches page<br> *"DEBUG"* - Results will be submitting to Debug page.                                                                                                                                                                                                                                               |
+| debug                 | (optional) *Default: false.* This flag allows seeing the logs of the client-javascript. Useful for debugging. Parameter could be equal boolean values.                                                                                                                                                                                                                             |
+| skippedIssue          | (optional) *Default: true.* ReportPortal provides feature to mark skipped tests as not 'To Investigate' items on WS side.<br> Parameter could be equal boolean values:<br> *TRUE* - skipped tests considered as issues and will be marked as 'To Investigate' on Report Portal (default value).<br> *FALSE* - skipped tests will not be marked as 'To Investigate' on application. |
+| restClientConfig      | (optional) *Default: not set.*<br/> The object with `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, may contain other client options eg. `timeout`.<br/> Visit [client-javascript](https://github.com/reportportal/client-javascript) for more details.                                               |
+| autoMerge             | (optional) *Default: false.* Enable automatic report test items of all runned spec into one launch. You should install plugin or setup additional settings in reporterOptions. See [Automatically merge launch](#automatically-merge-launches).                                                                                                                                    |
+| reportHooks           | (optional) *Default: false.* Determines report before and after hooks or not.                                                                                                                                                                                                                                                                                                      |
+| isLaunchMergeRequired | (optional) *Default: false.* Allows to merge Cypress run's into one launch at the end of the run. Needs additional setup. See [Manual merge launches](#manual-merge-launches).                                                                                                                                                                                                     |
+| parallel              | (optional) *Default: false.* Indicates to the reporter that spec files will be executed in parallel. Parameter could be equal boolean values. See [Parallel execution](#parallel-execution).                                                                                                                                                                                       |
 
 ### Overwrite options from config file
 
-**If you run Cypress tests programmatically, you can simply overwrite them:**
+**If you run Cypress tests programmatically or use `cypress.config.js`, you can simply overwrite them:**
 
 ```javascript
 const updatedConfig = {
@@ -89,9 +158,9 @@ const updatedConfig = {
 
 **Overwrite by env variables:**
 
-| Parameter          | Env variable |
-| ------------------ | ---------- |
-| token              | RP_TOKEN |
+| Parameter | Env variable |
+|-----------|--------------|
+| token     | RP_TOKEN     |
 
 
 ## ReportPortal custom commands
@@ -129,7 +198,7 @@ You can use the following methods to report logs and attachments with different 
 
 ### Report attributes for tests
 
-**addTestAttributes (*attributes*)**. Add attributes(tags) to the current test. Should be called inside of corresponding test.<br/> 
+**addTestAttributes (*attributes*)**. Add attributes(tags) to the current test. Should be called inside of corresponding test.<br/>
 *attributes* is array of pairs of key and value:
 ```javascript
 [{
@@ -142,7 +211,7 @@ You can use the following methods to report logs and attachments with different 
 
 ### Integration with Sauce Labs
 
-To integrate with Sauce Labs just add attributes: 
+To integrate with Sauce Labs just add attributes:
 
 ```javascript
 [{
@@ -160,7 +229,7 @@ To integrate with Sauce Labs just add attributes:
 
 ### Report test case Id for tests and suites
 
-**setTestCaseId (*id*, *suite*)**. Set test case id to the current test or suite. Should be called inside of corresponding test/suite.<br/> 
+**setTestCaseId (*id*, *suite*)**. Set test case id to the current test or suite. Should be called inside of corresponding test/suite.<br/>
 *id* is a string test case Id.<br/>
 *suite (optional)* is the title of the suite to which the specified test case id belongs. Should be provided just in case of reporting test case id for specified suite instead of current test.
 
@@ -193,11 +262,11 @@ ReportPortal also provides the corresponding methods for setting status into the
 * cy.setLaunchStatusInterrupted(). Assign *interrupted* status to the launch.
 * cy.setLaunchStatusCancelled(). Assign *cancelled* status to the launch.
 * cy.setLaunchStatusInfo(). Assign *info* status to the launch.
- 
+
 ## Screenshots support
 
 To use custom filename in cy.screenshot function you should [setup ReportRortal custom commands](#setup-reportportal-custom-commands).
-Default usage of Cypress screenshot function is supported without additional setup. 
+Default usage of Cypress screenshot function is supported without additional setup.
 
 ## Automatically merge launches
 
@@ -208,8 +277,6 @@ This feature needs information about Cypress configuration. To provide it to the
 * integrationFolder
 * fixturesFolder
 * supportFile
-
-*Note: you need to specify only those options that are not the default.*
 
 **Enable auto-merge in reporterOptions as shown below:**
 
@@ -225,23 +292,22 @@ This feature needs information about Cypress configuration. To provide it to the
 
 ```
 
-
 ## Manual merge launches
 
 There is a possibility to merge all launches into a single launch in the end of the run.
-We advice to use [autoMerge option](#automatically-merge-launches) to merge results in one launch but you can use this alternative option in case of you need to perform some additional actions before merge.
+We advise using [autoMerge option](#automatically-merge-launches) to merge results in one launch, but you can use this alternative option in case of you need to perform some additional actions before merge.
 
 #### Set corresponding reporter options
 
-Edit cypress.json file. Set isLaunchMergeRequired option to **true** as shown below:
+Edit cypress.config.js (or cypress.json for versions <=9) file. Set isLaunchMergeRequired option to **true** as shown below:
 
-```json
+```javascript
 
 {
   ...
-  "reporterOptions": {
+  reporterOptions: {
     ...
-    "isLaunchMergeRequired": true
+    isLaunchMergeRequired: true
   }
 }
 
@@ -258,8 +324,9 @@ const cypress = require('cypress');
 const fs = require('fs');
 const glob = require('glob');
 const { mergeLaunches } = require('@reportportal/agent-js-cypress/lib/mergeLaunches');
+// const { config } = require('../cypress.config.js'); // for Cypress >= 10
 
-const cypressConfigFile = 'cypress.json';
+const cypressConfigFile = 'cypress.json'; // for cypress <= 9
 
 const getLaunchTempFiles = () => {
   return glob.sync('rplaunch-*.tmp');
@@ -325,13 +392,13 @@ Since Cypress does not provide the ci_build_id to the reporter, you need to prov
 
 **Enable parallel in reporterOptions as shown below:**
 
-```json
+```javascript
 
 {
   ...
-  "reporterOptions": {
+  reporterOptions: {
     ...
-    "parallel": true
+    parallel: true
   }
 }
 
@@ -374,6 +441,8 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
 
 ```
+
+**Note:** The example provided for Cypress version <= 9. For Cypress version >= 10 usage of `cypress-io/github-action` may be changed.
 
 # Copyright Notice
 

@@ -831,7 +831,7 @@ describe('utils script', () => {
   });
 
   describe('getFixtureFolderPattern', () => {
-    it('returns a glob pattern forn fixtures folder', () => {
+    it('returns a glob pattern for fixtures folder', () => {
       const specConfig = { fixturesFolder: 'cypress/fixtures' };
 
       const specArray = getFixtureFolderPattern(specConfig);
