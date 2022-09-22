@@ -1,3 +1,5 @@
+
+## [5.1.0] - 2022-09-22
 ### Added
 - Cypress 10.x versions support (closes [116](https://github.com/reportportal/agent-js-cypress/issues/116) and [115](https://github.com/reportportal/agent-js-cypress/issues/115)). Thanks to [orgads](https://github.com/orgads) and [dwentland24](https://github.com/dwentland24).
 - The Readme file and examples in [examples repository](https://github.com/reportportal/examples-js) have been updated accordingly.
