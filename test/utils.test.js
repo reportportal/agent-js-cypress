@@ -320,6 +320,7 @@ describe('utils script', () => {
         };
 
         const startLaunchObject = getLaunchStartObject(getDefaultConfig());
+
         expect(startLaunchObject).toBeDefined();
         expect(startLaunchObject).toEqual(expectedStartLaunchObject);
       });
