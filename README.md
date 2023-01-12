@@ -156,7 +156,7 @@ const updatedConfig = {
 
 ```
 
-**Overwrite by env variables:**
+**For security reasons, you can also set token as a part of Environment Variables, instead of sharing it in the config file:**
 
 | Parameter | Env variable |
 |-----------|--------------|
