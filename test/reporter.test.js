@@ -600,6 +600,9 @@ describe('reporter script', () => {
     });
   });
   describe('send log', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
     it('sendLog: client.sendLog should be called with parameters', function() {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
       const logObj = {
@@ -633,6 +636,18 @@ describe('reporter script', () => {
 
       expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
     });
+    it('sendLogToCurrentItem: client.sendLog rejected promise should be handled', async function() {
+      const spyConsoleError = jest.spyOn(global.console, 'error').mockImplementation();
+      const clientError = new Error('client call failed');
+      jest
+        .spyOn(reporter.client, 'sendLog')
+        .mockReturnValue({ promise: Promise.reject(clientError) });
+      await reporter.sendLogToCurrentItem({
+        level: 'error',
+        message: 'error message',
+      });
+      expect(spyConsoleError).toHaveBeenCalledWith('Fail to send log to current item', clientError);
+    });
     it('sendLaunchLog: client.sendLog should be called with parameters', function() {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
       const logObj = {
@@ -649,6 +664,18 @@ describe('reporter script', () => {
       reporter.sendLaunchLog(logObj);
 
       expect(spySendLog).toHaveBeenCalledWith('tempLaunchId', expectedLogObj, undefined);
+    });
+    it('sendLaunchLog: client.sendLog rejected promise should be handled', async function() {
+      const spyConsoleError = jest.spyOn(global.console, 'error').mockImplementation();
+      const clientError = new Error('client call failed');
+      jest
+        .spyOn(reporter.client, 'sendLog')
+        .mockReturnValue({ promise: Promise.reject(clientError) });
+      await reporter.sendLaunchLog({
+        level: 'error',
+        message: 'error message',
+      });
+      expect(spyConsoleError).toHaveBeenCalledWith('Fail to send launch log', clientError);
     });
   });
   describe('addAttributes', () => {
