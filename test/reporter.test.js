@@ -134,6 +134,36 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempSuiteId', { endTime: currentDate });
     });
+
+    it('finishTestItem should have description and attributes from suite stack top item', function() {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+
+      const attributes = [{ key: 'test key', value: 'test value' }];
+      const description = 'test description';
+
+      reporter.testItemIds.set('suiteId', 'tempSuiteId');
+      reporter.suitesStackTempInfo.push({
+        tempId: 'tempSuiteId',
+        title: 'suite title',
+      });
+
+      const suiteEndObject = {
+        id: 'suiteId',
+        endTime: currentDate,
+      };
+
+      reporter.addAttributes(attributes);
+      reporter.setDescription(description);
+      reporter.suiteEnd(suiteEndObject);
+
+      expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
+      expect(spyFinishTestItem).toHaveBeenCalledWith('tempSuiteId', {
+        description,
+        endTime: currentDate,
+        attributes,
+      });
+    });
+
     it('end suite with testCaseId: finishTestItem should be called with testCaseId', function() {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       reporter.testItemIds.set('suiteId', 'tempSuiteId');
