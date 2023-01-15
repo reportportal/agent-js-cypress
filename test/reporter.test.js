@@ -281,23 +281,6 @@ describe('reporter script', () => {
       expect(spyTestStart).toHaveBeenCalled();
     });
 
-    it('end failed test: should call sendLog on test fail', function() {
-      const spySendLogOnFinishItem = jest.spyOn(reporter, 'sendLogOnFinishItem');
-      const testInfoObject = {
-        id: 'testId',
-        title: 'test name',
-        status: 'failed',
-        parentId: 'suiteId',
-        err: 'error message',
-      };
-      reporter.testItemIds.set('testId', 'tempTestItemId');
-
-      reporter.testEnd(testInfoObject);
-
-      expect(spySendLogOnFinishItem).toHaveBeenCalledTimes(1);
-      expect(spySendLogOnFinishItem).toHaveBeenCalledWith(testInfoObject, 'tempTestItemId');
-    });
-
     it('end passed test with attributes: finishTestItem should be called with attributes', function() {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const testInfoObject = {
@@ -411,68 +394,6 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
   });
-  describe('sendLogOnFinishItem: without attachments', () => {
-    beforeAll(() => {
-      mockFS();
-    });
-    afterAll(() => {
-      mockFS.restore();
-    });
-    it('attachments do not exist: client.sendLog should be called with parameters', function() {
-      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
-      const testInfoObject = {
-        id: 'testId',
-        title: 'test name',
-        status: 'failed',
-        parentId: 'suiteId',
-        err: 'error message',
-      };
-      const expectedLogObj = {
-        level: 'error',
-        message: 'error message',
-        time: currentDate,
-      };
-      reporter.tempLaunchId = 'tempLaunchId';
-      reporter.testItemIds.set('suiteId', 'suiteTempId');
-      reporter.testItemIds.set('testId', 'tempTestItemId');
-
-      reporter.sendLogOnFinishItem(testInfoObject, 'tempTestItemId');
-
-      expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
-    });
-  });
-
-  describe('sendLogOnFinishItem: with attachments', () => {
-    beforeAll(() => {
-      mockFS({
-        'example/screenshots/example.spec.js': {
-          'suite name -- test name.png': Buffer.from([1, 2, 3, 4, 5, 6, 7]),
-          'suite name -- test name (1).png': Buffer.from([8, 7, 6, 5, 4, 3, 2]),
-        },
-      });
-    });
-    afterAll(() => {
-      mockFS.restore();
-    });
-    it('client.sendLog should be called 3 times (for each attachment)', function() {
-      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
-      const testInfoObject = {
-        id: 'testId',
-        title: 'test name',
-        status: 'failed',
-        parentId: 'suiteId',
-        err: 'error message',
-      };
-
-      reporter.tempLaunchId = 'tempLaunchId';
-      reporter.testItemIds.set('suiteId', 'suiteTempId');
-      reporter.testItemIds.set('testId', 'tempTestItemId');
-
-      reporter.sendLogOnFinishItem(testInfoObject, 'tempTestItemId');
-
-      expect(spySendLog).toHaveBeenCalledTimes(3);
-    });
-  });
 
   describe('hookStart', function() {
     beforeEach(function() {
@@ -574,7 +495,6 @@ describe('reporter script', () => {
 
     it('failed hook ends: sendLog and finishTestItem should be called with parameters', function() {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
-      const spySendLogOnFinishItem = jest.spyOn(reporter, 'sendLogOnFinishItem');
       const hookInfoObject = {
         id: 'hookId_testId',
         title: '"before each" hook: hook name',
@@ -595,7 +515,6 @@ describe('reporter script', () => {
 
       reporter.hookEnd(hookInfoObject, 'error message');
 
-      expect(spySendLogOnFinishItem).toHaveBeenCalledWith(hookInfoObject, 'testItemId');
       expect(spyFinishTestItem).toHaveBeenCalledWith('testItemId', expectedHookFinishObj);
     });
   });
@@ -741,17 +660,102 @@ describe('reporter script', () => {
       reporter.suiteTestCaseIds.clear();
     });
   });
-  describe('saveCustomScreenshotFilename', () => {
-    it('should set custom screenshot filename', () => {
-      const screenshotFilename = 'screenshot';
 
-      reporter.saveCustomScreenshotFilename({ fileName: screenshotFilename });
+  describe('screenshot', () => {
+    const screenshotInfo = {
+      testAttemptIndex: 0,
+      size: 295559,
+      takenAt: '2023-01-15T11:26:14.674Z',
+      dimensions: { width: 1280, height: 2194 },
+      multipart: true,
+      pixelRatio: 1,
+      specName: 'example.spec.js',
+      scaled: false,
+      blackout: [],
+      duration: 905,
+    };
 
-      expect(reporter.currentTestCustomScreenshots).toContain(screenshotFilename);
+    beforeAll(() => {
+      mockFS({
+        '/example/screenshots/example.spec.js': {
+          'suite name -- test name (failed).png': Buffer.from([8, 6, 7, 5, 3, 0, 9]),
+          'suite name -- test name.png': Buffer.from([1, 2, 3, 4, 5, 6, 7]),
+          'suite name -- test name (1).png': Buffer.from([8, 7, 6, 5, 4, 3, 2]),
+          'customScreenshot1.png': Buffer.from([1, 1, 1, 1, 1, 1, 1]),
+        },
+      });
+    });
+    afterAll(() => {
+      mockFS.restore();
+    });
 
-      reporter.currentTestCustomScreenshots = [];
+    afterEach(() => {
+      reporter.config.reporterOptions.logScreenshotInfo = false;
+    });
+
+    it('should not send screenshot for undefined path', () => {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+      reporter.sendScreenshot(screenshotInfo);
+      expect(spySendLog).not.toHaveBeenCalled();
+    });
+
+    it('should send screenshot from screenshotInfo', () => {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+
+      screenshotInfo.path = '/example/screenshots/example.spec.js/suite name -- test name.png';
+      const expectedTempId = { tempId: 'tempTestItemId' };
+
+      reporter.config.reporterOptions.logScreenshotInfo = true;
+      reporter.currentTestTempInfo = expectedTempId;
+      reporter.sendScreenshot(screenshotInfo);
+
+      expect(spySendLog).toHaveBeenCalledTimes(1);
+      expect(spySendLog).toHaveBeenCalledWith(
+        expectedTempId.tempId,
+        {
+          level: 'info',
+          message: `screenshot suite name -- test name.png\n${JSON.stringify(
+            screenshotInfo,
+            undefined,
+            2,
+          )}`,
+          time: currentDate,
+        },
+        {
+          name: 'suite name -- test name.png',
+          type: 'image/png',
+          content: Buffer.from([1, 2, 3, 4, 5, 6, 7]).toString('base64'),
+        },
+      );
+    });
+
+    it('should send screenshot from screenshotInfo - error level', () => {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+
+      screenshotInfo.path =
+        '/example/screenshots/example.spec.js/suite name -- test name (failed).png';
+      const expectedTempId = { tempId: 'tempTestItemId' };
+
+      reporter.currentTestTempInfo = expectedTempId;
+      reporter.sendScreenshot(screenshotInfo);
+
+      expect(spySendLog).toHaveBeenCalledTimes(1);
+      expect(spySendLog).toHaveBeenCalledWith(
+        expectedTempId.tempId,
+        {
+          level: 'error',
+          message: `screenshot suite name -- test name (failed).png`,
+          time: currentDate,
+        },
+        {
+          name: 'suite name -- test name (failed).png',
+          type: 'image/png',
+          content: Buffer.from([8, 6, 7, 5, 3, 0, 9]).toString('base64'),
+        },
+      );
     });
   });
+
   describe('get current suite info', () => {
     afterEach(() => {
       reporter.suitesStackTempInfo = [];
