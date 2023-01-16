@@ -675,6 +675,8 @@ describe('reporter script', () => {
       duration: 905,
     };
 
+    const expectedTempId = { tempId: 'tempTestItemId' };
+
     beforeAll(() => {
       mockFS({
         '/example/screenshots/example.spec.js': {
@@ -689,10 +691,6 @@ describe('reporter script', () => {
       mockFS.restore();
     });
 
-    afterEach(() => {
-      reporter.config.reporterOptions.logScreenshotInfo = false;
-    });
-
     it('should not send screenshot for undefined path', () => {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
       reporter.sendScreenshot(screenshotInfo);
@@ -703,9 +701,7 @@ describe('reporter script', () => {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
 
       screenshotInfo.path = '/example/screenshots/example.spec.js/suite name -- test name.png';
-      const expectedTempId = { tempId: 'tempTestItemId' };
 
-      reporter.config.reporterOptions.logScreenshotInfo = true;
       reporter.currentTestTempInfo = expectedTempId;
       reporter.sendScreenshot(screenshotInfo);
 
@@ -714,11 +710,7 @@ describe('reporter script', () => {
         expectedTempId.tempId,
         {
           level: 'info',
-          message: `screenshot suite name -- test name.png\n${JSON.stringify(
-            screenshotInfo,
-            undefined,
-            2,
-          )}`,
+          message: `screenshot suite name -- test name.png`,
           time: currentDate,
         },
         {
@@ -734,7 +726,6 @@ describe('reporter script', () => {
 
       screenshotInfo.path =
         '/example/screenshots/example.spec.js/suite name -- test name (failed).png';
-      const expectedTempId = { tempId: 'tempTestItemId' };
 
       reporter.currentTestTempInfo = expectedTempId;
       reporter.sendScreenshot(screenshotInfo);
@@ -751,6 +742,31 @@ describe('reporter script', () => {
           name: 'suite name -- test name (failed).png',
           type: 'image/png',
           content: Buffer.from([8, 6, 7, 5, 3, 0, 9]).toString('base64'),
+        },
+      );
+    });
+
+    it('should send screenshot from screenshotInfo - custom log message', () => {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+
+      screenshotInfo.path = '/example/screenshots/example.spec.js/customScreenshot1.png';
+      const message = `screenshot\n${JSON.stringify(screenshotInfo, undefined, 2)}`;
+
+      reporter.currentTestTempInfo = expectedTempId;
+      reporter.sendScreenshot(screenshotInfo, message);
+
+      expect(spySendLog).toHaveBeenCalledTimes(1);
+      expect(spySendLog).toHaveBeenCalledWith(
+        expectedTempId.tempId,
+        {
+          level: 'info',
+          message,
+          time: currentDate,
+        },
+        {
+          name: 'customScreenshot1.png',
+          type: 'image/png',
+          content: Buffer.from([1, 1, 1, 1, 1, 1, 1]).toString('base64'),
         },
       );
     });
