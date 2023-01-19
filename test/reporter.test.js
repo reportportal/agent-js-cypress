@@ -212,7 +212,7 @@ describe('reporter script', () => {
 
     beforeAll(() => {
       mockFS({
-        'example/screenshots/example.spec.js': {
+        example: {
           videos: {
             'custom suite name.cy.ts.mp4': Buffer.from([1, 2, 7, 9, 3, 0, 5]),
           },
@@ -222,6 +222,7 @@ describe('reporter script', () => {
 
     afterAll(() => {
       mockFS.restore();
+      reporter.config.reporterOptions.videosFolder = undefined;
     });
 
     this.beforeEach(() => {
@@ -235,6 +236,7 @@ describe('reporter script', () => {
         { id: 'suite', title: 'any suite' },
       ];
       reporter.testItemIds.set('root', 'suiteTempId');
+      reporter.config.reporterOptions.videosFolder = 'example/videos';
     });
 
     afterEach(() => {
@@ -322,6 +324,21 @@ describe('reporter script', () => {
         status: 'failed',
       };
 
+      reporter.suiteEnd(suiteEndObject);
+
+      expect(spySendVideoOnFinishSuite).not.toHaveBeenCalled();
+    });
+
+    it('sendLog with video attachment - do not send if video not found in videosFolder', function() {
+      const spySendVideoOnFinishSuite = jest.spyOn(reporter.client, 'sendLog');
+
+      const suiteEndObject = {
+        id: 'root',
+        title: 'suite title',
+        status: 'failed',
+      };
+
+      reporter.config.reporterOptions.videosFolder = 'example/screenshots';
       reporter.suiteEnd(suiteEndObject);
 
       expect(spySendVideoOnFinishSuite).not.toHaveBeenCalled();
