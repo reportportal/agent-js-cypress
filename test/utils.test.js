@@ -408,10 +408,17 @@ describe('utils script', () => {
         // test attributes from array of tags reusing previous check
         // eslint-disable-next-line no-underscore-dangle
         suite._testConfig.tags = ['tag1', 'tag2', 'tag3'];
-        const suiteStartObject2 = getSuiteStartObject(suite, testFileName);
+        const suiteStartObject2 = getSuiteStartObject(suite, testFileName, {});
 
         expect(suiteStartObject2).toBeDefined();
         expect(suiteStartObject2).toEqual(expectedSuiteStartObject);
+
+        // test disabling cypress grep attributes in reporterOptions
+        const options = { addCypressGrepAttributes: false };
+        const suiteStartObject3 = getSuiteStartObject(suite, testFileName, options);
+
+        expect(suiteStartObject3).toBeDefined();
+        expect(suiteStartObject3.attributes).toEqual([]);
       });
     });
 
@@ -610,10 +617,18 @@ describe('utils script', () => {
         expect(testInfoObject).toEqual(expectedTestStartObject);
 
         test.tags = ['tag1', 'tag2', 'tag3'];
-        const testInfoObject2 = getTestStartObject(test);
+        // empty to test if attributes are added by default
+        const testInfoObject2 = getTestStartObject(test, {});
 
         expect(testInfoObject2).toBeDefined();
         expect(testInfoObject2).toEqual(expectedTestStartObject);
+
+        // disable attributes from cypress grep via config options
+        const options = { addCypressGrepAttributes: false };
+        const testInfoObject3 = getTestStartObject(test, options);
+
+        expect(testInfoObject3).toBeDefined();
+        expect(testInfoObject3.attributes).toEqual([]);
       });
     });
 
