@@ -377,6 +377,42 @@ describe('utils script', () => {
         expect(suiteStartObject).toBeDefined();
         expect(suiteStartObject).toEqual(expectedSuiteStartObject);
       });
+
+      test('cypress grep tags: should return suite start with attributes from tags', () => {
+        const suite = {
+          id: 'suite1',
+          title: 'suite name',
+          description: 'suite description',
+          root: true,
+          titlePath: () => ['suite name'],
+          _testConfig: {
+            tags: 'tag1 tag2 tag3',
+          },
+        };
+        const expectedSuiteStartObject = {
+          id: 'suite1',
+          name: 'suite name',
+          type: 'suite',
+          startTime: currentDate,
+          description: 'suite description',
+          attributes: [{ value: 'tag1' }, { value: 'tag2' }, { value: 'tag3' }],
+          codeRef: 'test/example.spec.js/suite name',
+          parentId: undefined,
+        };
+
+        const suiteStartObject = getSuiteStartObject(suite, testFileName);
+
+        expect(suiteStartObject).toBeDefined();
+        expect(suiteStartObject).toEqual(expectedSuiteStartObject);
+
+        // test attributes from array of tags reusing previous check
+        // eslint-disable-next-line no-underscore-dangle
+        suite._testConfig.tags = ['tag1', 'tag2', 'tag3'];
+        const suiteStartObject2 = getSuiteStartObject(suite, testFileName);
+
+        expect(suiteStartObject2).toBeDefined();
+        expect(suiteStartObject2).toEqual(expectedSuiteStartObject);
+      });
     });
 
     describe('getSuiteEndObject', () => {
@@ -482,6 +518,48 @@ describe('utils script', () => {
         expect(testInfoObject).toBeDefined();
         expect(testInfoObject).toEqual(expectedTestInfoObject);
       });
+
+      test('cypress grep tags: should return test info with tags', () => {
+        const test = {
+          id: 'testId1',
+          title: 'test name',
+          parent: {
+            id: 'parentSuiteId',
+          },
+          state: 'passed',
+          titlePath: () => ['suite name', 'test name'],
+          _testConfig: {
+            unverifiedTestConfig: {
+              tags: 'tag1 tag2 tag3',
+            },
+          },
+        };
+
+        const expectedTestInfoObject = {
+          id: 'testId1',
+          title: 'test name',
+          status: 'passed',
+          parentId: 'parentSuiteId',
+          codeRef: 'test/example.spec.js/suite name/test name',
+          err: undefined,
+          testFileName,
+          tags: 'tag1 tag2 tag3',
+        };
+
+        const testInfoObject = getTestInfo(test, testFileName);
+
+        expect(testInfoObject).toBeDefined();
+        expect(testInfoObject).toEqual(expectedTestInfoObject);
+
+        // eslint-disable-next-line no-underscore-dangle
+        test.parent._testConfig = {
+          tags: 'tag1 tag2 tag3',
+        };
+        const testInfoObject2 = getTestInfo(test, testFileName);
+
+        expect(testInfoObject2).toBeDefined();
+        expect(testInfoObject2.tags).not.toBeDefined();
+      });
     });
 
     describe('getTestStartObject', () => {
@@ -506,6 +584,36 @@ describe('utils script', () => {
 
         expect(testInfoObject).toBeDefined();
         expect(testInfoObject).toEqual(expectedTestStartObject);
+      });
+
+      test('should return test start object with attributes from tags', () => {
+        const test = {
+          id: 'testId1',
+          title: 'test name',
+          parent: {
+            id: 'parentSuiteId',
+          },
+          codeRef: 'test/example.spec.js/suite name/test name',
+          tags: 'tag1 tag2 tag3',
+        };
+        const expectedTestStartObject = {
+          name: 'test name',
+          startTime: currentDate,
+          type: 'step',
+          codeRef: 'test/example.spec.js/suite name/test name',
+          attributes: [{ value: 'tag1' }, { value: 'tag2' }, { value: 'tag3' }],
+        };
+
+        const testInfoObject = getTestStartObject(test);
+
+        expect(testInfoObject).toBeDefined();
+        expect(testInfoObject).toEqual(expectedTestStartObject);
+
+        test.tags = ['tag1', 'tag2', 'tag3'];
+        const testInfoObject2 = getTestStartObject(test);
+
+        expect(testInfoObject2).toBeDefined();
+        expect(testInfoObject2).toEqual(expectedTestStartObject);
       });
     });
 
