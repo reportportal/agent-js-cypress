@@ -316,6 +316,7 @@ describe('utils script', () => {
           startTime: currentDate,
           rerun: undefined,
           rerunOf: undefined,
+          mode: undefined,
         };
 
         const startLaunchObject = getLaunchStartObject(getDefaultConfig());
