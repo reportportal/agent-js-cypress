@@ -225,7 +225,7 @@ describe('reporter script', () => {
       reporter.config.reporterOptions.videosFolder = undefined;
     });
 
-    this.beforeEach(() => {
+    beforeEach(() => {
       customSuiteNameAttachment = {
         name: `custom suite name.cy.ts.mp4`,
         type: 'video/mp4',
