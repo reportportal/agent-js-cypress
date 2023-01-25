@@ -20,9 +20,10 @@ const {
   getFixtureFolderPattern,
   getExcludeSpecPattern,
   getSpecPattern,
-  validateReporterOptions,
+  validateConfig,
 } = require('./../lib/utils');
 const pjson = require('./../package.json');
+const { reporterMultiReporterKey } = require('./../lib/constants');
 
 const { RealDate, MockedDate, currentDate, getDefaultConfig } = require('./mock/mock');
 
@@ -306,14 +307,31 @@ describe('utils script', () => {
       it('should not throw if has all required options', function() {
         const config = getDefaultConfig();
         expect(() => {
-          validateReporterOptions(config.reporterOptions);
+          validateConfig(config);
+        }).not.toThrow();
+      });
+
+      it('should not throw if configured by cypress-multi-reporter', function() {
+        const config = {
+          reporterOptions: {
+            reporterEnabled: `@twi/agent-js-cypress, spec`,
+            [reporterMultiReporterKey]: getDefaultConfig().reporterOptions,
+          },
+        };
+        expect(() => {
+          validateConfig(config);
         }).not.toThrow();
       });
 
       it('should throw error if config is undefined', function() {
         const config = undefined;
         expect(() => {
-          validateReporterOptions(config && config.reporterOptions);
+          validateConfig(config);
+        }).toThrow();
+
+        const configWithoutReporterOptions = {};
+        expect(() => {
+          validateConfig(configWithoutReporterOptions);
         }).toThrow();
       });
 
@@ -321,7 +339,7 @@ describe('utils script', () => {
         const initialConfig = { ...getDefaultConfig() };
         initialConfig.reporterOptions.token = undefined;
         expect(() => {
-          validateReporterOptions(initialConfig.reporterOptions);
+          validateConfig(initialConfig);
         }).toThrow();
       });
     });
