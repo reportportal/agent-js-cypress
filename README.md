@@ -313,7 +313,6 @@ Create folder "scripts" on project folder. Copy the following script into "cypre
 folder.
 
 ```javascript
-
 const cypress = require('cypress');
 const fs = require('fs');
 const glob = require('glob');
