@@ -73,6 +73,20 @@ describe('reporter script', () => {
         status: 'warn',
       });
     });
+
+    it('set custom launch description: finishLaunch should be called with parameters', () => {
+      const spyFinishLaunch = jest.spyOn(reporter.client, 'finishLaunch');
+      reporter.tempLaunchId = 'tempLaunchId';
+      reporter.setLaunchStatus({ status: undefined });
+      reporter.setLaunchDescription({ description: 'My test description' });
+      reporter.runEnd();
+
+      expect(spyFinishLaunch).toHaveBeenCalledTimes(1);
+      expect(spyFinishLaunch).toHaveBeenCalledWith('tempLaunchId', {
+        endTime: currentDate,
+        description: 'My test description',
+      });
+    });
   });
 
   describe('suiteStart', () => {
