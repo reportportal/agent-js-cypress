@@ -46,6 +46,7 @@ describe('utils script', () => {
     });
 
     it('getFailedScreenshot: should return failed attachment', () => {
+      const screenshotsPath = 'example\\screenshots';
       const testTitle = 'test name';
       const expectedAttachment = {
         name: 'test name (failed)',
@@ -53,13 +54,14 @@ describe('utils script', () => {
         content: Buffer.from([8, 6, 7, 5, 3, 0, 9]).toString('base64'),
       };
 
-      const attachment = getFailedScreenshot(testTitle);
+      const attachment = getFailedScreenshot(screenshotsPath, testTitle);
 
       expect(attachment).toBeDefined();
       expect(attachment).toEqual(expectedAttachment);
     });
 
     it('getPassedScreenshots: should return passed attachments', () => {
+      const screenshotsPath = 'example\\screenshots';
       const testTitle = 'test name';
       const expectedAttachments = [
         {
@@ -74,7 +76,7 @@ describe('utils script', () => {
         },
       ];
 
-      const attachments = getPassedScreenshots(testTitle);
+      const attachments = getPassedScreenshots(screenshotsPath, testTitle);
 
       expect(attachments).toBeDefined();
       expect(attachments.length).toEqual(2);
@@ -85,6 +87,7 @@ describe('utils script', () => {
       jest.spyOn(path, 'parse').mockImplementation(() => ({
         base: 'example.spec.js',
       }));
+      const screenshotsPath = 'example\\screenshots';
       const testFileName = `test\\example.spec.js`;
       const customScreenshotNames = ['customScreenshot1', 'customDir/customScreenshot2'];
       const expectedAttachments = [
@@ -100,7 +103,11 @@ describe('utils script', () => {
         },
       ];
 
-      const attachments = getCustomScreenshots(customScreenshotNames, testFileName);
+      const attachments = getCustomScreenshots(
+        screenshotsPath,
+        testFileName,
+        customScreenshotNames,
+      );
 
       expect(attachments).toBeDefined();
       expect(attachments.length).toEqual(2);
@@ -112,10 +119,15 @@ describe('utils script', () => {
       jest.spyOn(path, 'parse').mockImplementation(() => ({
         base: 'example.spec.js',
       }));
+      const screenshotsPath = 'example\\screenshots';
       const testFileName = `test\\example.spec.js`;
       const customScreenshotNames = ['screenshotNotExist1', 'screenshotNotExist2'];
 
-      const attachments = getCustomScreenshots(customScreenshotNames, testFileName);
+      const attachments = getCustomScreenshots(
+        screenshotsPath,
+        testFileName,
+        customScreenshotNames,
+      );
 
       expect(attachments).toBeDefined();
       expect(attachments.length).toEqual(0);
