@@ -395,6 +395,61 @@ describe('reporter script', () => {
     });
   });
 
+  describe('testPending', function() {
+    it('testPending should call testEnd if test has been started', function() {
+      const spyTestEnd = jest.spyOn(reporter, 'testEnd');
+
+      const testInfoObject = {
+        id: 'testId',
+        title: 'test name',
+        status: 'skipped',
+        parentId: 'suiteId',
+      };
+
+      reporter.testItemIds.set(testInfoObject.id, 'tempid');
+      reporter.testPending(testInfoObject);
+
+      expect(spyTestEnd).toHaveBeenCalledTimes(1);
+      expect(spyTestEnd).toHaveBeenCalledWith(testInfoObject);
+    });
+
+    it('testPending should mark test as pending if not started', function() {
+      const spyTestEnd = jest.spyOn(reporter, 'testEnd');
+
+      const testInfoObject = {
+        id: 'testId',
+        title: 'test name',
+        status: 'skipped',
+        parentId: 'suiteId',
+      };
+
+      reporter.testPending(testInfoObject);
+
+      expect(spyTestEnd).not.toHaveBeenCalled();
+      expect(reporter.pendingTestsIds).toContainEqual(testInfoObject.id);
+    });
+
+    it('testStart should call testEnd if item is pending', function() {
+      const spyStartTestItem = jest.spyOn(reporter.client, 'startTestItem');
+      const spyTestEnd = jest.spyOn(reporter, 'testEnd');
+
+      const testInfoObject = {
+        id: 'testId',
+        title: 'test name',
+        status: 'skipped',
+        parentId: 'suiteId',
+      };
+
+      reporter.pendingTestsIds = [testInfoObject.id];
+
+      reporter.testStart(testInfoObject);
+
+      expect(spyStartTestItem).toHaveBeenCalledTimes(1);
+      expect(spyTestEnd).toHaveBeenCalledTimes(1);
+      expect(spyTestEnd).toHaveBeenCalledWith(testInfoObject);
+    });
+  });
+
   describe('hookStart', function() {
     beforeEach(function() {
       reporter.tempLaunchId = 'tempLaunchId';
