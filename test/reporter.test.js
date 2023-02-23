@@ -590,6 +590,23 @@ describe('reporter script', () => {
 
       expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
     });
+    it('sendLog: client.sendLog should be called with time passed in log object', function() {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+      const logObj = {
+        level: 'error',
+        message: 'error message',
+        time: 1674158678,
+      };
+      const expectedLogObj = {
+        level: 'error',
+        message: 'error message',
+        time: 1674158678,
+      };
+
+      reporter.sendLog('tempTestItemId', logObj);
+
+      expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
+    });
     it('sendLogToCurrentItem: client.sendLog should be called with parameters', function() {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
       const logObj = {
@@ -617,6 +634,24 @@ describe('reporter script', () => {
         level: 'error',
         message: 'error message',
         time: currentDate,
+      };
+      reporter.tempLaunchId = 'tempLaunchId';
+
+      reporter.sendLaunchLog(logObj);
+
+      expect(spySendLog).toHaveBeenCalledWith('tempLaunchId', expectedLogObj, undefined);
+    });
+    it('sendLaunchLog: client.sendLog should be called with time passed in log object', function() {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+      const logObj = {
+        level: 'error',
+        message: 'error message',
+        time: 1674158678,
+      };
+      const expectedLogObj = {
+        level: 'error',
+        message: 'error message',
+        time: 1674158678,
       };
       reporter.tempLaunchId = 'tempLaunchId';
 
