@@ -36,9 +36,9 @@ describe('utils script', () => {
           'suite name -- test name.png': Buffer.from([1, 2, 3, 4, 5, 6, 7]),
           'suite name -- test name (1).png': Buffer.from([8, 7, 6, 5, 4, 3, 2]),
           'customScreenshot1.png': Buffer.from([1, 1, 1, 1, 1, 1, 1]),
-          videos: {
-            'custom suite name.cy.ts.mp4': Buffer.from([1, 2, 7, 9, 3, 0, 5]),
-          },
+        },
+        'example/videos': {
+          'custom suite name.cy.ts.mp4': Buffer.from([1, 2, 7, 9, 3, 0, 5]),
         },
       });
     });
@@ -75,7 +75,7 @@ describe('utils script', () => {
         content: Buffer.from([1, 2, 7, 9, 3, 0, 5]).toString('base64'),
       };
 
-      const attachment = getVideoFile(testFileName, 'example/screenshots/example.spec.js/videos');
+      const attachment = getVideoFile(testFileName, 'example/videos');
 
       expect(attachment).toBeDefined();
       expect(attachment).toEqual(expectedAttachment);
