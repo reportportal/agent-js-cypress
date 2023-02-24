@@ -10,9 +10,7 @@ const {
   getTestEndObject,
   getHookInfo,
   getHookStartObject,
-  getFailedScreenshot,
-  getPassedScreenshots,
-  getCustomScreenshots,
+  getScreenshotAttachment,
   getAgentInfo,
   getCodeRef,
   getTotalSpecs,
@@ -36,9 +34,6 @@ describe('utils script', () => {
           'suite name -- test name.png': Buffer.from([1, 2, 3, 4, 5, 6, 7]),
           'suite name -- test name (1).png': Buffer.from([8, 7, 6, 5, 4, 3, 2]),
           'customScreenshot1.png': Buffer.from([1, 1, 1, 1, 1, 1, 1]),
-          customDir: {
-            'customScreenshot2.png': Buffer.from([2, 2, 2, 2, 2, 2, 2]),
-          },
           videos: {
             'custom suite name.cy.ts.mp4': Buffer.from([1, 2, 7, 9, 3, 0, 5]),
           },
@@ -50,81 +45,24 @@ describe('utils script', () => {
       mock.restore();
     });
 
-    it('getFailedScreenshot: should return failed attachment', () => {
-      const testTitle = 'test name';
+    it('getScreenshotAttachment: should not fail on undefined', () => {
+      const testFile = undefined;
+      const attachment = getScreenshotAttachment(testFile);
+      expect(attachment).not.toBeDefined();
+    });
+
+    it('getScreenshotAttachment: should return attachment for absolute path', () => {
+      const testFile = 'example/screenshots/example.spec.js/suite name -- test name (failed).png';
       const expectedAttachment = {
-        name: 'test name (failed)',
+        name: 'suite name -- test name (failed).png',
         type: 'image/png',
         content: Buffer.from([8, 6, 7, 5, 3, 0, 9]).toString('base64'),
       };
 
-      const attachment = getFailedScreenshot(testTitle);
+      const attachment = getScreenshotAttachment(testFile);
 
       expect(attachment).toBeDefined();
       expect(attachment).toEqual(expectedAttachment);
-    });
-
-    it('getPassedScreenshots: should return passed attachments', () => {
-      const testTitle = 'test name';
-      const expectedAttachments = [
-        {
-          name: 'test name-1',
-          type: 'image/png',
-          content: Buffer.from([1, 2, 3, 4, 5, 6, 7]).toString('base64'),
-        },
-        {
-          name: 'test name-2',
-          type: 'image/png',
-          content: Buffer.from([8, 7, 6, 5, 4, 3, 2]).toString('base64'),
-        },
-      ];
-
-      const attachments = getPassedScreenshots(testTitle);
-
-      expect(attachments).toBeDefined();
-      expect(attachments.length).toEqual(2);
-      expect(attachments).toEqual(expectedAttachments);
-    });
-
-    it('getCustomScreenshots: should return custom screenshot', () => {
-      jest.spyOn(path, 'parse').mockImplementation(() => ({
-        base: 'example.spec.js',
-      }));
-      const testFileName = `test\\example.spec.js`;
-      const customScreenshotNames = ['customScreenshot1', 'customDir/customScreenshot2'];
-      const expectedAttachments = [
-        {
-          name: 'customScreenshot1',
-          type: 'image/png',
-          content: Buffer.from([1, 1, 1, 1, 1, 1, 1]).toString('base64'),
-        },
-        {
-          name: 'customScreenshot2',
-          type: 'image/png',
-          content: Buffer.from([2, 2, 2, 2, 2, 2, 2]).toString('base64'),
-        },
-      ];
-
-      const attachments = getCustomScreenshots(customScreenshotNames, testFileName);
-
-      expect(attachments).toBeDefined();
-      expect(attachments.length).toEqual(2);
-      expect(attachments).toEqual(expectedAttachments);
-      jest.clearAllMocks();
-    });
-
-    it('getCustomScreenshots: should return [] in case of no corresponding files', () => {
-      jest.spyOn(path, 'parse').mockImplementation(() => ({
-        base: 'example.spec.js',
-      }));
-      const testFileName = `test\\example.spec.js`;
-      const customScreenshotNames = ['screenshotNotExist1', 'screenshotNotExist2'];
-
-      const attachments = getCustomScreenshots(customScreenshotNames, testFileName);
-
-      expect(attachments).toBeDefined();
-      expect(attachments.length).toEqual(0);
-      jest.clearAllMocks();
     });
 
     it('getVideoFile: should return video file attachment with videosFolder', () => {
@@ -371,6 +309,7 @@ describe('utils script', () => {
           startTime: currentDate,
           rerun: undefined,
           rerunOf: undefined,
+          mode: undefined,
         };
 
         const startLaunchObject = getLaunchStartObject(getDefaultConfig());
