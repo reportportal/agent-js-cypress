@@ -1,3 +1,6 @@
+### Fixed
+- Screenshots are missing in some cases. The mechanism for attaching screenshots has been completely rewritten. Thanks to [thomaswinkler](https://github.com/thomaswinkler).
+- Unhandled promise rejections while sending logs. Thanks to [Nigui](https://github.com/Nigui).
 
 ## [5.1.1] - 2023-01-24
 ### Added
@@ -6,7 +9,7 @@
 - Pending Cypress tests are now marked as skipped in the ReportPortal and finishes correctly. Thanks to [thomaswinkler](https://github.com/thomaswinkler).
 - `mode` option proper handling. Thanks to [thomaswinkler](https://github.com/thomaswinkler).
 ### Updated
-- `@reportportal/client-javascript` bumped to version `5.0.8`
+- `@reportportal/client-javascript` bumped to version `5.0.8`.
 ### Security
 - Updated versions of vulnerable packages (qs, minimatch, decode-uri-component).
 
