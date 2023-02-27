@@ -1,6 +1,8 @@
 ### Fixed
 - Screenshots are missing in some cases. The mechanism for attaching screenshots has been completely rewritten. Thanks to [thomaswinkler](https://github.com/thomaswinkler).
 - Unhandled promise rejections while sending logs. Thanks to [Nigui](https://github.com/Nigui).
+### Security
+- Updated versions of vulnerable packages (minimatch, nanoid, jsdom, json5, node-notifier).
 
 ## [5.1.1] - 2023-01-24
 ### Added
