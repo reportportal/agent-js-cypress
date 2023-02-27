@@ -21,6 +21,8 @@ const {
 } = require('./../lib/utils');
 const pjson = require('./../package.json');
 
+const sep = path.sep;
+
 const { RealDate, MockedDate, currentDate, getDefaultConfig } = require('./mock/mock');
 
 describe('utils script', () => {
@@ -47,7 +49,7 @@ describe('utils script', () => {
     });
 
     it('getScreenshotAttachment: should return attachment for absolute path', () => {
-      const testFile = '/example/screenshots/example.spec.js/suite name -- test name (failed).png';
+      const testFile = `${sep}example${sep}screenshots${sep}example.spec.js${sep}suite name -- test name (failed).png`;
       const expectedAttachment = {
         name: 'suite name -- test name (failed).png',
         type: 'image/png',
@@ -771,11 +773,11 @@ describe('utils script', () => {
 
   describe('getFixtureFolderPattern', () => {
     it('returns a glob pattern for fixtures folder', () => {
-      const specConfig = { fixturesFolder: 'cypress/fixtures' };
+      const specConfig = { fixturesFolder: `cypress${sep}fixtures` };
 
       const specArray = getFixtureFolderPattern(specConfig);
       expect(specArray).toHaveLength(1);
-      expect(specArray).toContain('cypress/fixtures/**/*');
+      expect(specArray).toContain(`cypress${sep}fixtures${sep}**${sep}*`);
     });
   });
   describe('getExcludeSpecPattern', () => {
