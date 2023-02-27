@@ -1,6 +1,9 @@
 const mockFS = require('mock-fs');
+const path = require('path');
 const { getDefaultConfig, RPClient, MockedDate, RealDate, currentDate } = require('./mock/mock');
 const Reporter = require('./../lib/reporter');
+
+const sep = path.sep;
 
 describe('reporter script', () => {
   let reporter;
@@ -281,6 +284,23 @@ describe('reporter script', () => {
       expect(spyTestStart).toHaveBeenCalled();
     });
 
+    it('end failed test: should call sendLog on test fail', function() {
+      const spySendLogOnFinishFailedItem = jest.spyOn(reporter, 'sendLogOnFinishFailedItem');
+      const testInfoObject = {
+        id: 'testId',
+        title: 'test name',
+        status: 'failed',
+        parentId: 'suiteId',
+        err: 'error message',
+      };
+      reporter.testItemIds.set('testId', 'tempTestItemId');
+
+      reporter.testEnd(testInfoObject);
+
+      expect(spySendLogOnFinishFailedItem).toHaveBeenCalledTimes(1);
+      expect(spySendLogOnFinishFailedItem).toHaveBeenCalledWith(testInfoObject, 'tempTestItemId');
+    });
+
     it('end passed test with attributes: finishTestItem should be called with attributes', function() {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const testInfoObject = {
@@ -550,6 +570,7 @@ describe('reporter script', () => {
 
     it('failed hook ends: sendLog and finishTestItem should be called with parameters', function() {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      const spySendLogOnFinishFailedItem = jest.spyOn(reporter, 'sendLogOnFinishFailedItem');
       const hookInfoObject = {
         id: 'hookId_testId',
         title: '"before each" hook: hook name',
@@ -570,6 +591,7 @@ describe('reporter script', () => {
 
       reporter.hookEnd(hookInfoObject, 'error message');
 
+      expect(spySendLogOnFinishFailedItem).toHaveBeenCalledWith(hookInfoObject, 'testItemId');
       expect(spyFinishTestItem).toHaveBeenCalledWith('testItemId', expectedHookFinishObj);
     });
   });
@@ -756,6 +778,7 @@ describe('reporter script', () => {
       blackout: [],
       duration: 905,
     };
+    const screenshotDate = new Date(screenshotInfo.takenAt).valueOf();
 
     const expectedTempId = { tempId: 'tempTestItemId' };
 
@@ -782,7 +805,7 @@ describe('reporter script', () => {
     it('should send screenshot from screenshotInfo', () => {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
 
-      screenshotInfo.path = '/example/screenshots/example.spec.js/suite name -- test name.png';
+      screenshotInfo.path = `${sep}example${sep}screenshots${sep}example.spec.js${sep}suite name -- test name.png`;
 
       reporter.currentTestTempInfo = expectedTempId;
       reporter.sendScreenshot(screenshotInfo);
@@ -793,7 +816,7 @@ describe('reporter script', () => {
         {
           level: 'info',
           message: `screenshot suite name -- test name.png`,
-          time: currentDate,
+          time: screenshotDate,
         },
         {
           name: 'suite name -- test name.png',
@@ -806,8 +829,7 @@ describe('reporter script', () => {
     it('should send screenshot from screenshotInfo - error level', () => {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
 
-      screenshotInfo.path =
-        '/example/screenshots/example.spec.js/suite name -- test name (failed).png';
+      screenshotInfo.path = `${sep}example${sep}screenshots${sep}example.spec.js${sep}suite name -- test name (failed).png`;
 
       reporter.currentTestTempInfo = expectedTempId;
       reporter.sendScreenshot(screenshotInfo);
@@ -818,7 +840,7 @@ describe('reporter script', () => {
         {
           level: 'error',
           message: `screenshot suite name -- test name (failed).png`,
-          time: currentDate,
+          time: screenshotDate,
         },
         {
           name: 'suite name -- test name (failed).png',
@@ -831,7 +853,7 @@ describe('reporter script', () => {
     it('should send screenshot from screenshotInfo - custom log message', () => {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
 
-      screenshotInfo.path = '/example/screenshots/example.spec.js/customScreenshot1.png';
+      screenshotInfo.path = `${sep}example${sep}screenshots${sep}example.spec.js${sep}customScreenshot1.png`;
       const message = `screenshot\n${JSON.stringify(screenshotInfo, undefined, 2)}`;
 
       reporter.currentTestTempInfo = expectedTempId;
@@ -843,7 +865,7 @@ describe('reporter script', () => {
         {
           level: 'info',
           message,
-          time: currentDate,
+          time: screenshotDate,
         },
         {
           name: 'customScreenshot1.png',
