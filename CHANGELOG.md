@@ -1,3 +1,5 @@
+
+## [5.1.2] - 2023-02-27
 ### Fixed
 - Screenshots are missing in some cases. The mechanism for attaching screenshots has been completely rewritten. Thanks to [thomaswinkler](https://github.com/thomaswinkler).
 - Unhandled promise rejections while sending logs. Thanks to [Nigui](https://github.com/Nigui).
