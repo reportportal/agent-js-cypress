@@ -101,11 +101,9 @@ To see more options refer [Options](#options).
 #### Register ReportPortal plugin (cypress/plugins/index.js):
 
 ```javascript
-
 const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/plugin');
 
 module.exports = (on, config) => registerReportPortalPlugin(on, config);
-
 ```
 
 #### Setup [ReportPortal custom commands](#reportportal-custom-commands)
@@ -113,9 +111,7 @@ module.exports = (on, config) => registerReportPortalPlugin(on, config);
 Add the following to your custom commands file (cypress/support/commands.js):
 
 ```javascript
-
 require('@reportportal/agent-js-cypress/lib/commands/reportPortalCommands');
-
 ```
 
 ## Options
