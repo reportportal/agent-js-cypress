@@ -1,6 +1,6 @@
 # @reportportal/agent-js-cypress
 
-`agent-js-cypress` is a runtime reporter for the [Report Portal](https://github.com/reportportal/reportportal) which provides information about collection run.
+Agent to integrate Cypress with ReportPortal.
 * More about [Cypress](https://cypress.io/)
 * More about [ReportPortal](http://reportportal.io/)
 
