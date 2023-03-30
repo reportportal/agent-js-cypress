@@ -7,7 +7,7 @@ Agent to integrate Cypress with ReportPortal.
 ## Install
 
 ```console
-$ npm install @reportportal/agent-js-cypress
+$ npm install --save-dev @reportportal/agent-js-cypress
 ```
 
 ## Usage
