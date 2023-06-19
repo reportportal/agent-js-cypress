@@ -29,7 +29,7 @@ module.exports = defineConfig({
   reporter: '@reportportal/agent-js-cypress',
   reporterOptions: {
     endpoint: 'http://your-instance.com:8080/api/v1',
-    token: '00000000-0000-0000-0000-000000000000',
+    apiKey: 'reportportalApiKey',
     launch: 'LAUNCH_NAME',
     project: 'PROJECT_NAME',
     description: 'LAUNCH_DESCRIPTION',
@@ -78,7 +78,7 @@ Add the following options to cypress.json
   "reporter": "@reportportal/agent-js-cypress",
   "reporterOptions": {
     "endpoint": "http://your-instance.com:8080/api/v1",
-    "token": "00000000-0000-0000-0000-000000000000",
+    "apiKey": "reportportalApiKey",
     "launch": "LAUNCH_NAME",
     "project": "PROJECT_NAME",
     "description": "LAUNCH_DESCRIPTION",
@@ -116,26 +116,28 @@ require('@reportportal/agent-js-cypress/lib/commands/reportPortalCommands');
 
 ## Options
 
-Reporter support following options:
+The full list of available options presented below.
 
-| Parameter             | Description                                                                                                                                                                                                                                                                                                                                                                        |
-|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| token                 | (required) User's Report Portal token from which you want to send requests. It can be found on the profile page of this user.                                                                                                                                                                                                                                                      |
-| endpoint              | (required) URL of your server. For example 'https://server:8080/api/v1'.                                                                                                                                                                                                                                                                                                           |
-| launch                | (required) Name of launch at creation.                                                                                                                                                                                                                                                                                                                                             |
-| project               | (required) The name of the project in which the launches will be created.                                                                                                                                                                                                                                                                                                          |
-| attributes            | (optional) *Default: [].* Launch attributes.                                                                                                                                                                                                                                                                                                                                       |
-| description           | (optional) *Default: not set.* Launch description.                                                                                                                                                                                                                                                                                                                                 |
-| rerun                 | (optional) *Default: false.* Enable [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md).                                                                                                                                                                                                                                              |
-| rerunOf               | (optional) *Default: not set.* UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name.                                                                                                                                                                                                                                 |
-| mode                  | (optional) *Default: DEFAULT.* Results will be submitting to Launches page<br> *"DEBUG"* - Results will be submitting to Debug page.                                                                                                                                                                                                                                               |
-| debug                 | (optional) *Default: false.* This flag allows seeing the logs of the client-javascript. Useful for debugging. Parameter could be equal boolean values.                                                                                                                                                                                                                             |
-| skippedIssue          | (optional) *Default: true.* ReportPortal provides feature to mark skipped tests as not 'To Investigate' items on WS side.<br> Parameter could be equal boolean values:<br> *TRUE* - skipped tests considered as issues and will be marked as 'To Investigate' on Report Portal (default value).<br> *FALSE* - skipped tests will not be marked as 'To Investigate' on application. |
-| restClientConfig      | (optional) *Default: not set.*<br/> The object with `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, may contain other client options eg. `timeout`.<br/> Visit [client-javascript](https://github.com/reportportal/client-javascript) for more details.                                               |
-| autoMerge             | (optional) *Default: false.* Enable automatic report test items of all runned spec into one launch. You should install plugin or setup additional settings in reporterOptions. See [Automatically merge launch](#automatically-merge-launches).                                                                                                                                    |
-| reportHooks           | (optional) *Default: false.* Determines report before and after hooks or not.                                                                                                                                                                                                                                                                                                      |
-| isLaunchMergeRequired | (optional) *Default: false.* Allows to merge Cypress run's into one launch at the end of the run. Needs additional setup. See [Manual merge launches](#manual-merge-launches).                                                                                                                                                                                                     |
-| parallel              | (optional) *Default: false.* Indicates to the reporter that spec files will be executed in parallel. Parameter could be equal boolean values. See [Parallel execution](#parallel-execution).                                                                                                                                                                                       |
+| Option           | Necessity  | Default   | Description                                                                                                                                                                                                                                                                                                                                                                           |
+|------------------|------------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| apiKey           | Required   |           | User's reportportal token from which you want to send requests. It can be found on the profile page of this user.                                                                                                                                                                                                                                                                     |
+| endpoint         | Required   |           | URL of your server. For example 'https://server:8080/api/v1'.                                                                                                                                                                                                                                                                                                                         |
+| launch           | Required   |           | Name of launch at creation.                                                                                                                                                                                                                                                                                                                                                           |
+| project          | Required   |           | The name of the project in which the launches will be created.                                                                                                                                                                                                                                                                                                                        |
+| attributes       | Optional   | []        | Launch attributes.                                                                                                                                                                                                                                                                                                                                                                    |
+| description      | Optional   | ''        | Launch description.                                                                                                                                                                                                                                                                                                                                                                   |
+| rerun            | Optional   | false     | Enable [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md)                                                                                                                                                                                                                                                                               |
+| rerunOf          | Optional   | Not set   | UUID of launch you want to rerun. If not specified, reportportal will update the latest launch with the same name                                                                                                                                                                                                                                                                     |
+| mode             | Optional   | 'DEFAULT' | Results will be submitted to Launches page <br/> *'DEBUG'* - Results will be submitted to Debug page.                                                                                                                                                                                                                                                                                  |
+| skippedIssue     | Optional   | true      | reportportal provides feature to mark skipped tests as not 'To Investigate'. <br/> Option could be equal boolean values: <br/> *true* - skipped tests considered as issues and will be marked as 'To Investigate' on reportportal. <br/> *false* - skipped tests will not be marked as 'To Investigate' on application.                                                               |
+| debug            | Optional   | false     | This flag allows seeing the logs of the client-javascript. Useful for debugging.                                                                                                                                                                                                                                                                                                      |
+| launchId         | Optional   | Not set   | The _ID_ of an already existing launch. The launch must be in 'IN_PROGRESS' status while the tests are running. Please note that if this _ID_ is provided, the launch will not be finished at the end of the run and must be finished separately.                                                                                                                                      |
+| restClientConfig | Optional   | Not set   | The object with `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, may contain other client options eg. [`timeout`](https://github.com/reportportal/client-javascript#timeout-30000ms-on-axios-requests). <br/> Visit [client-javascript](https://github.com/reportportal/client-javascript) for more details. |
+| autoMerge    | Optional   | false     | Enable automatic report test items of all runned spec into one launch. You should install plugin or setup additional settings in reporterOptions. See [Automatically merge launch](#automatically-merge-launches).                                                                                                                                                                                                                                                                                                                |
+| reportHooks            | Optional | false   | Determines report before and after hooks or not.                                                                                                                                                                                                                                                                                                                                                                 |
+| isLaunchMergeRequired            | Optional | false   | Allows to merge Cypress run's into one launch at the end of the run. Needs additional setup. See [Manual merge launches](#manual-merge-launches).                                                                                                                                                                                                                                                                                                                                                                  |
+| parallel            | Optional | false   | Indicates to the reporter that spec files will be executed in parallel. Parameter could be equal boolean values. See [Parallel execution](#parallel-execution).                                                                                                                                                                                                                                                                                                                                                                 |
+| token            | Deprecated | Not set   | Use `apiKey` instead.                                                                                                                                                                                                                                                                                                                                                                 |
 
 ### Overwrite options from config file
 
@@ -146,7 +148,7 @@ const updatedConfig = {
   ...config,
   reporterOptions: {
     ...config.reporterOptions,
-    token: process.env.RP_TOKEN,
+    apiKey: process.env.RP_API_KEY,
   },
 };
 
@@ -154,10 +156,10 @@ const updatedConfig = {
 
 **For security reasons, you can also set token as a part of Environment Variables, instead of sharing it in the config file:**
 
-| Parameter | Env variable |
-|-----------|--------------|
-| token     | RP_TOKEN     |
-
+| Option      | ENV variable    | Note                                   |
+|-------------|-----------------|----------------------------------------|
+| apiKey      | RP_API_KEY      ||
+| token       | RP_TOKEN        | *deprecated* Use `RP_API_KEY` instead. |
 
 ## ReportPortal custom commands
 
