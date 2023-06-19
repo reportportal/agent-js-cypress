@@ -131,113 +131,173 @@ describe('utils script', () => {
     });
 
     describe('getConfig', () => {
-      it('should not add an attribute with the CI_BUILD_ID value in case of parallel reporter option is false', function() {
-        process.env.CI_BUILD_ID = 'buildId';
-        const initialConfig = getDefaultConfig();
-        initialConfig.reporterOptions = {
-          ...initialConfig.reporterOptions,
-          autoMerge: true,
-          parallel: false,
-        };
-        const expectedConfig = {
-          ...initialConfig,
-          reporterOptions: {
-            ...initialConfig.reporterOptions,
-            attributes: [],
-          },
-        };
+      const baseReporterOptions = {
+        endpoint: 'https://reportportal.server/api/v1',
+        project: 'ProjectName',
+        launch: 'LauncherName',
+        description: 'Launch description',
+        attributes: [],
+      };
 
-        const config = getConfig(initialConfig);
+      describe('CI_BUILD_ID attribute providing', () => {
+        afterEach(() => {
+          delete process.env.CI_BUILD_ID;
+        });
 
-        expect(config).toEqual(expectedConfig);
-        process.env.CI_BUILD_ID = undefined;
+        it('should not add an attribute with the CI_BUILD_ID value in case of parallel reporter option is false', function() {
+          process.env.CI_BUILD_ID = 'buildId';
+          const initialConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...baseReporterOptions,
+              apiKey: '123',
+              autoMerge: true,
+              parallel: false,
+            },
+          };
+          const expectedConfig = initialConfig;
+
+          const config = getConfig(initialConfig);
+
+          expect(config).toEqual(expectedConfig);
+        });
+
+        it('should not add an attribute with the CI_BUILD_ID value in case of autoMerge reporter option is false', function() {
+          process.env.CI_BUILD_ID = 'buildId';
+          const initialConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...baseReporterOptions,
+              apiKey: '123',
+              autoMerge: false,
+              parallel: true,
+            },
+          };
+          const expectedConfig = initialConfig;
+
+          const config = getConfig(initialConfig);
+
+          expect(config).toEqual(expectedConfig);
+        });
+
+        it('should not add an attribute with the value CI_BUILD_ID if the env variable CI_BUILD_ID does not exist', function() {
+          process.env.CI_BUILD_ID = undefined;
+          const initialConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...baseReporterOptions,
+              apiKey: '123',
+              autoMerge: false,
+              parallel: true,
+            },
+          };
+          const expectedConfig = initialConfig;
+
+          const config = getConfig(initialConfig);
+
+          expect(config).toEqual(expectedConfig);
+        });
+
+        it('should return config with updated attributes (including attribute with CI_BUILD_ID value)', function() {
+          process.env.CI_BUILD_ID = 'buildId';
+          const initialConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...baseReporterOptions,
+              apiKey: '123',
+              autoMerge: true,
+              parallel: true,
+            },
+          };
+          const expectedConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...initialConfig.reporterOptions,
+              attributes: [
+                {
+                  value: 'buildId',
+                },
+              ],
+            },
+          };
+
+          const config = getConfig(initialConfig);
+
+          expect(config).toEqual(expectedConfig);
+        });
       });
 
-      it('should not add an attribute with the CI_BUILD_ID value in case of autoMerge reporter option is false', function() {
-        process.env.CI_BUILD_ID = 'buildId';
-        const initialConfig = getDefaultConfig();
-        initialConfig.reporterOptions = {
-          ...initialConfig.reporterOptions,
-          autoMerge: false,
-          parallel: true,
-        };
-        const expectedConfig = {
-          ...initialConfig,
-          reporterOptions: {
-            ...initialConfig.reporterOptions,
-            attributes: [],
-          },
-        };
+      describe('apiKey option priority', () => {
+        afterEach(() => {
+          delete process.env.RP_TOKEN;
+          delete process.env.RP_API_KEY;
+        });
 
-        const config = getConfig(initialConfig);
+        it('should override token property if the ENV variable RP_TOKEN exists', function() {
+          process.env.RP_TOKEN = 'secret';
+          const initialConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...baseReporterOptions,
+              token: '123',
+            },
+          };
+          const expectedConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...baseReporterOptions,
+              apiKey: 'secret',
+            },
+          };
 
-        expect(config).toEqual(expectedConfig);
-        process.env.CI_BUILD_ID = undefined;
-      });
+          const config = getConfig(initialConfig);
 
-      it('should not add an attribute with the value CI_BUILD_ID if the env variable CI_BUILD_ID does not exist', function() {
-        process.env.CI_BUILD_ID = undefined;
-        const initialConfig = getDefaultConfig();
-        initialConfig.reporterOptions = {
-          ...initialConfig.reporterOptions,
-          autoMerge: false,
-          parallel: true,
-        };
-        const expectedConfig = {
-          ...initialConfig,
-          reporterOptions: {
-            ...initialConfig.reporterOptions,
-            attributes: [],
-          },
-        };
+          expect(config).toEqual(expectedConfig);
+        });
 
-        const config = getConfig(initialConfig);
+        it('should override apiKey property if the ENV variable RP_API_KEY exists', function() {
+          process.env.RP_API_KEY = 'secret';
+          const initialConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...baseReporterOptions,
+              apiKey: '123',
+            },
+          };
+          const expectedConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...baseReporterOptions,
+              apiKey: 'secret',
+            },
+          };
 
-        expect(config).toEqual(expectedConfig);
-      });
+          const config = getConfig(initialConfig);
 
-      it('should return config with updated attributes (including attribute with CI_BUILD_ID value)', function() {
-        process.env.CI_BUILD_ID = 'buildId';
-        const initialConfig = getDefaultConfig();
-        initialConfig.reporterOptions = {
-          ...initialConfig.reporterOptions,
-          autoMerge: true,
-          parallel: true,
-        };
-        const expectedConfig = {
-          ...initialConfig,
-          reporterOptions: {
-            ...initialConfig.reporterOptions,
-            attributes: [
-              {
-                value: 'buildId',
-              },
-            ],
-          },
-        };
+          expect(config).toEqual(expectedConfig);
+        });
 
-        const config = getConfig(initialConfig);
+        it('should prefer apiKey property over deprecated token', function() {
+          const initialConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...baseReporterOptions,
+              apiKey: '123',
+              token: '345',
+            },
+          };
+          const expectedConfig = {
+            reporter: '@reportportal/agent-js-cypress',
+            reporterOptions: {
+              ...baseReporterOptions,
+              apiKey: '123',
+            },
+          };
 
-        expect(config).toEqual(expectedConfig);
-        process.env.CI_BUILD_ID = undefined;
-      });
+          const config = getConfig(initialConfig);
 
-      it('should update token property if the env variable RP_TOKEN exists', function() {
-        process.env.RP_TOKEN = 'secret';
-        const initialConfig = getDefaultConfig();
-        const expectedConfig = {
-          ...initialConfig,
-          reporterOptions: {
-            ...initialConfig.reporterOptions,
-            attributes: [],
-            token: 'secret',
-          },
-        };
-
-        const config = getConfig(initialConfig);
-
-        expect(config).toEqual(expectedConfig);
-        process.env.RP_TOKEN = undefined;
+          expect(config).toEqual(expectedConfig);
+        });
       });
     });
 
