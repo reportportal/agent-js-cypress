@@ -1,3 +1,5 @@
+
+## [5.1.3] - 2023-07-18
 ### Added
 - TypeScript declarations for `reportPortalCommands`. Thanks to [thomaswinkler](https://github.com/thomaswinkler).
 ### Changed
