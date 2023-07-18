@@ -124,7 +124,7 @@ describe('reporter script', () => {
   });
 
   describe('suiteEnd', () => {
-    it('finishTestItem should be called with parameters', function() {
+    it('finishTestItem should be called with parameters', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       reporter.testItemIds.set('suiteId', 'tempSuiteId');
       const suiteEndObject = {
@@ -137,7 +137,7 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempSuiteId', { endTime: currentDate });
     });
-    it('end suite with testCaseId: finishTestItem should be called with testCaseId', function() {
+    it('end suite with testCaseId: finishTestItem should be called with testCaseId', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       reporter.testItemIds.set('suiteId', 'tempSuiteId');
       reporter.suiteTestCaseIds.set('suite title', 'testCaseId');
@@ -157,7 +157,7 @@ describe('reporter script', () => {
 
       reporter.suiteTestCaseIds.clear();
     });
-    it('end suite with custom status: finishTestItem should be called with custom status', function() {
+    it('end suite with custom status: finishTestItem should be called with custom status', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       reporter.testItemIds.set('suiteId', 'tempSuiteId');
       reporter.setTestItemStatus({ status: 'failed', suiteTitle: 'suite title' });
@@ -179,8 +179,8 @@ describe('reporter script', () => {
     });
   });
 
-  describe('testStart', function() {
-    it('startTestItem should be called with parameters', function() {
+  describe('testStart', function () {
+    it('startTestItem should be called with parameters', function () {
       const spyStartTestItem = jest.spyOn(reporter.client, 'startTestItem');
       const testInfoObject = {
         id: 'testId',
@@ -208,23 +208,23 @@ describe('reporter script', () => {
     });
   });
 
-  describe('testEnd', function() {
+  describe('testEnd', function () {
     beforeAll(() => {
       mockFS();
     });
     afterAll(() => {
       mockFS.restore();
     });
-    beforeEach(function() {
+    beforeEach(function () {
       reporter.tempLaunchId = 'tempLaunchId';
       reporter.testItemIds.set('suiteId', 'suiteTempId');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       reporter.resetCurrentTestFinishParams();
     });
 
-    it('end passed test: finishTestItem should be called with parameters', function() {
+    it('end passed test: finishTestItem should be called with parameters', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const testInfoObject = {
         id: 'testId',
@@ -247,7 +247,7 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
 
-    it('end failed test: finishTestItem should be called with failed status', function() {
+    it('end failed test: finishTestItem should be called with failed status', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const testInfoObject = {
         id: 'testId',
@@ -269,7 +269,7 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
 
-    it('end not started test: should call testStart', function() {
+    it('end not started test: should call testStart', function () {
       const spyTestStart = jest.spyOn(reporter, 'testStart');
       const testInfoObject = {
         id: 'testId',
@@ -284,7 +284,7 @@ describe('reporter script', () => {
       expect(spyTestStart).toHaveBeenCalled();
     });
 
-    it('end failed test: should call sendLog on test fail', function() {
+    it('end failed test: should call sendLog on test fail', function () {
       const spySendLogOnFinishFailedItem = jest.spyOn(reporter, 'sendLogOnFinishFailedItem');
       const testInfoObject = {
         id: 'testId',
@@ -301,7 +301,7 @@ describe('reporter script', () => {
       expect(spySendLogOnFinishFailedItem).toHaveBeenCalledWith(testInfoObject, 'tempTestItemId');
     });
 
-    it('end passed test with attributes: finishTestItem should be called with attributes', function() {
+    it('end passed test with attributes: finishTestItem should be called with attributes', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const testInfoObject = {
         id: 'testId',
@@ -341,7 +341,7 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
 
-    it('end passed test with description: finishTestItem should be called with description', function() {
+    it('end passed test with description: finishTestItem should be called with description', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const testInfoObject = {
         id: 'testId',
@@ -365,7 +365,7 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
 
-    it('end passed test with testCaseId: finishTestItem should be called with testCaseId', function() {
+    it('end passed test with testCaseId: finishTestItem should be called with testCaseId', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const testInfoObject = {
         id: 'testId',
@@ -390,7 +390,7 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
 
-    it('end passed test with custom status: finishTestItem should be called with custom status', function() {
+    it('end passed test with custom status: finishTestItem should be called with custom status', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const testInfoObject = {
         id: 'testId',
@@ -415,8 +415,8 @@ describe('reporter script', () => {
     });
   });
 
-  describe('testPending', function() {
-    it('testPending should call testEnd if test has been started', function() {
+  describe('testPending', function () {
+    it('testPending should call testEnd if test has been started', function () {
       const spyTestEnd = jest.spyOn(reporter, 'testEnd');
 
       const testInfoObject = {
@@ -433,7 +433,7 @@ describe('reporter script', () => {
       expect(spyTestEnd).toHaveBeenCalledWith(testInfoObject);
     });
 
-    it('testPending should mark test as pending if not started', function() {
+    it('testPending should mark test as pending if not started', function () {
       const spyTestEnd = jest.spyOn(reporter, 'testEnd');
 
       const testInfoObject = {
@@ -449,7 +449,7 @@ describe('reporter script', () => {
       expect(reporter.pendingTestsIds).toContainEqual(testInfoObject.id);
     });
 
-    it('testStart should call testEnd if item is pending', function() {
+    it('testStart should call testEnd if item is pending', function () {
       const spyStartTestItem = jest.spyOn(reporter.client, 'startTestItem');
       const spyTestEnd = jest.spyOn(reporter, 'testEnd');
 
@@ -470,18 +470,18 @@ describe('reporter script', () => {
     });
   });
 
-  describe('hookStart', function() {
-    beforeEach(function() {
+  describe('hookStart', function () {
+    beforeEach(function () {
       reporter.tempLaunchId = 'tempLaunchId';
       reporter.testItemIds.set('suiteId', 'suiteTempId');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       reporter.testItemIds.clear();
       reporter.hooks.clear();
     });
 
-    it('start before each hook: should put hook start object in the map', function() {
+    it('start before each hook: should put hook start object in the map', function () {
       const hookInfoObject = {
         id: 'hookId_testId',
         hookName: 'before each',
@@ -500,7 +500,7 @@ describe('reporter script', () => {
       expect(reporter.hooks.get('hookId_testId')).toEqual(expectedHookStartObject);
     });
 
-    it('start before all hook: should put hook start object in the map', function() {
+    it('start before all hook: should put hook start object in the map', function () {
       const hookInfoObject = {
         id: 'hookId_testId',
         hookName: 'before all',
@@ -532,17 +532,17 @@ describe('reporter script', () => {
     afterAll(() => {
       mockFS.restore();
     });
-    beforeEach(function() {
+    beforeEach(function () {
       reporter.tempLaunchId = 'tempLaunchId';
       reporter.testItemIds.set('suiteId', 'suiteTempId');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       reporter.testItemIds.clear();
       reporter.hooks.clear();
     });
 
-    it('passed hook ends: finishTestItem should be called with parameters', function() {
+    it('passed hook ends: finishTestItem should be called with parameters', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const hookInfoObject = {
         id: 'hookId_testId',
@@ -568,7 +568,7 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('testItemId', expectedHookFinishObj);
     });
 
-    it('failed hook ends: sendLog and finishTestItem should be called with parameters', function() {
+    it('failed hook ends: sendLog and finishTestItem should be called with parameters', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const spySendLogOnFinishFailedItem = jest.spyOn(reporter, 'sendLogOnFinishFailedItem');
       const hookInfoObject = {
@@ -599,7 +599,7 @@ describe('reporter script', () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
-    it('sendLog: client.sendLog should be called with parameters', function() {
+    it('sendLog: client.sendLog should be called with parameters', function () {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
       const logObj = {
         level: 'error',
@@ -615,7 +615,7 @@ describe('reporter script', () => {
 
       expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
     });
-    it('sendLogToCurrentItem: client.sendLog should be called with parameters', function() {
+    it('sendLogToCurrentItem: client.sendLog should be called with parameters', function () {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
       const logObj = {
         level: 'error',
@@ -632,7 +632,7 @@ describe('reporter script', () => {
 
       expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
     });
-    it('sendLogToCurrentItem: client.sendLog rejected promise should be handled', async function() {
+    it('sendLogToCurrentItem: client.sendLog rejected promise should be handled', async function () {
       const spyConsoleError = jest.spyOn(global.console, 'error').mockImplementation();
       const clientError = new Error('client call failed');
       jest
@@ -644,7 +644,7 @@ describe('reporter script', () => {
       });
       expect(spyConsoleError).toHaveBeenCalledWith('Fail to send log to current item', clientError);
     });
-    it('sendLaunchLog: client.sendLog should be called with parameters', function() {
+    it('sendLaunchLog: client.sendLog should be called with parameters', function () {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
       const logObj = {
         level: 'error',
@@ -661,7 +661,7 @@ describe('reporter script', () => {
 
       expect(spySendLog).toHaveBeenCalledWith('tempLaunchId', expectedLogObj, undefined);
     });
-    it('sendLaunchLog: client.sendLog rejected promise should be handled', async function() {
+    it('sendLaunchLog: client.sendLog rejected promise should be handled', async function () {
       const spyConsoleError = jest.spyOn(global.console, 'error').mockImplementation();
       const clientError = new Error('client call failed');
       jest

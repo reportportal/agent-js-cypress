@@ -77,7 +77,7 @@ describe('utils script', () => {
     });
 
     describe('getSystemAttributes', () => {
-      it('skippedIssue undefined. Should return attribute with agent name and version', function() {
+      it('skippedIssue undefined. Should return attribute with agent name and version', function () {
         const options = getDefaultConfig();
         const expectedSystemAttributes = [
           {
@@ -92,7 +92,7 @@ describe('utils script', () => {
         expect(systemAttributes).toEqual(expectedSystemAttributes);
       });
 
-      it('skippedIssue = true. Should return attribute with agent name and version', function() {
+      it('skippedIssue = true. Should return attribute with agent name and version', function () {
         const options = getDefaultConfig();
         options.reporterOptions.skippedIssue = true;
         const expectedSystemAttributes = [
@@ -108,7 +108,7 @@ describe('utils script', () => {
         expect(systemAttributes).toEqual(expectedSystemAttributes);
       });
 
-      it('skippedIssue = false. Should return 2 attribute: with agent name/version and skippedIssue', function() {
+      it('skippedIssue = false. Should return 2 attribute: with agent name/version and skippedIssue', function () {
         const options = getDefaultConfig();
         options.reporterOptions.skippedIssue = false;
         const expectedSystemAttributes = [
@@ -144,7 +144,7 @@ describe('utils script', () => {
           delete process.env.CI_BUILD_ID;
         });
 
-        it('should not add an attribute with the CI_BUILD_ID value in case of parallel reporter option is false', function() {
+        it('should not add an attribute with the CI_BUILD_ID value in case of parallel reporter option is false', function () {
           process.env.CI_BUILD_ID = 'buildId';
           const initialConfig = {
             reporter: '@reportportal/agent-js-cypress',
@@ -162,7 +162,7 @@ describe('utils script', () => {
           expect(config).toEqual(expectedConfig);
         });
 
-        it('should not add an attribute with the CI_BUILD_ID value in case of autoMerge reporter option is false', function() {
+        it('should not add an attribute with the CI_BUILD_ID value in case of autoMerge reporter option is false', function () {
           process.env.CI_BUILD_ID = 'buildId';
           const initialConfig = {
             reporter: '@reportportal/agent-js-cypress',
@@ -180,7 +180,7 @@ describe('utils script', () => {
           expect(config).toEqual(expectedConfig);
         });
 
-        it('should not add an attribute with the value CI_BUILD_ID if the env variable CI_BUILD_ID does not exist', function() {
+        it('should not add an attribute with the value CI_BUILD_ID if the env variable CI_BUILD_ID does not exist', function () {
           process.env.CI_BUILD_ID = undefined;
           const initialConfig = {
             reporter: '@reportportal/agent-js-cypress',
@@ -198,7 +198,7 @@ describe('utils script', () => {
           expect(config).toEqual(expectedConfig);
         });
 
-        it('should return config with updated attributes (including attribute with CI_BUILD_ID value)', function() {
+        it('should return config with updated attributes (including attribute with CI_BUILD_ID value)', function () {
           process.env.CI_BUILD_ID = 'buildId';
           const initialConfig = {
             reporter: '@reportportal/agent-js-cypress',
@@ -233,7 +233,7 @@ describe('utils script', () => {
           delete process.env.RP_API_KEY;
         });
 
-        it('should override token property if the ENV variable RP_TOKEN exists', function() {
+        it('should override token property if the ENV variable RP_TOKEN exists', function () {
           process.env.RP_TOKEN = 'secret';
           const initialConfig = {
             reporter: '@reportportal/agent-js-cypress',
@@ -255,7 +255,7 @@ describe('utils script', () => {
           expect(config).toEqual(expectedConfig);
         });
 
-        it('should override apiKey property if the ENV variable RP_API_KEY exists', function() {
+        it('should override apiKey property if the ENV variable RP_API_KEY exists', function () {
           process.env.RP_API_KEY = 'secret';
           const initialConfig = {
             reporter: '@reportportal/agent-js-cypress',
@@ -277,7 +277,7 @@ describe('utils script', () => {
           expect(config).toEqual(expectedConfig);
         });
 
-        it('should prefer apiKey property over deprecated token', function() {
+        it('should prefer apiKey property over deprecated token', function () {
           const initialConfig = {
             reporter: '@reportportal/agent-js-cypress',
             reporterOptions: {
