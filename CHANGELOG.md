@@ -1,3 +1,5 @@
+### Added
+- TypeScript declarations for `reportPortalCommands`. Thanks to [thomaswinkler](https://github.com/thomaswinkler).
 ### Changed
 - `token` configuration option was renamed to `apiKey` to maintain common convention.
 - `@reportportal/client-javascript` bumped to version `5.0.12`.
