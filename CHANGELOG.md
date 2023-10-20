@@ -1,3 +1,5 @@
+### Added
+- `launchId` option to the config to attach run results to an existing launch. Related to parallel execution on one and several machines.
 
 ## [5.1.3] - 2023-07-18
 ### Added
