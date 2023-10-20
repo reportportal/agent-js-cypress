@@ -1,5 +1,7 @@
 ### Added
 - `launchId` option to the config to attach run results to an existing launch. Related to parallel execution on one and several machines.
+### Changed
+- `@reportportal/client-javascript` bumped to version `5.0.14`. `launchUuidPrint` and `launchUuidPrintOutput` configuration options introduced.
 
 ## [5.1.3] - 2023-07-18
 ### Added
