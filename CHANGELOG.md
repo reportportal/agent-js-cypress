@@ -1,3 +1,5 @@
+
+## [5.1.4] - 2023-10-23
 ### Fixed
 - `launchId` option is not recognized - resolves [#171](https://github.com/reportportal/agent-js-cypress/issues/171).
 ### Changed
