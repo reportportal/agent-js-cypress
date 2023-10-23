@@ -1,5 +1,5 @@
 ### Fixed
-- `launchId` option is not recognized -  resolves [#171](https://github.com/reportportal/agent-js-cypress/issues/171).
+- `launchId` option is not recognized - resolves [#171](https://github.com/reportportal/agent-js-cypress/issues/171).
 ### Changed
 - `@reportportal/client-javascript` bumped to version `5.0.14`. `launchUuidPrint` and `launchUuidPrintOutput` configuration options introduced.
 
