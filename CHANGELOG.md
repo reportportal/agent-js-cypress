@@ -1,3 +1,5 @@
+### Deprecated
+- Node.js 10 usage. This version is the latest that supports Node.js 10.
 
 ## [5.1.4] - 2023-10-23
 ### Fixed
