@@ -472,7 +472,7 @@ describe('utils script', () => {
           status: 'failed',
           parentId: 'parentSuiteId',
           codeRef: 'test/example.spec.js/suite name/test name',
-          err: 'error message',
+          err: { message: 'error message' },
           testFileName,
         };
 
