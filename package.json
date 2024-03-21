@@ -14,7 +14,7 @@
     "url": "https://github.com/reportportal/agent-js-cypress"
   },
   "dependencies": {
-    "@reportportal/client-javascript": "~5.0.15",
+    "@reportportal/client-javascript": "^5.1.0",
     "glob": "^7.2.3",
     "minimatch": "^3.1.2",
     "mocha": "^10.2.0",
@@ -27,7 +27,7 @@
     "/lib"
   ],
   "engines": {
-    "node": ">=10.x"
+    "node": ">=12.x"
   },
   "license": "Apache-2.0",
   "devDependencies": {
