@@ -1,3 +1,5 @@
+
+## [5.2.0] - 2024-03-21
 ### Fixed
 - Display stack trace for failed test cases
 ### Changed
