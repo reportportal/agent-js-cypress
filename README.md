@@ -36,10 +36,10 @@ module.exports = defineConfig({
     attributes: [
       {
         key: 'attributeKey',
-        value: 'attrbiuteValue',
+        value: 'attributeValue',
       },
       {
-        value: 'anotherAttrbiuteValue',
+        value: 'anotherattributeValue',
       },
     ],
   },
@@ -85,10 +85,10 @@ Add the following options to cypress.json
     "attributes": [
       {
         "key": "attributeKey",
-        "value": "attrbiuteValue"
+        "value": "attributeValue"
       },
       {
-        "value": "anotherAttrbiuteValue"
+        "value": "anotherattributeValue"
       }
     ]
   }
