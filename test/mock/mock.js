@@ -25,6 +25,10 @@ class RPClient {
     this.sendLog = jest.fn().mockReturnValue({
       promise: Promise.resolve('ok'),
     });
+
+    this.helpers = {
+      now: jest.fn().mockReturnValue(currentDate),
+    };
   }
 }
 
