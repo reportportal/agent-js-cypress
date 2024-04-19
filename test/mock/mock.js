@@ -1,3 +1,5 @@
+const currentDate = new Date().valueOf();
+
 class RPClient {
   constructor(config) {
     this.config = config;
@@ -44,7 +46,6 @@ const getDefaultConfig = () => ({
   },
 });
 
-const currentDate = new Date().valueOf();
 const RealDate = Date;
 
 const MockedDate = (...attrs) =>
