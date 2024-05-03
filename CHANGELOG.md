@@ -1,3 +1,5 @@
+### Security
+- Updated versions of vulnerable packages (@reportportal/client-javascript, glob).
 
 ## [5.2.0] - 2024-03-21
 ### Fixed
