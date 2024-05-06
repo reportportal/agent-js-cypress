@@ -26,11 +26,11 @@ const mockCurrentTestTempInfo = {
   tempId: tempTestId,
   codeRef: 'test-code-ref',
   startTime: currentDate,
-  steps: new Set(),
+  cucumberStepIds: new Set(),
 };
 const mockCurrentTestTempInfoWithStep = {
   ...mockCurrentTestTempInfo,
-  steps: new Set(testStepId),
+  cucumberStepIds: new Set(testStepId),
 };
 
 describe('reporter script', () => {
@@ -498,14 +498,14 @@ describe('reporter script', () => {
     });
   });
 
-  describe('stepStart', function () {
+  describe('cucumberStepStart', function () {
     it('startTestItem should be called with parameters', function () {
       const spyStartTestItem = jest.spyOn(reporter.client, 'startTestItem');
 
       reporter.currentTestTempInfo = mockCurrentTestTempInfo;
       reporter.tempLaunchId = tempLaunchId;
 
-      reporter.stepStart(mockInputStep);
+      reporter.cucumberStepStart(mockInputStep);
 
       expect(spyStartTestItem).toHaveBeenCalledTimes(1);
       expect(spyStartTestItem).toHaveBeenCalledWith(
@@ -522,16 +522,16 @@ describe('reporter script', () => {
     });
   });
 
-  describe('stepEnd', function () {
+  describe('cucumberStepEnd', function () {
     beforeEach(function () {
       reporter.currentTestTempInfo = mockCurrentTestTempInfoWithStep;
-      reporter.steps.set(testStepId, mockStep);
+      reporter.cucumberSteps.set(testStepId, mockStep);
     });
 
     it('end passed step: finishTestItem should be called with parameters', function () {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
 
-      reporter.stepEnd(mockInputStep);
+      reporter.cucumberStepEnd(mockInputStep);
 
       expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
       expect(spyFinishTestItem).toHaveBeenCalledWith(tempStepId, {
@@ -544,7 +544,7 @@ describe('reporter script', () => {
       const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
       const errorMessage = 'error-message';
 
-      reporter.stepEnd({
+      reporter.cucumberStepEnd({
         ...mockInputStep,
         testStepResult: { status: 'failed', message: errorMessage },
       });
@@ -559,7 +559,7 @@ describe('reporter script', () => {
       const spySendLog = jest.spyOn(reporter, 'sendLog');
       const errorMessage = 'error-message';
 
-      reporter.stepEnd({
+      reporter.cucumberStepEnd({
         ...mockInputStep,
         testStepResult: { status: 'failed', message: errorMessage },
       });

@@ -478,20 +478,22 @@ module.exports = defineConfig({
 ```
 
 ### Scenario steps
-At the moment it is not possible to subscribe to start and end of scenario steps events. To solve the problem with displaying steps in the ReportPortal, the agent provides special commands: `stepStart`, `stepEnd`.
+At the moment it is not possible to subscribe to start and end of scenario steps events. To solve the problem with displaying steps in the ReportPortal, the agent provides special commands: `cucumberStepStart`, `cucumberStepEnd`.
 To work correctly, these commands must be called in the `BeforeStep`/`AfterStep` hooks.
 
 ```javascript
 import { BeforeStep, AfterStep } from '@badeball/cypress-cucumber-preprocessor';
 
 BeforeStep((step) => {
-  cy.stepStart(step);
+  cy.cucumberStepStart(step);
 });
 
 AfterStep((step) => {
-  cy.stepEnd(step);
+  cy.cucumberStepEnd(step);
 });
 ```
+
+You can avoid duplicating this logic in each step definitions. Instead, add it to the `cypress/support/step_definitions.js` file and include the path to this file in the `stepDefinitions` array (if necessary). These hooks will be used for all step definitions.
 
 # Copyright Notice
 

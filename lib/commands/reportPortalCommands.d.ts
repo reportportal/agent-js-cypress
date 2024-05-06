@@ -55,9 +55,9 @@ declare global {
       launchFatal(message: string, file?: RP_FILE): Chainable<any>;
       // Waiting for migrate to TypeScript
       // Expected step: IStepHookParameter (https://github.com/badeball/cypress-cucumber-preprocessor/blob/055d8df6a62009c94057b0d894a30e142cb87b94/lib/public-member-types.ts#L39)
-      stepStart(step: any): Chainable<any>;
+      cucumberStepStart(step: any): Chainable<any>;
 
-      stepEnd(step: any): Chainable<any>;
+      cucumberStepEnd(step: any): Chainable<any>;
 
       setStatus(status: RP_STATUS, suiteTitle?: string): Chainable<void>;
 
