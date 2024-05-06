@@ -1,3 +1,5 @@
+### Added
+- `cucumberStepStart` and `cucumberStepEnd` commands for reporting `cypress-cucumber-preprocessor` scenario steps as nested steps in RP.
 ### Security
 - Updated versions of vulnerable packages (@reportportal/client-javascript, glob).
 

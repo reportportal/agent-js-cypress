@@ -1,3 +1,5 @@
+const currentDate = new Date().valueOf();
+
 class RPClient {
   constructor(config) {
     this.config = config;
@@ -25,6 +27,10 @@ class RPClient {
     this.sendLog = jest.fn().mockReturnValue({
       promise: Promise.resolve('ok'),
     });
+
+    this.helpers = {
+      now: jest.fn().mockReturnValue(currentDate),
+    };
   }
 }
 
@@ -40,7 +46,6 @@ const getDefaultConfig = () => ({
   },
 });
 
-const currentDate = new Date().valueOf();
 const RealDate = Date;
 
 const MockedDate = (...attrs) =>
