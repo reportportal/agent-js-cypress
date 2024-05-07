@@ -493,7 +493,7 @@ AfterStep((step) => {
 });
 ```
 
-You can avoid duplicating this logic in each step definitions. Instead, add it to the `cypress/support/step_definitions.js` file and include the path to this file in the `stepDefinitions` array (if necessary). These hooks will be used for all step definitions.
+You can avoid duplicating this logic in each step definitions. Instead, add it to the `cypress/support/step_definitions.js` file and include the path to this file in the [stepDefinitions](https://github.com/badeball/cypress-cucumber-preprocessor/blob/master/docs/step-definitions.md) array (if necessary) within cucumber-preprocessor config. These hooks will be used for all step definitions.
 
 # Copyright Notice
 
