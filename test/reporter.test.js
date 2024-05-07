@@ -5,6 +5,34 @@ const Reporter = require('./../lib/reporter');
 
 const sep = path.sep;
 
+const tempLaunchId = 'temp-launch-id';
+const tempTestId = 'temp-test-id';
+const tempStepId = 'temp-step-id';
+const testStepId = 'test-step-id';
+
+const mockInputStep = {
+  testStepId,
+  pickleStep: {
+    type: 'Action',
+    text: 'step-name',
+  },
+};
+const mockStep = {
+  tempId: tempStepId,
+  parentId: tempTestId,
+  testStepId,
+};
+const mockCurrentTestTempInfo = {
+  tempId: tempTestId,
+  codeRef: 'test-code-ref',
+  startTime: currentDate,
+  cucumberStepIds: new Set(),
+};
+const mockCurrentTestTempInfoWithStep = {
+  ...mockCurrentTestTempInfo,
+  cucumberStepIds: new Set(testStepId),
+};
+
 describe('reporter script', () => {
   let reporter;
 
@@ -470,6 +498,81 @@ describe('reporter script', () => {
     });
   });
 
+  describe('cucumberStepStart', function () {
+    it('startTestItem should be called with parameters', function () {
+      const spyStartTestItem = jest.spyOn(reporter.client, 'startTestItem');
+
+      reporter.currentTestTempInfo = mockCurrentTestTempInfo;
+      reporter.tempLaunchId = tempLaunchId;
+
+      reporter.cucumberStepStart(mockInputStep);
+
+      expect(spyStartTestItem).toHaveBeenCalledTimes(1);
+      expect(spyStartTestItem).toHaveBeenCalledWith(
+        {
+          name: 'When step-name',
+          startTime: currentDate,
+          type: 'step',
+          codeRef: 'test-code-ref/step-name',
+          hasStats: false,
+        },
+        tempLaunchId,
+        tempTestId,
+      );
+    });
+  });
+
+  describe('cucumberStepEnd', function () {
+    beforeEach(function () {
+      reporter.currentTestTempInfo = mockCurrentTestTempInfoWithStep;
+      reporter.cucumberSteps.set(testStepId, mockStep);
+    });
+
+    it('end passed step: finishTestItem should be called with parameters', function () {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+
+      reporter.cucumberStepEnd(mockInputStep);
+
+      expect(spyFinishTestItem).toHaveBeenCalledTimes(1);
+      expect(spyFinishTestItem).toHaveBeenCalledWith(tempStepId, {
+        status: 'passed',
+        endTime: currentDate,
+      });
+    });
+
+    it('end failed step: finishTestItem should be called with failed status', function () {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      const errorMessage = 'error-message';
+
+      reporter.cucumberStepEnd({
+        ...mockInputStep,
+        testStepResult: { status: 'failed', message: errorMessage },
+      });
+
+      expect(spyFinishTestItem).toHaveBeenCalledWith(tempStepId, {
+        status: 'failed',
+        endTime: currentDate,
+      });
+    });
+
+    it('end failed step: should call sendLog on step fail', function () {
+      const spySendLog = jest.spyOn(reporter, 'sendLog');
+      const errorMessage = 'error-message';
+
+      reporter.cucumberStepEnd({
+        ...mockInputStep,
+        testStepResult: { status: 'failed', message: errorMessage },
+      });
+
+      expect(spySendLog).toHaveBeenCalledTimes(1);
+      expect(spySendLog).toHaveBeenCalledWith(tempStepId, {
+        time: currentDate,
+        level: 'error',
+        message: errorMessage,
+      });
+    });
+  });
+
   describe('hookStart', function () {
     beforeEach(function () {
       reporter.tempLaunchId = 'tempLaunchId';
@@ -491,7 +594,7 @@ describe('reporter script', () => {
       };
       const expectedHookStartObject = {
         name: 'hook name',
-        startTime: currentDate,
+        startTime: currentDate - 1,
         type: 'BEFORE_METHOD',
       };
 
@@ -598,6 +701,7 @@ describe('reporter script', () => {
   describe('send log', () => {
     beforeEach(() => {
       jest.clearAllMocks();
+      reporter.currentTestTempInfo = mockCurrentTestTempInfo;
     });
     it('sendLog: client.sendLog should be called with parameters', function () {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
@@ -626,11 +730,14 @@ describe('reporter script', () => {
         message: 'error message',
         time: currentDate,
       };
-      reporter.currentTestTempInfo = { tempId: 'tempTestItemId' };
 
       reporter.sendLogToCurrentItem(logObj);
 
-      expect(spySendLog).toHaveBeenCalledWith('tempTestItemId', expectedLogObj, undefined);
+      expect(spySendLog).toHaveBeenCalledWith(
+        mockCurrentTestTempInfo.tempId,
+        expectedLogObj,
+        undefined,
+      );
     });
     it('sendLogToCurrentItem: client.sendLog rejected promise should be handled', async function () {
       const spyConsoleError = jest.spyOn(global.console, 'error').mockImplementation();

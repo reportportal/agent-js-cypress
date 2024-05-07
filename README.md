@@ -36,10 +36,10 @@ module.exports = defineConfig({
     attributes: [
       {
         key: 'attributeKey',
-        value: 'attrbiuteValue',
+        value: 'attributeValue',
       },
       {
-        value: 'anotherAttrbiuteValue',
+        value: 'anotherAttributeValue',
       },
     ],
   },
@@ -85,10 +85,10 @@ Add the following options to cypress.json
     "attributes": [
       {
         "key": "attributeKey",
-        "value": "attrbiuteValue"
+        "value": "attributeValue"
       },
       {
-        "value": "anotherAttrbiuteValue"
+        "value": "anotherAttributeValue"
       }
     ]
   }
@@ -436,6 +436,64 @@ jobs:
 ```
 
 **Note:** The example provided for Cypress version <= 9. For Cypress version >= 10 usage of `cypress-io/github-action` may be changed.
+
+## Cypress-cucumber-preprocessor execution
+
+### Configuration:
+Specify the options in the cypress.config.js:
+
+```javascript
+const { defineConfig } = require('cypress');
+const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
+const preprocessor = require('@badeball/cypress-cucumber-preprocessor');
+const createEsbuildPlugin = require('@badeball/cypress-cucumber-preprocessor/esbuild').default;
+const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/plugin');
+
+module.exports = defineConfig({
+  reporter: '@reportportal/agent-js-cypress',
+  reporterOptions: {
+    endpoint: 'http://your-instance.com:8080/api/v1',
+    apiKey: 'reportportalApiKey',
+    launch: 'LAUNCH_NAME',
+    project: 'PROJECT_NAME',
+    description: 'LAUNCH_DESCRIPTION',
+  },
+  e2e: {
+    async setupNodeEvents(on, config) {
+      await preprocessor.addCucumberPreprocessorPlugin(on, config);
+      on(
+        'file:preprocessor',
+        createBundler({
+          plugins: [createEsbuildPlugin(config)],
+        }),
+      );
+      registerReportPortalPlugin(on, config);
+
+      return config;
+    },
+    specPattern: 'cypress/e2e/**/*.feature',
+    supportFile: 'cypress/support/e2e.js',
+  },
+});
+```
+
+### Scenario steps
+At the moment it is not possible to subscribe to start and end of scenario steps events. To solve the problem with displaying steps in the ReportPortal, the agent provides special commands: `cucumberStepStart`, `cucumberStepEnd`.
+To work correctly, these commands must be called in the `BeforeStep`/`AfterStep` hooks.
+
+```javascript
+import { BeforeStep, AfterStep } from '@badeball/cypress-cucumber-preprocessor';
+
+BeforeStep((step) => {
+  cy.cucumberStepStart(step);
+});
+
+AfterStep((step) => {
+  cy.cucumberStepEnd(step);
+});
+```
+
+You can avoid duplicating this logic in each step definitions. Instead, add it to the `cypress/support/step_definitions.js` file and include the path to this file in the [stepDefinitions](https://github.com/badeball/cypress-cucumber-preprocessor/blob/master/docs/step-definitions.md) array (if necessary) within cucumber-preprocessor config. These hooks will be used for all step definitions.
 
 # Copyright Notice
 
