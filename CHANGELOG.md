@@ -1,3 +1,5 @@
+
+## [5.3.0] - 2024-05-07
 ### Added
 - `cucumberStepStart` and `cucumberStepEnd` commands for reporting `cypress-cucumber-preprocessor` scenario steps as nested steps in RP.
 ### Security
