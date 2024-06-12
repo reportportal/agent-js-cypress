@@ -356,7 +356,7 @@ export default defineConfig({
 });
 ```
 
-`deleteLaunchFiles` can be
+`deleteLaunchFiles` example:
 
 ```javascript
 const fs = require("fs");
@@ -372,18 +372,6 @@ function deleteLaunchFiles() {
   const files = getLaunchTempFiles();
   files.forEach(deleteTempFile);
 }
-```
-
-#### Update package.json "scripts" section
-
-```json
-
-"scripts": {
-  ...
-  "cypress": "node scripts/cypress.js",
-  ...
-},
-
 ```
 
 ## Parallel execution
@@ -406,7 +394,7 @@ Since Cypress does not provide the ci_build_id to the reporter, you need to prov
 
 ```
 
-**Here's an example of setting up parallel Cypress execution using GitHub Actions:**
+**Here's an example of setting up parallel Cypress execution on several machines using GitHub Actions:**
 
 ```yaml
 
