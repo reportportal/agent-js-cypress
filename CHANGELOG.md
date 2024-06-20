@@ -1,3 +1,7 @@
+### Fixed
+- [#192](https://github.com/reportportal/agent-js-cypress/issues/192). Reporter procreates an enormous amount of processes during execution. Thanks to [epam-avramenko](https://github.com/epam-avramenko).
+### Changed
+- `@reportportal/client-javascript` bumped to version `5.1.4`.
 
 ## [5.3.0] - 2024-05-07
 ### Added
