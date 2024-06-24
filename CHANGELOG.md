@@ -1,3 +1,5 @@
+
+## [5.3.1] - 2024-06-24
 ### Fixed
 - [#192](https://github.com/reportportal/agent-js-cypress/issues/192). Reporter procreates an enormous amount of processes during execution. Thanks to [epam-avramenko](https://github.com/epam-avramenko).
 ### Changed
