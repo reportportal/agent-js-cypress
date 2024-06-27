@@ -780,8 +780,8 @@ describe('utils script', () => {
       mock.restore();
     });
 
-    it('testFiles, integrationFolder, supportFile are specified: should count all files from integration folder', () => {
-      let specConfig = {
+    it('testFiles specified: should count all files from integration folder', () => {
+      const specConfig = {
         testFiles: '**/*.*',
         ignoreTestFiles: '*.hot-update.js',
         fixturesFolder: 'cypress/fixtures',
@@ -789,18 +789,20 @@ describe('utils script', () => {
         supportFile: 'cypress/support/index.js',
       };
 
-      let specCount = getTotalSpecs(specConfig);
+      const specCount = getTotalSpecs(specConfig);
 
       expect(specCount).toEqual(5);
+    });
 
-      specConfig = {
+    it('specPattern specified: should count all files according to it', () => {
+      const specConfig = {
         excludeSpecPattern: '*.hot-update.js',
         specPattern: 'cypress/tests/**/*.spec.{js,ts}',
         supportFile: 'cypress/support/index.js',
         fixturesFolder: 'cypress/fixtures',
       };
 
-      specCount = getTotalSpecs(specConfig);
+      const specCount = getTotalSpecs(specConfig);
 
       expect(specCount).toEqual(5);
     });
