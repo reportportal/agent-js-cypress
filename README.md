@@ -28,11 +28,11 @@ const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/p
 module.exports = defineConfig({
   reporter: '@reportportal/agent-js-cypress',
   reporterOptions: {
-    endpoint: 'http://your-instance.com:8080/api/v1',
-    apiKey: 'reportportalApiKey',
-    launch: 'LAUNCH_NAME',
-    project: 'PROJECT_NAME',
-    description: 'LAUNCH_DESCRIPTION',
+    apiKey: '<API_KEY>',
+    endpoint: 'https://your.reportportal.server/api/v1',
+    project: 'Your reportportal project name',
+    launch: 'Your launch name',
+    description: 'Your launch description',
     attributes: [
       {
         key: 'attributeKey',
@@ -76,11 +76,11 @@ Add the following options to cypress.json
 {
   "reporter": "@reportportal/agent-js-cypress",
   "reporterOptions": {
-    "endpoint": "http://your-instance.com:8080/api/v1",
-    "apiKey": "reportportalApiKey",
-    "launch": "LAUNCH_NAME",
-    "project": "PROJECT_NAME",
-    "description": "LAUNCH_DESCRIPTION",
+    "apiKey": "<API_KEY>",
+    "endpoint": "https://your.reportportal.server/api/v1",
+    "project": "Your reportportal project name",
+    "launch": "Your launch name",
+    "description": "Your launch description",
     "attributes": [
       {
         "key": "attributeKey",

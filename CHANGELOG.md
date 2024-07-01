@@ -1,3 +1,5 @@
+### Fixed
+- Launch finishing for tests annotated with '.skip'.
 
 ## [5.3.1] - 2024-06-24
 ### Fixed
