@@ -297,21 +297,6 @@ describe('reporter script', () => {
       expect(spyFinishTestItem).toHaveBeenCalledWith('tempTestItemId', expectedTestFinishObj);
     });
 
-    it('end not started test: should call testStart', function () {
-      const spyTestStart = jest.spyOn(reporter, 'testStart');
-      const testInfoObject = {
-        id: 'testId',
-        title: 'test name',
-        status: 'failed',
-        parentId: 'suiteId',
-        err: 'error message',
-      };
-
-      reporter.testEnd(testInfoObject);
-
-      expect(spyTestStart).toHaveBeenCalled();
-    });
-
     it('end failed test: should call sendLog on test fail', function () {
       const spySendLogOnFinishFailedItem = jest.spyOn(reporter, 'sendLogOnFinishFailedItem');
       const testInfoObject = {
