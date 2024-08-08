@@ -207,7 +207,7 @@ describe('reporter script', () => {
     });
   });
 
-  describe('sendVideoOnFinishSuite', function() {
+  describe('sendVideoOnFinishSuite', function () {
     let customSuiteNameAttachment;
 
     beforeAll(() => {
@@ -244,7 +244,7 @@ describe('reporter script', () => {
       delete reporter.config.reporterOptions.videoUploadOnPasses;
     });
 
-    it('sendLog with video attachment - fail root suite if any suite fails', function() {
+    it('sendLog with video attachment - fail root suite if any suite fails', function () {
       const suiteEndObject = {
         id: 'suite',
         title: 'suite title',
@@ -256,13 +256,13 @@ describe('reporter script', () => {
       expect(reporter.suitesStackTempInfo[0].status).toEqual('failed');
     });
 
-    it('sendLog with video attachment - fail root suite if setTestItemStatus fails for any suite', function() {
+    it('sendLog with video attachment - fail root suite if setTestItemStatus fails for any suite', function () {
       expect(reporter.suitesStackTempInfo[0].status).not.toBeDefined();
       reporter.setTestItemStatus({ status: 'failed', suiteTitle: 'any suite' });
       expect(reporter.suitesStackTempInfo[0].status).toEqual('failed');
     });
 
-    it('sendLog with video attachment - send log with video for failed root suite', function() {
+    it('sendLog with video attachment - send log with video for failed root suite', function () {
       const spySendVideoOnFinishSuite = jest.spyOn(reporter.client, 'sendLog');
 
       const suiteEndObject = {
@@ -285,7 +285,7 @@ describe('reporter script', () => {
       );
     });
 
-    it('sendLog with video attachment - do not send if suite is not root suite', function() {
+    it('sendLog with video attachment - do not send if suite is not root suite', function () {
       const spySendVideoOnFinishSuite = jest.spyOn(reporter.client, 'sendLog');
 
       const suiteEndObject = {
@@ -299,7 +299,7 @@ describe('reporter script', () => {
       expect(spySendVideoOnFinishSuite).not.toHaveBeenCalled();
     });
 
-    it('sendLog with video attachment - do not send if root suite passed and videoUploadOnPasses is false', function() {
+    it('sendLog with video attachment - do not send if root suite passed and videoUploadOnPasses is false', function () {
       const spySendVideoOnFinishSuite = jest.spyOn(reporter.client, 'sendLog');
 
       const suiteEndObject = {
@@ -313,7 +313,7 @@ describe('reporter script', () => {
       expect(spySendVideoOnFinishSuite).not.toHaveBeenCalled();
     });
 
-    it('sendLog with video attachment - do not send if failed but setTestItemStatus passed', function() {
+    it('sendLog with video attachment - do not send if failed but setTestItemStatus passed', function () {
       const spySendVideoOnFinishSuite = jest.spyOn(reporter.client, 'sendLog');
 
       reporter.setTestItemStatus({ status: 'passed', suiteTitle: 'suite title' });
@@ -329,7 +329,7 @@ describe('reporter script', () => {
       expect(spySendVideoOnFinishSuite).not.toHaveBeenCalled();
     });
 
-    it('sendLog with video attachment - do not send if video not found in videosFolder', function() {
+    it('sendLog with video attachment - do not send if video not found in videosFolder', function () {
       const spySendVideoOnFinishSuite = jest.spyOn(reporter.client, 'sendLog');
 
       const suiteEndObject = {
@@ -344,7 +344,7 @@ describe('reporter script', () => {
       expect(spySendVideoOnFinishSuite).not.toHaveBeenCalled();
     });
 
-    it('sendLog with video attachment - send if root suite passed and videoUploadOnPasses is true', function() {
+    it('sendLog with video attachment - send if root suite passed and videoUploadOnPasses is true', function () {
       const spySendVideoOnFinishSuite = jest.spyOn(reporter.client, 'sendLog');
       reporter.config.reporterOptions.videoUploadOnPasses = true;
 
@@ -368,7 +368,7 @@ describe('reporter script', () => {
       );
     });
 
-    it('sendLog with video attachment - send if passed but setTestItemStatus failed', function() {
+    it('sendLog with video attachment - send if passed but setTestItemStatus failed', function () {
       const spySendVideoOnFinishSuite = jest.spyOn(reporter.client, 'sendLog');
       reporter.config.reporterOptions.videoUploadOnPasses = true;
 

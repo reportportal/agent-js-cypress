@@ -334,8 +334,8 @@ describe('utils script', () => {
       });
     });
 
-    describe('prepareReporterOptions', function() {
-      it('should pass video related cypress options from cypress config', function() {
+    describe('prepareReporterOptions', function () {
+      it('should pass video related cypress options from cypress config', function () {
         const initialConfig = getDefaultConfig();
         initialConfig.videosFolder = '/example/videos';
         initialConfig.videoUploadOnPasses = true;
@@ -346,7 +346,7 @@ describe('utils script', () => {
         expect(config.reporterOptions.videoUploadOnPasses).toEqual(true);
       });
 
-      it('passing video related cypress options should not fail if undefined', function() {
+      it('passing video related cypress options should not fail if undefined', function () {
         const initialConfig = getDefaultConfig();
 
         const config = prepareReporterOptions(initialConfig);
