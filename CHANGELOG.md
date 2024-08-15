@@ -1,3 +1,5 @@
+### Added
+- `uploadVideo` option. Allows uploading Cypress videos for specs. Check the readme for details.
 
 ## [5.3.2] - 2024-07-01
 ### Fixed
@@ -7,13 +9,15 @@
 ### Fixed
 - [#192](https://github.com/reportportal/agent-js-cypress/issues/192). Reporter procreates an enormous amount of processes during execution. Thanks to [epam-avramenko](https://github.com/epam-avramenko).
 ### Changed
-- `@reportportal/client-javascript` bumped to version `5.1.4`.
+- `@reportportal/client-javascript` bumped to version `5.1.4`, new `launchUuidPrintOutput` types introduced: 'FILE', 'ENVIRONMENT'.
 
 ## [5.3.0] - 2024-05-07
 ### Added
 - `cucumberStepStart` and `cucumberStepEnd` commands for reporting `cypress-cucumber-preprocessor` scenario steps as nested steps in RP.
 ### Security
 - Updated versions of vulnerable packages (@reportportal/client-javascript, glob).
+### Deprecated
+- Node.js 12 usage. This minor version is the latest that supports Node.js 12.
 
 ## [5.2.0] - 2024-03-21
 ### Fixed
