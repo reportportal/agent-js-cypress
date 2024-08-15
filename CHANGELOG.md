@@ -1,3 +1,5 @@
+
+## [5.3.3] - 2024-08-15
 ### Added
 - `uploadVideo` option. Allows uploading Cypress videos for specs. Check the readme for details.
 
