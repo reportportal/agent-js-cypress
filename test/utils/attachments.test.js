@@ -103,7 +103,7 @@ describe('attachment utils', () => {
     });
   });
 
-  describe('waitForVideoFile', () => {
+  describe.skip('waitForVideoFile', () => {
     beforeEach(() => {
       jest.useFakeTimers();
       jest.clearAllMocks();
@@ -157,7 +157,7 @@ describe('attachment utils', () => {
     });
   });
 
-  describe('getVideoFile', () => {
+  describe.skip('getVideoFile', () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });

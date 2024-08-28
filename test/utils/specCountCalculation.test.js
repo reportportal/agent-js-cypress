@@ -59,6 +59,14 @@ describe('spec count calculation', () => {
       expect(specCount).toEqual(5);
     });
 
+    it('nor testFiles nor specPattern are specified: should throw an exception', () => {
+      expect(() => {
+        getTotalSpecs({});
+      }).toThrow(
+        new Error('Configuration property not set! Neither for cypress <= 9 nor cypress >= 10'),
+      );
+    });
+
     it('ignoreTestFiles are specified: should ignore specified files', () => {
       let specConfig = {
         testFiles: '**/*.*',
@@ -96,6 +104,24 @@ describe('spec count calculation', () => {
   });
 
   describe('getExcludeSpecPattern', () => {
+    it('getExcludeSpecPattern returns required pattern for cypress version >= 10', () => {
+      const specConfigString = {
+        excludeSpecPattern: '*.hot-update.js',
+      };
+
+      const specConfigArray = {
+        excludeSpecPattern: ['*.hot-update.js', '*.hot-update.ts'],
+      };
+
+      let patternArray = getExcludeSpecPattern(specConfigString);
+      expect(patternArray).toHaveLength(1);
+      expect(patternArray).toContain('*.hot-update.js');
+
+      patternArray = getExcludeSpecPattern(specConfigArray);
+      expect(patternArray).toHaveLength(2);
+      expect(patternArray).toContain('*.hot-update.js');
+      expect(patternArray).toContain('*.hot-update.ts');
+    });
     it('getExcludeSpecPattern returns required pattern for cypress version <= 9', () => {
       const specConfigString = {
         integrationFolder: 'cypress/integration',
