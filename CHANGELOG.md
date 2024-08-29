@@ -1,3 +1,5 @@
+
+## [5.3.4] - 2024-08-29
 ### Fixed
 - Video attachment won't play after downloading, resolves [#202](https://github.com/reportportal/agent-js-cypress/issues/202). Thanks to [ashvinjaiswal](https://github.com/ashvinjaiswal).
 
