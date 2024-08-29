@@ -266,6 +266,7 @@ describe('reporter script', () => {
     });
   });
 
+  // TODO: Fix the tests
   describe.skip('sendVideoOnFinishSuite', function () {
     let customSuiteNameAttachment;
 

@@ -103,6 +103,7 @@ describe('attachment utils', () => {
     });
   });
 
+  // TODO: Fix the tests
   describe.skip('waitForVideoFile', () => {
     beforeEach(() => {
       jest.useFakeTimers();
