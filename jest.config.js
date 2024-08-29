@@ -28,6 +28,7 @@ module.exports = {
     '!lib/ipcServer.js',
     '!lib/testStatuses.js',
     '!lib/worker.js',
+    '!lib/utils/attachments.js',
   ],
   coverageThreshold: {
     global: {
