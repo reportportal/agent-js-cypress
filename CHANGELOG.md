@@ -1,3 +1,5 @@
+### Added
+- `videoCompression` option. Allows compressing Cypress videos before uploading them to the ReportPortal. Check the readme for details. Thanks to [ashvinjaiswal](https://github.com/ashvinjaiswal).
 
 ## [5.3.4] - 2024-08-29
 ### Fixed
