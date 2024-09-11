@@ -2,6 +2,9 @@ const fsPromises = require('fs/promises');
 const mockFs = require('mock-fs');
 const path = require('path');
 const glob = require('glob');
+
+jest.mock('fluent-ffmpeg');
+const ffmpeg = require('fluent-ffmpeg');
 const attachmentUtils = require('../../lib/utils/attachments');
 
 const {
@@ -10,6 +13,7 @@ const {
   waitForVideoFile,
   getFilePathByGlobPattern,
   checkVideoFileReady,
+  compressVideo,
 } = attachmentUtils;
 
 const sep = path.sep;
@@ -169,7 +173,7 @@ describe('attachment utils', () => {
       jest.spyOn(attachmentUtils, 'waitForVideoFile').mockResolvedValueOnce(mockVideoFilePath);
       jest.spyOn(fsPromises, 'readFile').mockResolvedValueOnce(mockFileContent);
 
-      const result = await getVideoFile('video', '**', 5000, 1000);
+      const result = await getVideoFile('video', false, '**', 5000, 1000);
 
       expect(result).toEqual({
         name: 'video.mp4',
@@ -203,6 +207,58 @@ describe('attachment utils', () => {
       const result = await getVideoFile('video');
       expect(result).toBeNull();
       expect(console.warn).toHaveBeenCalledWith('Failed to read file');
+    });
+  });
+
+  // TODO: add test for the real video file
+  describe('compressVideo', () => {
+    const spyPathJoin = jest.spyOn(path, 'join');
+    const spyDirnameJoin = jest.spyOn(path, 'dirname');
+    const spyBasenameJoin = jest.spyOn(path, 'basename');
+
+    const mockFilePath = 'path/to/video.mp4';
+    const mockOutputFilePath = 'path/to/compressed_video.mp4';
+
+    beforeEach(() => {
+      spyPathJoin.mockReturnValueOnce(mockOutputFilePath);
+      spyDirnameJoin.mockReturnValueOnce('path/to');
+      spyBasenameJoin.mockReturnValueOnce('video.mp4');
+    });
+
+    test('resolves with the correct output file path on successful compression', async () => {
+      const mockFfmpeg = {
+        outputOptions: jest.fn().mockReturnThis(),
+        save: jest.fn().mockReturnThis(),
+        on: jest.fn((event, handler) => {
+          if (event === 'end') {
+            handler();
+          }
+          return mockFfmpeg;
+        }),
+      };
+      ffmpeg.mockReturnValue(mockFfmpeg);
+
+      await expect(compressVideo(mockFilePath, 23)).resolves.toBe(mockOutputFilePath);
+      expect(ffmpeg).toHaveBeenCalledWith(mockFilePath);
+      expect(mockFfmpeg.outputOptions).toHaveBeenCalledWith('-crf 23');
+      expect(mockFfmpeg.save).toHaveBeenCalledWith(mockOutputFilePath);
+    });
+
+    test('rejects with an error if compression fails', async () => {
+      const mockError = new Error('Compression failed');
+      const mockFfmpeg = {
+        outputOptions: jest.fn().mockReturnThis(),
+        save: jest.fn().mockReturnThis(),
+        on: jest.fn((event, handler) => {
+          if (event === 'error') {
+            handler(mockError);
+          }
+          return mockFfmpeg;
+        }),
+      };
+      ffmpeg.mockReturnValue(mockFfmpeg);
+
+      await expect(compressVideo(mockFilePath, 23)).rejects.toThrow('Compression failed');
     });
   });
 });
