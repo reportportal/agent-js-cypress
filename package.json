@@ -1,6 +1,6 @@
 {
   "name": "@reportportal/agent-js-cypress",
-  "version": "5.3.4",
+  "version": "5.3.5",
   "description": "This agent helps Cypress to communicate with Report Portal",
   "main": "index.js",
   "scripts": {
