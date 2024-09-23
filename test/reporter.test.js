@@ -1,6 +1,23 @@
+/*
+ *  Copyright 2024 EPAM Systems
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 const mockFS = require('mock-fs');
 const path = require('path');
-const { getDefaultConfig, RPClient, MockedDate, RealDate, currentDate } = require('./mock/mocks');
+const helpers = require('@reportportal/client-javascript/lib/helpers');
+const { getDefaultConfig, RPClient, currentDate } = require('./mock/mocks');
 const Reporter = require('./../lib/reporter');
 const { entityType } = require('../lib/constants');
 
@@ -35,6 +52,7 @@ const mockCurrentTestTempInfoWithStep = {
 };
 
 describe('reporter script', () => {
+  jest.spyOn(helpers, 'now').mockReturnValue(currentDate);
   let reporter;
 
   beforeAll(() => {
@@ -44,15 +62,12 @@ describe('reporter script', () => {
   });
 
   beforeEach(() => {
-    global.Date = jest.fn(MockedDate);
-    Object.assign(Date, RealDate);
     reporter.config = getDefaultConfig();
   });
 
   afterEach(() => {
     reporter.testItemIds.clear();
     reporter.tempLaunchId = undefined;
-    global.Date = RealDate;
     jest.clearAllMocks();
   });
 
