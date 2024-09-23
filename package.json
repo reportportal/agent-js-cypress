@@ -1,7 +1,7 @@
 {
   "name": "@reportportal/agent-js-cypress",
   "version": "5.3.5",
-  "description": "This agent helps Cypress to communicate with Report Portal",
+  "description": "This agent helps Cypress to communicate with ReportPortal",
   "main": "index.js",
   "scripts": {
     "lint": "eslint . --quiet",
@@ -14,7 +14,7 @@
     "url": "https://github.com/reportportal/agent-js-cypress"
   },
   "dependencies": {
-    "@reportportal/client-javascript": "~5.1.4",
+    "@reportportal/client-javascript": "~5.3.0",
     "glob": "^9.3.5",
     "minimatch": "^3.1.2",
     "mocha": "^10.2.0",
@@ -31,7 +31,7 @@
     "/lib"
   ],
   "engines": {
-    "node": ">=12.x"
+    "node": ">=14.x"
   },
   "license": "Apache-2.0",
   "devDependencies": {

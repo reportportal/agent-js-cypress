@@ -1,4 +1,21 @@
+/*
+ *  Copyright 2024 EPAM Systems
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 const path = require('path');
+const helpers = require('@reportportal/client-javascript/lib/helpers');
 const {
   getSystemAttributes,
   getLaunchStartObject,
@@ -18,21 +35,13 @@ const pjson = require('../../package.json');
 
 const sep = path.sep;
 
-const { RealDate, MockedDate, currentDate, getDefaultConfig } = require('../mock/mocks');
+const { currentDate, getDefaultConfig } = require('../mock/mocks');
 const { testItemStatuses, entityType } = require('../../lib/constants');
 
 describe('object creators', () => {
+  jest.spyOn(helpers, 'now').mockReturnValue(currentDate);
+
   const testFileName = `test${sep}example.spec.js`;
-
-  beforeEach(() => {
-    global.Date = jest.fn(MockedDate);
-    Object.assign(Date, RealDate);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-    global.Date = RealDate;
-  });
 
   describe('getAgentInfo', () => {
     it('getAgentInfo: should contain version and name properties', () => {
