@@ -1,4 +1,10 @@
 
+### Changed
+- **Breaking change** Drop support of Node.js 12. The version [5.3.5](https://github.com/reportportal/agent-js-cypress/releases/tag/v5.3.5) is the latest that supports it.
+- The agent now supports reporting the time for launches, test items and logs with microsecond precision in the ISO string format.
+For logs, microsecond precision is available on the UI from ReportPortal version 24.2.
+- `@reportportal/client-javascript` bumped to version `5.3.0`.
+
 ## [5.3.5] - 2024-09-11
 ### Added
 - `videoCompression` option. Allows compressing Cypress videos before uploading them to the ReportPortal. Check the readme for details. Thanks to [ashvinjaiswal](https://github.com/ashvinjaiswal).

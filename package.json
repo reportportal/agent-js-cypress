@@ -31,7 +31,7 @@
     "/lib"
   ],
   "engines": {
-    "node": ">=12.x"
+    "node": ">=14.x"
   },
   "license": "Apache-2.0",
   "devDependencies": {
