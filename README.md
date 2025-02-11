@@ -349,9 +349,9 @@ export default defineConfig({
         if (reportportalOptions.isLaunchMergeRequired) {
           try {
             console.log('Merging launches...');
-            const client = new rpClient(options);
+            const client = new rpClient(reportportalOptions);
 
-            await client.mergeLaunches(reportportalOptions);
+            await client.mergeLaunches(); // [mergeOptions](https://github.com/reportportal/client-javascript?tab=readme-ov-file#mergelaunches) can be added here if needed
             console.log('Launches successfully merged!');
             deleteLaunchFiles();
           } catch (mergeError) {
