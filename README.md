@@ -317,7 +317,12 @@ Edit cypress.config.js (or cypress.json for versions <=9) file. Set `isLaunchMer
 Update the Cypress configuration file with the code presented below (referring the issue https://github.com/reportportal/agent-js-cypress/issues/135#issue-1461470158).
 
 ```javascript
-const delay = async (ms: number) => new Promise((res) => setTimeout(res, ms));
+const { defineConfig } = require('cypress');
+const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/plugin');
+const rpClient = require('@reportportal/client-javascript');
+const glob = require('glob');
+
+const delay = async (ms) => new Promise((res) => setTimeout(res, ms));
 
 const reportportalOptions = {
   //...
@@ -344,7 +349,9 @@ export default defineConfig({
         if (reportportalOptions.isLaunchMergeRequired) {
           try {
             console.log('Merging launches...');
-            await mergeLaunches(reportportalOptions);
+            const client = new rpClient(options);
+
+            await client.mergeLaunches(reportportalOptions);
             console.log('Launches successfully merged!');
             deleteLaunchFiles();
           } catch (mergeError) {
