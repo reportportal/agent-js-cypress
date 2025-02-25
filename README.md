@@ -289,7 +289,8 @@ This feature needs information about Cypress configuration. To provide it to the
 ```
 
 **Please note**, that `autoMerge` feature is unstable in some cases (e.g. when using `cypress-grep` or `--spec` CLI argument to specify the test amount that should be executed) and may lead to unfinished launches in ReportPortal.
-If this is the case, please specify spec pattern in the config directly. You can also use the [Manual merge launches](#manual-merge-launches) instead.
+
+If this is the case, please specify `specPattern` in the config directly. You can also use the [Manual merge launches](#manual-merge-launches) instead.
 
 ## Manual merge launches
 
