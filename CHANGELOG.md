@@ -1,3 +1,5 @@
+
+## [5.5.0] - 2025-03-27
 ### Added
 - `debugIpc` option. Allows printing logs from the internal node-ipc server and client. Useful for debugging.
 - `retryIpcInterval` option. Allows configuring connection retry interval for node-ipc client.
