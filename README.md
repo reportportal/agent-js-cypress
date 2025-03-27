@@ -274,6 +274,9 @@ Default usage of Cypress screenshot function is supported without additional set
 
 ## Report a single launch
 
+By default, Cypress create a separate run for each test file.
+This section describe how to report test items of different specs into the single launch.
+
 The agent supports the `launchId` parameter to specify the ID of the already started launch.<br/>
 This way, you can start the launch using `@reportportal/client-javascript` before the test run and then specify its ID in the config.
 
