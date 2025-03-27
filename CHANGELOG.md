@@ -1,6 +1,14 @@
+### Added
+- `debugIpc` option. Allows printing logs from the internal node-ipc server and client. Useful for debugging.
+- `retryIpcInterval` option. Allows configuring connection retry interval for node-ipc client.
+### Changed
+- Revert time format back to milliseconds (based on [#217](https://github.com/reportportal/client-javascript/issues/217#issuecomment-2659843471)).
+  This is also fixing the issue with agent installation on ARM processors [#212](https://github.com/reportportal/agent-js-cypress/issues/212).
+- `@reportportal/client-javascript` bumped to version `5.4.0`.
+### Security
+- Updated versions of vulnerable packages (axios).
 
 ## [5.4.0] - 2024-09-23
-
 ### Changed
 - **Breaking change** Drop support of Node.js 12. The version [5.3.5](https://github.com/reportportal/agent-js-cypress/releases/tag/v5.3.5) is the latest that supports it.
 - The agent now supports reporting the time for launches, test items and logs with microsecond precision in the ISO string format.

@@ -173,12 +173,8 @@ describe('spec count calculation', () => {
 
       const patternArray = getSpecPattern(specConfig);
       expect(patternArray).toHaveLength(2);
-      expect(patternArray[0]).toEqual(
-        path.join(specConfig.integrationFolder, specConfig.testFiles[0]),
-      );
-      expect(patternArray[1]).toEqual(
-        path.join(specConfig.integrationFolder, specConfig.testFiles[1]),
-      );
+      expect(patternArray[0]).toEqual('cypress/integration/**/*.js');
+      expect(patternArray[1]).toEqual('cypress/integration/**/*.ts');
     });
 
     it('getSpecPattern returns the required glob pattern for cypress >= 10 config when specPattern is an array', () => {
@@ -210,9 +206,7 @@ describe('spec count calculation', () => {
 
       const patternArray = getSpecPattern(specConfig);
       expect(patternArray).toHaveLength(1);
-      expect(patternArray[0]).toEqual(
-        path.join(specConfig.integrationFolder, specConfig.testFiles),
-      );
+      expect(patternArray[0]).toEqual('cypress/integration/**/*.js');
     });
   });
 });

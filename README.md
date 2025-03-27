@@ -143,6 +143,8 @@ The full list of available options presented below.
 | reportHooks                 | Optional   | false     | Determines report before and after hooks or not.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | isLaunchMergeRequired       | Optional   | false     | Allows to merge Cypress run's into one launch at the end of the run. Needs additional setup. See [Manual merge launches](#manual-merge-launches).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | parallel                    | Optional   | false     | Indicates to the reporter that spec files will be executed in parallel on different machines. Parameter could be equal boolean values. See [Parallel execution](#parallel-execution).                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| debugIpc                    | Optional   | false     | This flag allows seeing the debug logs of the internal node-ipc server and client.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| retryIpcInterval            | Optional   | 1500      | Value in `ms`. Interval for node-ipc client to retry connection to node-ipc server. Retry count is unlimited.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | token                       | Deprecated | Not set   | Use `apiKey` instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 ### Overwrite options from config file
@@ -288,8 +290,9 @@ This feature needs information about Cypress configuration. To provide it to the
 }
 ```
 
-**Please note**, that `autoMerge` feature is unstable in some cases (f.e. when using `cypress-grep` or CLI arguments to specify the test amount that should be executed) and may lead to unfinished launches in ReportPortal.
-If this is a case, try [Manual merge launches](#manual-merge-launches) instead.
+**Please note**, that `autoMerge` feature is unstable in some cases (e.g. when using `cypress-grep` or `--spec` CLI argument to specify the test amount that should be executed) and may lead to unfinished launches in ReportPortal.
+
+If this is the case, please specify `specPattern` in the config directly. You can also use the [Manual merge launches](#manual-merge-launches) instead.
 
 ## Manual merge launches
 
@@ -317,7 +320,12 @@ Edit cypress.config.js (or cypress.json for versions <=9) file. Set `isLaunchMer
 Update the Cypress configuration file with the code presented below (referring the issue https://github.com/reportportal/agent-js-cypress/issues/135#issue-1461470158).
 
 ```javascript
-const delay = async (ms: number) => new Promise((res) => setTimeout(res, ms));
+const { defineConfig } = require('cypress');
+const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/plugin');
+const rpClient = require('@reportportal/client-javascript');
+const glob = require('glob');
+
+const delay = async (ms) => new Promise((res) => setTimeout(res, ms));
 
 const reportportalOptions = {
   //...
@@ -344,7 +352,10 @@ export default defineConfig({
         if (reportportalOptions.isLaunchMergeRequired) {
           try {
             console.log('Merging launches...');
-            await mergeLaunches(reportportalOptions);
+            const client = new rpClient(reportportalOptions);
+
+            // mergeOptions (https://github.com/reportportal/client-javascript?tab=readme-ov-file#mergelaunches) can be added here as a first argument if needed
+            await client.mergeLaunches();
             console.log('Launches successfully merged!');
             deleteLaunchFiles();
           } catch (mergeError) {
