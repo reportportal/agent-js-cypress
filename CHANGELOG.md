@@ -1,3 +1,9 @@
+### Changed
+- Revert time format back to milliseconds (based on [#217](https://github.com/reportportal/client-javascript/issues/217#issuecomment-2659843471)).
+  This is also fixing the issue with agent installation on ARM processors [#212](https://github.com/reportportal/agent-js-cypress/issues/212).
+- `@reportportal/client-javascript` bumped to version `5.4.0`.
+### Security
+- Updated versions of vulnerable packages (axios).
 
 ## [5.4.0] - 2024-09-23
 ### Changed
