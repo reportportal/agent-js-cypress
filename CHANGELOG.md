@@ -1,5 +1,6 @@
 ### Added
 - `debugIpc` option. Allows printing logs from the internal node-ipc server and client. Useful for debugging.
+- `retryIpcInterval` option. Allows configuring connection retry interval for node-ipc client.
 ### Changed
 - Revert time format back to milliseconds (based on [#217](https://github.com/reportportal/client-javascript/issues/217#issuecomment-2659843471)).
   This is also fixing the issue with agent installation on ARM processors [#212](https://github.com/reportportal/agent-js-cypress/issues/212).
