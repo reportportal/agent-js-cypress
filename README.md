@@ -269,15 +269,84 @@ ReportPortal also provides the corresponding methods for setting status into the
 
 ## Screenshots support
 
-To use custom filename in cy.screenshot function you should [setup ReportRortal custom commands](#setup-reportportal-custom-commands).
+To use custom filename in `cy.screenshot` function you should [setup ReportRortal custom commands](#setup-reportportal-custom-commands).
 Default usage of Cypress screenshot function is supported without additional setup.
+
+## Report a single launch
+
+The agent supports the `launchId` parameter to specify the ID of the already started launch.<br/>
+This way, you can start the launch using `@reportportal/client-javascript` before the test run and then specify its ID in the config.
+
+With launch ID provided, the agent will attach all test results to that launch. So it won't be finished by the agent and should be finished separately.
+
+All necessary adjustments are performed in the `setupNodeEvents` function.
+
+```javascript
+const { defineConfig } = require('cypress');
+const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/plugin');
+const rpClient = require('@reportportal/client-javascript');
+
+const reportportalOptions = {
+  autoMerge: false, // please note that `autoMerge` should be disabled
+  //...
+};
+
+export default defineConfig({
+  //...
+  reporter: '@reportportal/agent-js-cypress',
+  reporterOptions: reportportalOptions,
+  e2e: {
+    //...
+    async setupNodeEvents(on, config) {
+      const client = new rpClient(reportportalOptions);
+
+      async function startLaunch() {
+        // see https://github.com/reportportal/client-javascript?tab=readme-ov-file#startlaunch for the details
+        const { tempId, promise } = client.startLaunch({
+          name: options.launch,
+          attributes: options.attributes,
+          // etc.
+        });
+        const response = await promise;
+
+        return { tempId, launchId: response.id };
+      }
+      const { tempId, launchId } = await startLaunch();
+
+      on('after:run', async () => {
+        const finishLaunch = async () => {
+          // see https://github.com/reportportal/client-javascript?tab=readme-ov-file#finishlaunch for the details
+          await client.finishLaunch(tempId, {}).promise;
+        };
+
+        await finishLaunch();
+      });
+
+      registerReportPortalPlugin(on, config);
+
+      return {
+        reporterOptions: {
+          launchId,
+        },
+      };
+    },
+    //...
+  },
+});
+```
+
+That's it, now all test results will be attached to the single launch.
+
+**Note:** This approach will likely be incorporated into the plugin in future versions of the agent.
 
 ## Automatically merge launches
 
-By default Cypress create a separate run for each test file. This section describe how to report test items of different specs into the single launch.
+Unstable. See [Report a single launch](#report-a-single-launch) for the recommended approach.
+
+By default, Cypress create a separate run for each test file. This section describe how to report test items of different specs into the single launch.
 This feature needs information about Cypress configuration. To provide it to the reporter you need to install reportPortal plugin (see how to in [this section](#register-reportportal-plugin-cypresspluginsindexjs)).
 
-**Enable auto-merge in reporterOptions as shown below:**
+**Enable autoMerge in reporterOptions as shown below:**
 
 ```json
 
@@ -292,102 +361,11 @@ This feature needs information about Cypress configuration. To provide it to the
 
 **Please note**, that `autoMerge` feature is unstable in some cases (e.g. when using `cypress-grep` or `--spec` CLI argument to specify the test amount that should be executed) and may lead to unfinished launches in ReportPortal.
 
-If this is the case, please specify `specPattern` in the config directly. You can also use the [Manual merge launches](#manual-merge-launches) instead.
+If this is the case, please specify `specPattern` in the config directly. You can also use the [Report a single launch](#manual-merge-launches) instead.
 
 ## Manual merge launches
 
-There is a possibility to merge all launches into a single launch at the end of the run.
-We advise using [autoMerge option](#automatically-merge-launches) to merge results in one launch, but you can use this alternative option in case of you need to perform some additional actions before merge.
-
-### Set corresponding reporter options
-
-Edit cypress.config.js (or cypress.json for versions <=9) file. Set `isLaunchMergeRequired` option to **true** as shown below:
-
-```javascript
-
-{
-  ...
-  reporterOptions: {
-    ...
-    isLaunchMergeRequired: true
-  }
-}
-
-```
-
-### Merge the launches once the Cypress finished execution
-
-Update the Cypress configuration file with the code presented below (referring the issue https://github.com/reportportal/agent-js-cypress/issues/135#issue-1461470158).
-
-```javascript
-const { defineConfig } = require('cypress');
-const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/plugin');
-const rpClient = require('@reportportal/client-javascript');
-const glob = require('glob');
-
-const delay = async (ms) => new Promise((res) => setTimeout(res, ms));
-
-const reportportalOptions = {
-  //...
-  isLaunchMergeRequired: true,
-  //...
-};
-
-export default defineConfig({
-  //...
-  reporter: '@reportportal/agent-js-cypress',
-  reporterOptions: reportportalOptions,
-  e2e: {
-    //...
-    setupNodeEvents(on, config) {
-      // keep Cypress running until the ReportPortal reporter is finished. this is a
-      // very critical step, as otherwise results might not be completely pushed into
-      // ReportPortal, resulting in unfinsihed launches and failing merges
-      on('after:run', async () => {
-        console.log('Wait for reportportal agent to finish...');
-        while (glob.sync('rplaunchinprogress*.tmp').length > 0) {
-          await delay(2000);
-        }
-        console.log('reportportal agent finished');
-        if (reportportalOptions.isLaunchMergeRequired) {
-          try {
-            console.log('Merging launches...');
-            const client = new rpClient(reportportalOptions);
-
-            // mergeOptions (https://github.com/reportportal/client-javascript?tab=readme-ov-file#mergelaunches) can be added here as a first argument if needed
-            await client.mergeLaunches();
-            console.log('Launches successfully merged!');
-            deleteLaunchFiles();
-          } catch (mergeError) {
-            console.error(mergeError);
-          }
-        }
-      });
-      registerReportPortalPlugin(on, config);
-      return config;
-    },
-    //...
-  },
-});
-```
-
-`deleteLaunchFiles` example:
-
-```javascript
-const fs = require("fs");
-const glob = require("glob");
-
-function deleteLaunchFiles() {
-  const getLaunchTempFiles = () => {
-    return glob.sync("rplaunch*.tmp");
-  };
-  const deleteTempFile = (filename) => {
-    fs.unlinkSync(filename);
-  };
-  const files = getLaunchTempFiles();
-  files.forEach(deleteTempFile);
-}
-```
+Deprecated. See [Report a single launch](#report-a-single-launch) for the actual approach.
 
 ## Parallel execution
 
