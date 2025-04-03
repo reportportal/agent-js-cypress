@@ -327,7 +327,7 @@ export default defineConfig({
 
       registerReportPortalPlugin(on, config);
 
-      // return the `launchId` from `setupNodeEvents` to allow [Cypress merge](https://docs.cypress.io/api/node-events/overview#setupNodeEvents:~:text=If%20you%20return%20or%20resolve%20with%20an%20object%2C) it with the existing config
+      // return the `launchId` from `setupNodeEvents` to allow Cypress merge it with the existing config (https://docs.cypress.io/api/node-events/overview#setupNodeEvents:~:text=If%20you%20return%20or%20resolve%20with%20an%20object%2C)
       return {
         reporterOptions: {
           launchId,
