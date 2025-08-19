@@ -431,6 +431,177 @@ jobs:
 
 **Note:** The example provided for Cypress version <= 9. For Cypress version >= 10 usage of `cypress-io/github-action` may be changed.
 
+## Usage with sharded tests
+
+Since Cypress tests can run on multiple machines as isolated processes, they will create a launch for each machine by default.
+
+Thus, in order to have a single launch in ReportPortal for sharded tests, additional customization is required.
+There are several options to achieve this:
+
+- [Using the `launchId` config option](#using-the-launchid-config-option)
+- [Merging launches based on the build ID](#merging-launches-based-on-the-build-id)
+
+**Note:** The [`@reportportal/client-javascript`](https://github.com/reportportal/client-javascript) SDK used here as a reference, but of course the same actions can be performed by sending requests to the ReportPortal API directly.
+
+### Using the `launchId` config option
+
+The agent supports the `launchId` parameter to specify the ID of the already started launch.
+This way, you can start the launch using `@reportportal/client-javascript` before the test run and then specify its ID in the config or via environment variable.
+
+1. Trigger a launch before all tests.
+
+The `@reportportal/client-javascript` `startLaunch` method can be used.
+
+```javascript
+/*
+ * startLaunch.js
+ * */
+const rpClient = require('@reportportal/client-javascript');
+
+const rpConfig = {
+  // ...
+};
+
+async function startLaunch() {
+  const client = new rpClient(rpConfig);
+  // see https://github.com/reportportal/client-javascript?tab=readme-ov-file#startlaunch for the details
+  const response = await client.startLaunch({
+    name: rpConfig.launch,
+    attributes: rpConfig.attributes,
+    // etc.
+  }).promise;
+
+  return response.id;
+}
+
+const launchId = await startLaunch();
+```
+
+Received `launchId` can be exported e.g. as an environment variable to your CI job.
+
+2. Specify the launch ID for each job.
+   This step depends on your CI provider and the available ways to path some values to the Node.js process.
+   The launch ID can be set directly to the [reporter config](https://github.com/reportportal/agent-js-cypress#:~:text=Useful%20for%20debugging.-,launchId,-Optional).
+
+```javascript
+/*
+ * cypress.config.js
+ * */
+const rpConfig = {
+  // ...
+  launchId: process.env.RP_LAUNCH_ID,
+};
+```
+
+With launch ID provided, the agent will attach all test results to that launch.
+So it won't be finished by the agent and should be finished separately.
+
+3. As a run post-step (when all tests finished), launch also needs to be finished separately.
+
+The `@reportportal/client-javascript` `finishLaunch` method can be used.
+
+```javascript
+/*
+ * finishLaunch.js
+ * */
+const RPClient = require('@reportportal/client-javascript');
+
+const rpConfig = {
+  // ...
+};
+
+const finishLaunch = async () => {
+  const client = new RPClient(rpConfig);
+  const launchTempId = client.startLaunch({ id: process.env.RP_LAUNCH_ID }).tempId;
+  // see https://github.com/reportportal/client-javascript?tab=readme-ov-file#finishlaunch for the details
+  await client.finishLaunch(launchTempId, {}).promise;
+};
+
+await finishLaunch();
+```
+
+### Merging launches based on the build ID
+
+This approach offers a way to merge several launches reported from different shards into one launch after the entire test execution completed and launches are finished.
+
+- With this option the Auto-analysis, Pattern-analysis and Quality Gates will be triggered for each sharded launch individually.
+- The launch numbering will be changed as each sharded launch will have its own number.
+- The merged launch will be treated as a new launch with its own number.
+
+This approach is equal to merging launches via [ReportPortal UI](https://reportportal.io/docs/work-with-reports/OperationsUnderLaunches/#merge-launches).
+
+1. Specify a unique CI build ID as a launch attribute, which will be the same for different jobs in the same run (this could be a commit hash or something else).
+   This step depends on your CI provider and the available ways to path some values to the Node.js process.
+
+```javascript
+/*
+ * cypress.config.js
+ * */
+const rpConfig = {
+  // ...
+  attributes: [
+    {
+      key: 'CI_BUILD_ID',
+      // e.g.
+      value: process.env.GITHUB_COMMIT_SHA,
+    },
+  ],
+};
+```
+
+2. Collect the launch IDs and call the merge operation.
+
+The ReportPortal API can be used to filter the required launches by the provided attribute to collect their IDs.
+
+```javascript
+/*
+ * mergeRpLaunches.js
+ * */
+const rpClient = require('@reportportal/client-javascript');
+
+const rpConfig = {
+  // ...
+};
+
+const client = new rpClient(rpConfig);
+
+async function mergeLaunches() {
+  const ciBuildId = process.env.CI_BUILD_ID;
+  if (!ciBuildId) {
+    console.error('To merge multiple launches, CI_BUILD_ID must not be empty');
+    return;
+  }
+  try {
+    // 1. Send request to get all launches with the same CI_BUILD_ID attribute value
+    const params = new URLSearchParams({
+      'filter.has.attributeValue': ciBuildId,
+    });
+    const launchSearchUrl = `launch?${params.toString()}`;
+    const response = await client.restClient.retrieveSyncAPI(launchSearchUrl);
+    // 2. Filter them to find launches that are in progress
+    const launchesInProgress = response.content.filter((launch) => launch.status === 'IN_PROGRESS');
+    // 3. If exists, just return. The steps can be repeated in some interval if needed
+    if (launchesInProgress.length) {
+      return;
+    }
+    // 4. If not, merge all found launches with the same CI_BUILD_ID attribute value
+    const launchIds = response.content.map((launch) => launch.id);
+    const request = client.getMergeLaunchesRequest(launchIds);
+    request.description = rpConfig.description;
+    request.extendSuitesDescription = false;
+    const mergeURL = 'launch/merge';
+    await client.restClient.create(mergeURL, request);
+  } catch (err) {
+    console.error('Fail to merge launches', err);
+  }
+}
+
+mergeLaunches();
+```
+
+Using a merge operation for huge launches can increase the load on ReportPortal's API.
+See the details and other parameters available for merge operation in [ReportPortal API docs](https://developers.reportportal.io/api-docs/service-api/merge-launches-1).
+
 ## Cypress-cucumber-preprocessor execution
 
 ### Configuration:
