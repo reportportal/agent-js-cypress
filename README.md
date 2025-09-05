@@ -134,7 +134,7 @@ The full list of available options presented below.
 | launchUuidPrint             | Optional   | false     | Whether to print the current launch UUID.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | launchUuidPrintOutput       | Optional   | 'STDOUT'  | Launch UUID printing output. Possible values: 'STDOUT', 'STDERR'. Works only if `launchUuidPrint` set to `true`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | restClientConfig            | Optional   | Not set   | `axios` like http client [config](https://github.com/axios/axios#request-config). May contain `agent` property for configure [http(s)](https://nodejs.org/api/https.html#https_https_request_url_options_callback) client, and other client options eg. `timeout`. For debugging and displaying logs you can set `debug: true`.                                                                                                                                                                                                                                                                                                         |
-| uploadVideo                 | Optional   | false     | Whether to upload the Cypress video. Uploads videos for failed specs only. To upload videos for specs with other statuses, set also the `uploadVideoForNonFailedSpec` to `true`.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| uploadVideo                 | Optional   | false     | Whether to upload the Cypress video. Uploads videos for failed specs only. Since videos are recorded for the entire spec run, they can be found on the log page associated with the spec in the ReportPortal UI. To upload videos for specs with other statuses, set also the `uploadVideoForNonFailedSpec` to `true`.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | uploadVideoForNonFailedSpec | Optional   | false     | Whether to upload the Cypress video for a non-failed specs. Works only if `uploadVideo` set to `true`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | waitForVideoTimeout         | Optional   | 10000     | Value in `ms`. Since Cypress video processing may take extra time after the spec is complete, there is a timeout to wait for the video file readiness. Works only if `uploadVideo` set to `true`.                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | waitForVideoInterval        | Optional   | 500       | Value in `ms`. Interval to check if the video file is ready. The interval is used until `waitForVideoTimeout` is reached.  Works only if `uploadVideo` set to `true`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -269,15 +269,88 @@ ReportPortal also provides the corresponding methods for setting status into the
 
 ## Screenshots support
 
-To use custom filename in cy.screenshot function you should [setup ReportRortal custom commands](#setup-reportportal-custom-commands).
+To use custom filename in `cy.screenshot` function you should [setup ReportRortal custom commands](#setup-reportportal-custom-commands).
 Default usage of Cypress screenshot function is supported without additional setup.
+
+## Report a single launch
+
+By default, Cypress create a separate run for each test file.
+This section describe how to report test items of different specs into the single launch.
+
+The agent supports the `launchId` parameter to specify the ID of the already started launch.<br/>
+This way, you can start the launch using `@reportportal/client-javascript` before the test run and then specify its ID in the config.
+
+With launch ID provided, the agent will attach all test results to that launch. So it won't be finished by the agent and should be finished separately.
+
+All necessary adjustments are performed in the `setupNodeEvents` function.
+
+```javascript
+const { defineConfig } = require('cypress');
+const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/plugin');
+const rpClient = require('@reportportal/client-javascript');
+
+const reportportalOptions = {
+  autoMerge: false, // please note that `autoMerge` should be disabled
+  //...
+};
+
+export default defineConfig({
+  //...
+  reporter: '@reportportal/agent-js-cypress',
+  reporterOptions: reportportalOptions,
+  e2e: {
+    //...
+    async setupNodeEvents(on, config) {
+      const client = new rpClient(reportportalOptions);
+
+      async function startLaunch() {
+        // see https://github.com/reportportal/client-javascript?tab=readme-ov-file#startlaunch for the details
+        const { tempId, promise } = client.startLaunch({
+          name: options.launch,
+          attributes: options.attributes,
+          // etc.
+        });
+        const response = await promise;
+
+        return { tempId, launchId: response.id };
+      }
+      const { tempId, launchId } = await startLaunch();
+
+      on('after:run', async () => {
+        const finishLaunch = async () => {
+          // see https://github.com/reportportal/client-javascript?tab=readme-ov-file#finishlaunch for the details
+          await client.finishLaunch(tempId, {}).promise;
+        };
+
+        await finishLaunch();
+      });
+
+      registerReportPortalPlugin(on, config);
+
+      // return the `launchId` from `setupNodeEvents` to allow Cypress merge it with the existing config (https://docs.cypress.io/api/node-events/overview#setupNodeEvents:~:text=If%20you%20return%20or%20resolve%20with%20an%20object%2C)
+      return {
+        reporterOptions: {
+          launchId,
+        },
+      };
+    },
+    //...
+  },
+});
+```
+
+That's it, now all test results will be attached to the single launch.
+
+**Note:** This approach will likely be incorporated into the plugin in future versions of the agent.
 
 ## Automatically merge launches
 
-By default Cypress create a separate run for each test file. This section describe how to report test items of different specs into the single launch.
+Unstable. See [Report a single launch](#report-a-single-launch) for the recommended approach.
+
+By default, Cypress create a separate run for each test file. This section describe how to report test items of different specs into the single launch.
 This feature needs information about Cypress configuration. To provide it to the reporter you need to install reportPortal plugin (see how to in [this section](#register-reportportal-plugin-cypresspluginsindexjs)).
 
-**Enable auto-merge in reporterOptions as shown below:**
+**Enable autoMerge in reporterOptions as shown below:**
 
 ```json
 
@@ -292,102 +365,11 @@ This feature needs information about Cypress configuration. To provide it to the
 
 **Please note**, that `autoMerge` feature is unstable in some cases (e.g. when using `cypress-grep` or `--spec` CLI argument to specify the test amount that should be executed) and may lead to unfinished launches in ReportPortal.
 
-If this is the case, please specify `specPattern` in the config directly. You can also use the [Manual merge launches](#manual-merge-launches) instead.
+If this is the case, please specify `specPattern` in the config directly. You can also use the [Report a single launch](#manual-merge-launches) instead.
 
 ## Manual merge launches
 
-There is a possibility to merge all launches into a single launch at the end of the run.
-We advise using [autoMerge option](#automatically-merge-launches) to merge results in one launch, but you can use this alternative option in case of you need to perform some additional actions before merge.
-
-### Set corresponding reporter options
-
-Edit cypress.config.js (or cypress.json for versions <=9) file. Set `isLaunchMergeRequired` option to **true** as shown below:
-
-```javascript
-
-{
-  ...
-  reporterOptions: {
-    ...
-    isLaunchMergeRequired: true
-  }
-}
-
-```
-
-### Merge the launches once the Cypress finished execution
-
-Update the Cypress configuration file with the code presented below (referring the issue https://github.com/reportportal/agent-js-cypress/issues/135#issue-1461470158).
-
-```javascript
-const { defineConfig } = require('cypress');
-const registerReportPortalPlugin = require('@reportportal/agent-js-cypress/lib/plugin');
-const rpClient = require('@reportportal/client-javascript');
-const glob = require('glob');
-
-const delay = async (ms) => new Promise((res) => setTimeout(res, ms));
-
-const reportportalOptions = {
-  //...
-  isLaunchMergeRequired: true,
-  //...
-};
-
-export default defineConfig({
-  //...
-  reporter: '@reportportal/agent-js-cypress',
-  reporterOptions: reportportalOptions,
-  e2e: {
-    //...
-    setupNodeEvents(on, config) {
-      // keep Cypress running until the ReportPortal reporter is finished. this is a
-      // very critical step, as otherwise results might not be completely pushed into
-      // ReportPortal, resulting in unfinsihed launches and failing merges
-      on('after:run', async () => {
-        console.log('Wait for reportportal agent to finish...');
-        while (glob.sync('rplaunchinprogress*.tmp').length > 0) {
-          await delay(2000);
-        }
-        console.log('reportportal agent finished');
-        if (reportportalOptions.isLaunchMergeRequired) {
-          try {
-            console.log('Merging launches...');
-            const client = new rpClient(reportportalOptions);
-
-            // mergeOptions (https://github.com/reportportal/client-javascript?tab=readme-ov-file#mergelaunches) can be added here as a first argument if needed
-            await client.mergeLaunches();
-            console.log('Launches successfully merged!');
-            deleteLaunchFiles();
-          } catch (mergeError) {
-            console.error(mergeError);
-          }
-        }
-      });
-      registerReportPortalPlugin(on, config);
-      return config;
-    },
-    //...
-  },
-});
-```
-
-`deleteLaunchFiles` example:
-
-```javascript
-const fs = require("fs");
-const glob = require("glob");
-
-function deleteLaunchFiles() {
-  const getLaunchTempFiles = () => {
-    return glob.sync("rplaunch*.tmp");
-  };
-  const deleteTempFile = (filename) => {
-    fs.unlinkSync(filename);
-  };
-  const files = getLaunchTempFiles();
-  files.forEach(deleteTempFile);
-}
-```
+Deprecated. See [Report a single launch](#report-a-single-launch) for the actual approach.
 
 ## Parallel execution
 
@@ -448,6 +430,177 @@ jobs:
 ```
 
 **Note:** The example provided for Cypress version <= 9. For Cypress version >= 10 usage of `cypress-io/github-action` may be changed.
+
+## Usage with sharded tests
+
+Since Cypress tests can run on multiple machines as isolated processes, they will create a launch for each machine by default.
+
+Thus, in order to have a single launch in ReportPortal for sharded tests, additional customization is required.
+There are several options to achieve this:
+
+- [Using the `launchId` config option](#using-the-launchid-config-option)
+- [Merging launches based on the build ID](#merging-launches-based-on-the-build-id)
+
+**Note:** The [`@reportportal/client-javascript`](https://github.com/reportportal/client-javascript) SDK used here as a reference, but of course the same actions can be performed by sending requests to the ReportPortal API directly.
+
+### Using the `launchId` config option
+
+The agent supports the `launchId` parameter to specify the ID of the already started launch.
+This way, you can start the launch using `@reportportal/client-javascript` before the test run and then specify its ID in the config or via environment variable.
+
+1. Trigger a launch before all tests.
+
+The `@reportportal/client-javascript` `startLaunch` method can be used.
+
+```javascript
+/*
+ * startLaunch.js
+ * */
+const rpClient = require('@reportportal/client-javascript');
+
+const rpConfig = {
+  // ...
+};
+
+async function startLaunch() {
+  const client = new rpClient(rpConfig);
+  // see https://github.com/reportportal/client-javascript?tab=readme-ov-file#startlaunch for the details
+  const response = await client.startLaunch({
+    name: rpConfig.launch,
+    attributes: rpConfig.attributes,
+    // etc.
+  }).promise;
+
+  return response.id;
+}
+
+const launchId = await startLaunch();
+```
+
+Received `launchId` can be exported e.g. as an environment variable to your CI job.
+
+2. Specify the launch ID for each job.
+   This step depends on your CI provider and the available ways to path some values to the Node.js process.
+   The launch ID can be set directly to the [reporter config](https://github.com/reportportal/agent-js-cypress#:~:text=Useful%20for%20debugging.-,launchId,-Optional).
+
+```javascript
+/*
+ * cypress.config.js
+ * */
+const rpConfig = {
+  // ...
+  launchId: process.env.RP_LAUNCH_ID,
+};
+```
+
+With launch ID provided, the agent will attach all test results to that launch.
+So it won't be finished by the agent and should be finished separately.
+
+3. As a run post-step (when all tests finished), launch also needs to be finished separately.
+
+The `@reportportal/client-javascript` `finishLaunch` method can be used.
+
+```javascript
+/*
+ * finishLaunch.js
+ * */
+const RPClient = require('@reportportal/client-javascript');
+
+const rpConfig = {
+  // ...
+};
+
+const finishLaunch = async () => {
+  const client = new RPClient(rpConfig);
+  const launchTempId = client.startLaunch({ id: process.env.RP_LAUNCH_ID }).tempId;
+  // see https://github.com/reportportal/client-javascript?tab=readme-ov-file#finishlaunch for the details
+  await client.finishLaunch(launchTempId, {}).promise;
+};
+
+await finishLaunch();
+```
+
+### Merging launches based on the build ID
+
+This approach offers a way to merge several launches reported from different shards into one launch after the entire test execution completed and launches are finished.
+
+- With this option the Auto-analysis, Pattern-analysis and Quality Gates will be triggered for each sharded launch individually.
+- The launch numbering will be changed as each sharded launch will have its own number.
+- The merged launch will be treated as a new launch with its own number.
+
+This approach is equal to merging launches via [ReportPortal UI](https://reportportal.io/docs/work-with-reports/OperationsUnderLaunches/#merge-launches).
+
+1. Specify a unique CI build ID as a launch attribute, which will be the same for different jobs in the same run (this could be a commit hash or something else).
+   This step depends on your CI provider and the available ways to path some values to the Node.js process.
+
+```javascript
+/*
+ * cypress.config.js
+ * */
+const rpConfig = {
+  // ...
+  attributes: [
+    {
+      key: 'CI_BUILD_ID',
+      // e.g.
+      value: process.env.GITHUB_COMMIT_SHA,
+    },
+  ],
+};
+```
+
+2. Collect the launch IDs and call the merge operation.
+
+The ReportPortal API can be used to filter the required launches by the provided attribute to collect their IDs.
+
+```javascript
+/*
+ * mergeRpLaunches.js
+ * */
+const rpClient = require('@reportportal/client-javascript');
+
+const rpConfig = {
+  // ...
+};
+
+const client = new rpClient(rpConfig);
+
+async function mergeLaunches() {
+  const ciBuildId = process.env.CI_BUILD_ID;
+  if (!ciBuildId) {
+    console.error('To merge multiple launches, CI_BUILD_ID must not be empty');
+    return;
+  }
+  try {
+    // 1. Send request to get all launches with the same CI_BUILD_ID attribute value
+    const params = new URLSearchParams({
+      'filter.has.attributeValue': ciBuildId,
+    });
+    const launchSearchUrl = `launch?${params.toString()}`;
+    const response = await client.restClient.retrieveSyncAPI(launchSearchUrl);
+    // 2. Filter them to find launches that are in progress
+    const launchesInProgress = response.content.filter((launch) => launch.status === 'IN_PROGRESS');
+    // 3. If exists, just return. The steps can be repeated in some interval if needed
+    if (launchesInProgress.length) {
+      return;
+    }
+    // 4. If not, merge all found launches with the same CI_BUILD_ID attribute value
+    const launchIds = response.content.map((launch) => launch.id);
+    const request = client.getMergeLaunchesRequest(launchIds);
+    request.description = rpConfig.description;
+    request.extendSuitesDescription = false;
+    const mergeURL = 'launch/merge';
+    await client.restClient.create(mergeURL, request);
+  } catch (err) {
+    console.error('Fail to merge launches', err);
+  }
+}
+
+mergeLaunches();
+```
+
+Using a merge operation for huge launches can increase the load on ReportPortal's API.
+See the details and other parameters available for merge operation in [ReportPortal API docs](https://developers.reportportal.io/api-docs/service-api/merge-launches-1).
 
 ## Cypress-cucumber-preprocessor execution
 

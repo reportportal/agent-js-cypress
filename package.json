@@ -14,11 +14,11 @@
     "url": "https://github.com/reportportal/agent-js-cypress"
   },
   "dependencies": {
-    "@reportportal/client-javascript": "~5.4.0",
+    "@reportportal/client-javascript": "~5.4.1",
     "glob": "^9.3.5",
     "minimatch": "^3.1.2",
     "mocha": "^10.2.0",
-    "node-ipc": "9.1.1",
+    "node-ipc": "9.1.5",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "ffmpeg": "^0.0.4",
     "ffprobe-static": "^3.1.0",
@@ -36,7 +36,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "cypress": "^14.2.1",
+    "cypress": "^15.1.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.10.0",

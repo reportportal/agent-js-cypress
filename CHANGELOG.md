@@ -1,3 +1,8 @@
+### Changed
+- `@reportportal/client-javascript` bumped to version `5.4.1`.
+- `node-ipc` bumped to version `9.1.5` for license compatibility, thanks to @julianladisch
+### Security
+- Updated versions of vulnerable packages (axios).
 
 ## [5.5.0] - 2025-03-27
 ### Added
