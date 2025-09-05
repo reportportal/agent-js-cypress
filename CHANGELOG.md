@@ -1,3 +1,5 @@
+
+## [5.5.1] - 2025-09-05
 ### Changed
 - `@reportportal/client-javascript` bumped to version `5.4.1`.
 - `node-ipc` bumped to version `9.1.5` for license compatibility, thanks to @julianladisch
