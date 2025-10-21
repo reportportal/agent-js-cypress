@@ -215,6 +215,13 @@ const updatedConfig = {
 |--------|--------------|------|
 | apiKey | RP_API_KEY   |      |
 
+## Asynchronous API
+
+The client supports an asynchronous reporting (via the ReportPortal asynchronous API).
+If you want the client to report through the asynchronous API, change `v1` to `v2` in the `endpoint` address.
+
+**Note:** It is highly recommended to use the `v2` endpoint for reporting, especially for extensive test suites.
+
 ## ReportPortal custom commands
 
 ### Logging
