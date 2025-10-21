@@ -29,7 +29,7 @@ module.exports = defineConfig({
   reporter: '@reportportal/agent-js-cypress',
   reporterOptions: {
     apiKey: '<API_KEY>',
-    endpoint: 'https://your.reportportal.server/api/v1',
+    endpoint: 'https://your.reportportal.server/api/v2',
     project: 'Your reportportal project name',
     launch: 'Your launch name',
     description: 'Your launch description',
@@ -77,7 +77,7 @@ Add the following options to cypress.json
   "reporter": "@reportportal/agent-js-cypress",
   "reporterOptions": {
     "apiKey": "<API_KEY>",
-    "endpoint": "https://your.reportportal.server/api/v1",
+    "endpoint": "https://your.reportportal.server/api/v2",
     "project": "Your reportportal project name",
     "launch": "Your launch name",
     "description": "Your launch description",
@@ -117,9 +117,58 @@ require('@reportportal/agent-js-cypress/lib/commands/reportPortalCommands');
 
 The full list of available options presented below.
 
+### Authentication Options
+
+The agent supports two authentication methods:
+1. **API Key Authentication** (default)
+2. **OAuth 2.0 Password Grant** (recommended for enhanced security)
+
+**Note:**\
+If both authentication methods are provided, OAuth 2.0 will be used.\
+Either API key or complete OAuth 2.0 configuration is required to connect to ReportPortal.
+
+| Option | Necessity   | Default | Description                                                                                                                                                    |
+|--------|-------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| apiKey | Conditional |         | User's ReportPortal API key from which you want to send requests. It can be found on the profile page of this user. *Required only if OAuth is not configured. |
+| oauth  | Conditional |         | OAuth 2.0 configuration object. When provided, OAuth authentication will be used instead of API key. See OAuth Configuration below.                            |
+
+#### OAuth Configuration
+
+The `oauth` object supports the following properties:
+
+| Property              | Necessity  | Default  | Description                                                                                                                                                                                                                                                                                                                     |
+|-----------------------|------------|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| tokenEndpoint         | Required   |          | OAuth 2.0 token endpoint URL for password grant flow.                                                                                                                                                                                                                                                                           |
+| username              | Required   |          | Username for OAuth 2.0 password grant.                                                                                                                                                                                                                                                                                          |
+| password              | Required   |          | Password for OAuth 2.0 password grant.                                                                                                                                                                                                                                                                                          |
+| clientId              | Required   |          | OAuth 2.0 client ID.                                                                                                                                                                                                                                                                                                            |
+| clientSecret          | Optional   |          | OAuth 2.0 client secret (optional, depending on your OAuth server configuration).                                                                                                                                                                                                                                               |
+| scope                 | Optional   |          | OAuth 2.0 scope (optional, space-separated list of scopes).                                                                                                                                                                                                                                                                     |
+
+**Note:** The OAuth interceptor automatically handles token refresh when the token is about to expire (1 minute before expiration).
+
+##### OAuth 2.0 configuration example
+
+```javascript
+const rpConfig = {
+  endpoint: 'https://your.reportportal.server/api/v2',
+  project: 'Your reportportal project name',
+  launch: 'Your launch name',
+  oauth: {
+    tokenEndpoint: 'https://your-oauth-server.com/oauth/token',
+    username: 'your-username',
+    password: 'your-password',
+    clientId: 'your-client-id',
+    clientSecret: 'your-client-secret', // optional
+    scope: 'reportportal', // optional
+  }
+};
+```
+
+### General options
+
 | Option                      | Necessity  | Default   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 |-----------------------------|------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| apiKey                      | Required   |           | User's reportportal token from which you want to send requests. It can be found on the profile page of this user.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | endpoint                    | Required   |           | URL of your server. For example 'https://server:8080/api/v1'.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | launch                      | Required   |           | Name of launch at creation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | project                     | Required   |           | The name of the project in which the launches will be created.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -145,7 +194,6 @@ The full list of available options presented below.
 | parallel                    | Optional   | false     | Indicates to the reporter that spec files will be executed in parallel on different machines. Parameter could be equal boolean values. See [Parallel execution](#parallel-execution).                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | debugIpc                    | Optional   | false     | This flag allows seeing the debug logs of the internal node-ipc server and client.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | retryIpcInterval            | Optional   | 1500      | Value in `ms`. Interval for node-ipc client to retry connection to node-ipc server. Retry count is unlimited.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| token                       | Deprecated | Not set   | Use `apiKey` instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 ### Overwrite options from config file
 
@@ -163,10 +211,9 @@ const updatedConfig = {
 
 **For security reasons, you can also set token as a part of Environment Variables, instead of sharing it in the config file:**
 
-| Option      | ENV variable    | Note                                   |
-|-------------|-----------------|----------------------------------------|
-| apiKey      | RP_API_KEY      ||
-| token       | RP_TOKEN        | *deprecated* Use `RP_API_KEY` instead. |
+| Option | ENV variable | Note |
+|--------|--------------|------|
+| apiKey | RP_API_KEY   |      |
 
 ## ReportPortal custom commands
 

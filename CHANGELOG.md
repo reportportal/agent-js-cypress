@@ -1,3 +1,10 @@
+### Added
+- OAuth 2.0 Password Grant authentication, check [Authentication Options](https://github.com/reportportal/agent-js-cypress?tab=readme-ov-file#authentication-options) for more details.
+- Allow configuring the HTTP retry strategy via `restClientConfig.retry` and tune the [default policy](https://github.com/reportportal/client-javascript?tab=readme-ov-file#retry-configuration).
+### Fixed
+- Intermittent issue with empty launches.
+### Changed
+- `@reportportal/client-javascript` bumped to version `5.4.3`.
 
 ## [5.5.1] - 2025-09-05
 ### Changed
