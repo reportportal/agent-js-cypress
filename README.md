@@ -244,6 +244,36 @@ You can use the following methods to report logs and attachments with different 
 * cy.launchError (*message* , *file*). Reports *message* and optional *file* as a log of the launch with error log level.
 * cy.launchFatal (*message* , *file*). Reports *message* and optional *file* as a log of the launch with fatal log level.
 
+#### Custom log levels
+
+For more flexibility, you can use the generic log commands that accept custom log level strings:
+
+* cy.customLog(*level*, *message*, *file*). Reports *message* and optional *file* as a log of the current test with the specified log level.<br/>
+*level* can be one of the predefined log levels: _TRACE_, _DEBUG_, _INFO_, _WARN_, _ERROR_, _FATAL_, or any custom log level string (e.g., 'CUSTOM', 'MY_LEVEL').<br/>
+
+**Example:**
+```javascript
+cy.customLog('INFO', 'This is an info log');
+cy.customLog('CUSTOM_LEVEL', 'This is a custom log level', {
+  name: 'attachment.png',
+  type: 'image/png',
+  content: 'base64string'
+});
+```
+
+* cy.customLaunchLog(*level*, *message*, *file*). Reports *message* and optional *file* as a log of the launch with the specified log level.<br/>
+*level* can be one of the predefined log levels: _TRACE_, _DEBUG_, _INFO_, _WARN_, _ERROR_, _FATAL_, or any custom log level string (e.g., 'CUSTOM', 'MY_LEVEL').<br/>
+
+**Example:**
+```javascript
+cy.customLaunchLog('INFO', 'This is a launch info log');
+cy.customLaunchLog('CUSTOM_LAUNCH_LEVEL', 'This is a custom launch log level', {
+  name: 'launch-attachment.png',
+  type: 'image/png',
+  content: 'base64string'
+});
+```
+
 *file* should be an object: <br/>
 ```javascript
 {
