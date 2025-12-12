@@ -368,6 +368,8 @@ describe('object creators', () => {
         id: 'suite1',
         title: 'suite name',
         endTime: currentDate,
+        status: undefined,
+        skippedTests: [],
       };
 
       const suiteEndInfo = getSuiteEndInfo(suite);
@@ -384,13 +386,25 @@ describe('object creators', () => {
         parent: {
           id: 'parentSuiteId',
         },
-        tests: [{ state: 'passed' }, { state: 'skipped' }],
+        tests: [
+          { state: 'passed' },
+          { id: 'skippedTestId', title: 'skipped test', state: 'skipped' },
+        ],
       };
       const expectedSuiteEndInfo = {
         id: 'suite1',
         title: 'suite name',
         endTime: currentDate,
         status: undefined,
+        skippedTests: [
+          {
+            id: 'skippedTestId',
+            title: 'skipped test',
+            status: testItemStatuses.SKIPPED,
+            parentId: 'suite1',
+            codeRef: undefined,
+          },
+        ],
       };
 
       const suiteEndInfo = getSuiteEndInfo(suite);
@@ -414,6 +428,7 @@ describe('object creators', () => {
         title: 'suite name',
         endTime: currentDate,
         status: testItemStatuses.FAILED,
+        skippedTests: [],
       };
 
       const suiteEndInfo = getSuiteEndInfo(suite);
