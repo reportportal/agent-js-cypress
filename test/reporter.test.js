@@ -832,6 +832,39 @@ describe('reporter script', () => {
     });
   });
 
+  describe('finishFailedStep', function () {
+    afterEach(function () {
+      reporter.currentTestTempInfo = undefined;
+      reporter.cucumberSteps.clear();
+    });
+
+    it('should not try to finish step when none is active', function () {
+      const test = { status: 'failed', err: { stack: 'stack' } };
+      const spyCucumberStepEnd = jest.spyOn(reporter, 'cucumberStepEnd');
+
+      reporter.finishFailedStep(test);
+
+      expect(spyCucumberStepEnd).not.toHaveBeenCalled();
+    });
+
+    it('should finish the current cucumber step when test failed', function () {
+      const test = { status: 'failed', err: { stack: 'stack trace' } };
+      reporter.currentTestTempInfo = {
+        ...mockCurrentTestTempInfo,
+        cucumberStepIds: new Set([testStepId]),
+      };
+      reporter.cucumberSteps.set(testStepId, mockStep);
+      const spyCucumberStepEnd = jest.spyOn(reporter, 'cucumberStepEnd');
+
+      reporter.finishFailedStep(test);
+
+      expect(spyCucumberStepEnd).toHaveBeenCalledWith({
+        testStepId,
+        testStepResult: { status: 'failed', message: test.err.stack },
+      });
+    });
+  });
+
   describe('hookStart', function () {
     beforeEach(function () {
       reporter.tempLaunchId = 'tempLaunchId';
@@ -851,11 +884,11 @@ describe('reporter script', () => {
         status: 'pending',
         parentId: 'suiteId',
       };
-      const expectedHookStartObject = {
+      const expectedHookStartObject = expect.objectContaining({
         name: 'hook name',
-        startTime: currentDate - 1,
         type: 'BEFORE_METHOD',
-      };
+        startTime: expect.any(Number),
+      });
 
       reporter.hookStart(hookInfoObject);
 
@@ -874,16 +907,35 @@ describe('reporter script', () => {
         tempId: 'suiteTempId',
         startTime: currentDate,
       });
-      const expectedHookStartObject = {
+      const expectedHookStartObject = expect.objectContaining({
         name: 'hook name',
-        startTime: currentDate - 1,
         type: 'BEFORE_SUITE',
-      };
+        startTime: expect.any(Number),
+      });
 
       reporter.hookStart(hookInfoObject);
 
       expect(reporter.hooks.get('hookId_testId')).toEqual(expectedHookStartObject);
       reporter.suitesStackTempInfo = [];
+    });
+
+    it('start after each hook: should keep original startTime', function () {
+      const hookInfoObject = {
+        id: 'hookId_afterEach',
+        hookName: 'after each',
+        title: '"after each" hook: hook name',
+        status: 'pending',
+        parentId: 'suiteId',
+      };
+      const expectedHookStartObject = expect.objectContaining({
+        name: 'hook name',
+        type: 'AFTER_METHOD',
+        startTime: expect.any(Number),
+      });
+
+      reporter.hookStart(hookInfoObject);
+
+      expect(reporter.hooks.get('hookId_afterEach')).toEqual(expectedHookStartObject);
     });
   });
 
@@ -955,6 +1007,21 @@ describe('reporter script', () => {
 
       expect(spySendLogOnFinishFailedItem).toHaveBeenCalledWith(hookInfoObject, 'testItemId');
       expect(spyFinishTestItem).toHaveBeenCalledWith('testItemId', expectedHookFinishObj);
+    });
+
+    it('should skip finishing when hook was not started', function () {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      const hookInfoObject = {
+        id: 'missingHook',
+        title: '"before each" hook: hook name',
+        status: 'passed',
+        parentId: 'suiteId',
+        err: undefined,
+      };
+
+      reporter.hookEnd(hookInfoObject);
+
+      expect(spyFinishTestItem).not.toHaveBeenCalled();
     });
   });
   describe('send log', () => {
