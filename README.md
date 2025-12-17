@@ -215,6 +215,13 @@ const updatedConfig = {
 |--------|--------------|------|
 | apiKey | RP_API_KEY   |      |
 
+## Asynchronous API
+
+The client supports an asynchronous reporting (via the ReportPortal asynchronous API).
+If you want the client to report through the asynchronous API, change `v1` to `v2` in the `endpoint` address.
+
+**Note:** It is highly recommended to use the `v2` endpoint for reporting, especially for extensive test suites.
+
 ## ReportPortal custom commands
 
 ### Logging
@@ -236,6 +243,36 @@ You can use the following methods to report logs and attachments with different 
 * cy.launchWarn (*message* , *file*). Reports *message* and optional *file* as a log of the launch with warning log level.
 * cy.launchError (*message* , *file*). Reports *message* and optional *file* as a log of the launch with error log level.
 * cy.launchFatal (*message* , *file*). Reports *message* and optional *file* as a log of the launch with fatal log level.
+
+#### Custom log levels
+
+For more flexibility, you can use the generic log commands that accept custom log level strings:
+
+* cy.customLog(*level*, *message*, *file*). Reports *message* and optional *file* as a log of the current test with the specified log level.<br/>
+*level* can be one of the predefined log levels: _TRACE_, _DEBUG_, _INFO_, _WARN_, _ERROR_, _FATAL_, or any custom log level string (e.g., 'custom', 'my_level', 'warn').<br/>
+
+**Example:**
+```javascript
+cy.customLog('info', 'This is an info log');
+cy.customLog('custom_level', 'This is a custom log level', {
+  name: 'attachment.png',
+  type: 'image/png',
+  content: 'base64string'
+});
+```
+
+* cy.customLaunchLog(*level*, *message*, *file*). Reports *message* and optional *file* as a log of the launch with the specified log level.<br/>
+*level* can be one of the predefined log levels: _TRACE_, _DEBUG_, _INFO_, _WARN_, _ERROR_, _FATAL_, or any custom log level string (e.g., 'custom', 'my_level', 'warn').<br/>
+
+**Example:**
+```javascript
+cy.customLaunchLog('info', 'This is a launch info log');
+cy.customLaunchLog('custom_launch_level', 'This is a custom launch log level', {
+  name: 'launch-attachment.png',
+  type: 'image/png',
+  content: 'base64string'
+});
+```
 
 *file* should be an object: <br/>
 ```javascript
