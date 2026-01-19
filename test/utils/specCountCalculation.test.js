@@ -117,6 +117,10 @@ describe('spec count calculation', () => {
       expect(specArray).toHaveLength(1);
       expect(specArray).toContain(`cypress${sep}fixtures${sep}**${sep}*`);
     });
+
+    it('returns empty array when fixturesFolder is falsy', () => {
+      expect(getFixtureFolderPattern({ fixturesFolder: false })).toEqual([]);
+    });
   });
 
   describe('getExcludeSpecPattern', () => {
