@@ -63,7 +63,6 @@ describe('reporter script', () => {
 
   beforeEach(() => {
     reporter.config = getDefaultConfig();
-    reporter.reportSkippedTests = jest.fn();
   });
 
   afterEach(() => {
