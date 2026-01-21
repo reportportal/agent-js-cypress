@@ -17,7 +17,7 @@
 const path = require('path');
 const helpers = require('@reportportal/client-javascript/lib/helpers');
 const {
-  getSystemAttributes,
+  getSystemAttribute,
   getLaunchStartObject,
   getSuiteStartInfo,
   getSuiteEndInfo,
@@ -52,7 +52,7 @@ describe('object creators', () => {
     });
   });
 
-  describe('getSystemAttributes', () => {
+  describe('getSystemAttribute', () => {
     it('skippedIssue undefined. Should return attribute with agent name and version', function () {
       const options = getDefaultConfig();
       const expectedSystemAttributes = [
@@ -63,7 +63,7 @@ describe('object creators', () => {
         },
       ];
 
-      const systemAttributes = getSystemAttributes(options);
+      const systemAttributes = getSystemAttribute(options);
 
       expect(systemAttributes).toEqual(expectedSystemAttributes);
     });
@@ -79,12 +79,12 @@ describe('object creators', () => {
         },
       ];
 
-      const systemAttributes = getSystemAttributes(options);
+      const systemAttributes = getSystemAttribute(options);
 
       expect(systemAttributes).toEqual(expectedSystemAttributes);
     });
 
-    it('skippedIssue = false. Should return 2 attribute: with agent name/version and skippedIssue', function () {
+    it('skippedIssue = false. Should return attribute with agent name and version', function () {
       const options = getDefaultConfig();
       options.reporterOptions.skippedIssue = false;
       const expectedSystemAttributes = [
@@ -93,14 +93,9 @@ describe('object creators', () => {
           value: `${pjson.name}|${pjson.version}`,
           system: true,
         },
-        {
-          key: 'skippedIssue',
-          value: 'false',
-          system: true,
-        },
       ];
 
-      const systemAttributes = getSystemAttributes(options);
+      const systemAttributes = getSystemAttribute(options);
 
       expect(systemAttributes).toEqual(expectedSystemAttributes);
     });
@@ -615,7 +610,7 @@ describe('object creators', () => {
       expect(testEndObject).toEqual(expectedTestEndObject);
     });
 
-    it('skippedIssue = false: should return test end object with issue NOT_ISSUE', () => {
+    it('skippedIssue = false: should return test end object without issue (handled by client)', () => {
       const testInfo = {
         id: 'testId1',
         title: 'test name',
@@ -627,11 +622,8 @@ describe('object creators', () => {
       const expectedTestEndObject = {
         endTime: currentDate,
         status: testInfo.status,
-        issue: {
-          issueType: 'NOT_ISSUE',
-        },
       };
-      const testEndObject = getTestEndObject(testInfo, false);
+      const testEndObject = getTestEndObject(testInfo);
 
       expect(testEndObject).toBeDefined();
       expect(testEndObject).toEqual(expectedTestEndObject);
