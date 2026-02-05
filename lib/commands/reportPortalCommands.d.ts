@@ -30,6 +30,10 @@ declare global {
 
       setTestCaseId(testCaseId: string, suiteTitle?: string): Chainable<void>;
 
+      customLog(level: string, message: string, file?: RP_FILE): Chainable<any>;
+
+      customLaunchLog(level: string, message: string, file?: RP_FILE): Chainable<any>;
+
       trace(message: string, file?: RP_FILE): Chainable<any>;
 
       logDebug(message: string, file?: RP_FILE): Chainable<any>;
