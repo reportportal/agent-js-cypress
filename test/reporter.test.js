@@ -20,7 +20,10 @@ const helpers = require('@reportportal/client-javascript/lib/helpers');
 const { getDefaultConfig, RPClient, currentDate } = require('./mock/mocks');
 const Reporter = require('./../lib/reporter');
 const { entityType } = require('../lib/constants');
-const { createMergeLaunchLockFile, deleteMergeLaunchLockFile } = require('../lib/mergeLaunchesUtils');
+const {
+  createMergeLaunchLockFile,
+  deleteMergeLaunchLockFile,
+} = require('../lib/mergeLaunchesUtils');
 const { mergeParallelLaunches } = require('../lib/mergeLaunches');
 
 jest.mock('../lib/mergeLaunchesUtils', () => ({
