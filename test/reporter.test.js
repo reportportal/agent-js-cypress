@@ -20,6 +20,16 @@ const helpers = require('@reportportal/client-javascript/lib/helpers');
 const { getDefaultConfig, RPClient, currentDate } = require('./mock/mocks');
 const Reporter = require('./../lib/reporter');
 const { entityType } = require('../lib/constants');
+const { createMergeLaunchLockFile, deleteMergeLaunchLockFile } = require('../lib/mergeLaunchesUtils');
+const { mergeParallelLaunches } = require('../lib/mergeLaunches');
+
+jest.mock('../lib/mergeLaunchesUtils', () => ({
+  createMergeLaunchLockFile: jest.fn(),
+  deleteMergeLaunchLockFile: jest.fn(),
+}));
+jest.mock('../lib/mergeLaunches', () => ({
+  mergeParallelLaunches: jest.fn().mockResolvedValue(),
+}));
 
 const sep = path.sep;
 
@@ -95,6 +105,24 @@ describe('reporter script', () => {
       expect(spyLaunchStart).toHaveBeenCalledTimes(1);
       expect(spyLaunchStart).toHaveBeenCalledWith(launchObj);
     });
+
+    it('should call createMergeLaunchLockFile when isLaunchMergeRequired is true', () => {
+      reporter.config = {
+        ...getDefaultConfig().reporterOptions,
+        launch: 'LauncherName',
+        isLaunchMergeRequired: true,
+      };
+      const launchObj = {
+        launch: 'LauncherName',
+        description: 'Launch description',
+        attributes: [],
+        startTime: currentDate,
+      };
+
+      reporter.runStart(launchObj);
+
+      expect(createMergeLaunchLockFile).toHaveBeenCalledWith('LauncherName', 'tempLaunchId');
+    });
   });
 
   describe('runEnd', () => {
@@ -120,6 +148,44 @@ describe('reporter script', () => {
         endTime: currentDate,
         status: 'warn',
       });
+    });
+
+    it('launchId is set: should call getPromiseFinishAllItems instead of finishLaunch', () => {
+      reporter.client.getPromiseFinishAllItems = jest.fn().mockResolvedValue('ok');
+      const spyFinishLaunch = jest.spyOn(reporter.client, 'finishLaunch');
+      reporter.tempLaunchId = 'tempLaunchId';
+      reporter.config = { ...getDefaultConfig().reporterOptions, launchId: 'existingLaunchId' };
+
+      reporter.runEnd();
+
+      expect(reporter.client.getPromiseFinishAllItems).toHaveBeenCalledWith('tempLaunchId');
+      expect(spyFinishLaunch).not.toHaveBeenCalled();
+    });
+
+    it('isLaunchMergeRequired is true: should call deleteMergeLaunchLockFile on finish', async () => {
+      reporter.tempLaunchId = 'tempLaunchId';
+      reporter.config = {
+        ...getDefaultConfig().reporterOptions,
+        launch: 'LauncherName',
+        isLaunchMergeRequired: true,
+      };
+
+      await reporter.runEnd();
+
+      expect(deleteMergeLaunchLockFile).toHaveBeenCalledWith('LauncherName', 'tempLaunchId');
+    });
+
+    it('parallel and autoMerge are true: should call mergeParallelLaunches', async () => {
+      reporter.tempLaunchId = 'tempLaunchId';
+      reporter.config = {
+        ...getDefaultConfig().reporterOptions,
+        parallel: true,
+        autoMerge: true,
+      };
+
+      await reporter.runEnd();
+
+      expect(mergeParallelLaunches).toHaveBeenCalledWith(reporter.client, reporter.config);
     });
   });
 
@@ -830,17 +896,74 @@ describe('reporter script', () => {
         message: errorMessage,
       });
     });
+
+    it('cucumberStepEnd with non-existent step: should return early', function () {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      reporter.cucumberSteps.clear();
+
+      reporter.cucumberStepEnd({ testStepId: 'nonExistentStepId' });
+
+      expect(spyFinishTestItem).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('finishFailedStep', function () {
+    afterEach(function () {
+      reporter.cucumberSteps.clear();
+      reporter.currentTestTempInfo = null;
+    });
+
+    it('should call cucumberStepEnd when test is failed and step exists', function () {
+      const spyCucumberStepEnd = jest.spyOn(reporter, 'cucumberStepEnd');
+      reporter.currentTestTempInfo = {
+        ...mockCurrentTestTempInfo,
+        cucumberStepIds: new Set([testStepId]),
+      };
+      reporter.cucumberSteps.set(testStepId, mockStep);
+
+      reporter.finishFailedStep({
+        status: 'failed',
+        err: { stack: 'error stack' },
+      });
+
+      expect(spyCucumberStepEnd).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return early when test is failed but no cucumber step exists', function () {
+      const spyCucumberStepEnd = jest.spyOn(reporter, 'cucumberStepEnd');
+      reporter.currentTestTempInfo = {
+        ...mockCurrentTestTempInfo,
+        cucumberStepIds: new Set(),
+      };
+
+      reporter.finishFailedStep({
+        status: 'failed',
+        err: { stack: 'error stack' },
+      });
+
+      expect(spyCucumberStepEnd).not.toHaveBeenCalled();
+    });
+
+    it('should not call cucumberStepEnd when test is not failed', function () {
+      const spyCucumberStepEnd = jest.spyOn(reporter, 'cucumberStepEnd');
+
+      reporter.finishFailedStep({ status: 'passed' });
+
+      expect(spyCucumberStepEnd).not.toHaveBeenCalled();
+    });
   });
 
   describe('hookStart', function () {
     beforeEach(function () {
       reporter.tempLaunchId = 'tempLaunchId';
       reporter.testItemIds.set('suiteId', 'suiteTempId');
+      reporter.currentTestTempInfo = mockCurrentTestTempInfo;
     });
 
     afterEach(function () {
       reporter.testItemIds.clear();
       reporter.hooks.clear();
+      reporter.currentTestTempInfo = null;
     });
 
     it('start before each hook: should put hook start object in the map', function () {
@@ -855,6 +978,7 @@ describe('reporter script', () => {
         name: 'hook name',
         startTime: currentDate - 1,
         type: 'BEFORE_METHOD',
+        codeRef: undefined,
       };
 
       reporter.hookStart(hookInfoObject);
@@ -878,12 +1002,48 @@ describe('reporter script', () => {
         name: 'hook name',
         startTime: currentDate - 1,
         type: 'BEFORE_SUITE',
+        codeRef: undefined,
       };
 
       reporter.hookStart(hookInfoObject);
 
       expect(reporter.hooks.get('hookId_testId')).toEqual(expectedHookStartObject);
       reporter.suitesStackTempInfo = [];
+    });
+
+    it('start before each hook without currentTestTempInfo: should keep original startTime', function () {
+      const hookInfoObject = {
+        id: 'hookId_testId2',
+        hookName: 'before each',
+        title: '"before each" hook: hook name',
+        status: 'pending',
+        parentId: 'suiteId',
+      };
+      reporter.currentTestTempInfo = null;
+
+      reporter.hookStart(hookInfoObject);
+
+      const hookObj = reporter.hooks.get('hookId_testId2');
+      expect(hookObj).toBeDefined();
+      expect(hookObj.type).toBe('BEFORE_METHOD');
+      expect(hookObj.startTime).toBe(currentDate);
+    });
+
+    it('start after each hook: should put hook start object in the map with default startTime', function () {
+      const hookInfoObject = {
+        id: 'hookId_afterEach',
+        hookName: 'after each',
+        title: '"after each" hook: hook name',
+        status: 'pending',
+        parentId: 'suiteId',
+      };
+
+      reporter.hookStart(hookInfoObject);
+
+      const hookObj = reporter.hooks.get('hookId_afterEach');
+      expect(hookObj).toBeDefined();
+      expect(hookObj.type).toBe('AFTER_METHOD');
+      expect(hookObj.startTime).toBe(currentDate);
     });
   });
 
@@ -956,6 +1116,20 @@ describe('reporter script', () => {
       expect(spySendLogOnFinishFailedItem).toHaveBeenCalledWith(hookInfoObject, 'testItemId');
       expect(spyFinishTestItem).toHaveBeenCalledWith('testItemId', expectedHookFinishObj);
     });
+
+    it('hookEnd with non-existent hook: should return early without calling finishTestItem', function () {
+      const spyFinishTestItem = jest.spyOn(reporter.client, 'finishTestItem');
+      const hookInfoObject = {
+        id: 'nonExistentHookId',
+        title: '"before each" hook: hook name',
+        status: 'passed',
+        parentId: 'suiteId',
+      };
+
+      reporter.hookEnd(hookInfoObject);
+
+      expect(spyFinishTestItem).not.toHaveBeenCalled();
+    });
   });
   describe('send log', () => {
     beforeEach(() => {
@@ -1009,6 +1183,36 @@ describe('reporter script', () => {
         message: 'error message',
       });
       expect(spyConsoleError).toHaveBeenCalledWith('Fail to send log to current item', clientError);
+    });
+    it('sendLogToCurrentItem: should fall back to suite tempId when no test or step info', function () {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+      reporter.currentTestTempInfo = null;
+      reporter.suitesStackTempInfo = [{ tempId: 'suiteTempId' }];
+      const logObj = {
+        level: 'info',
+        message: 'log message',
+      };
+
+      reporter.sendLogToCurrentItem(logObj);
+
+      expect(spySendLog).toHaveBeenCalledWith(
+        'suiteTempId',
+        expect.objectContaining({ message: 'log message' }),
+        undefined,
+      );
+      reporter.suitesStackTempInfo = [];
+    });
+    it('sendLogToCurrentItem: should not call sendLog when no tempItemId is available', function () {
+      const spySendLog = jest.spyOn(reporter.client, 'sendLog');
+      reporter.currentTestTempInfo = null;
+      reporter.suitesStackTempInfo = [];
+
+      reporter.sendLogToCurrentItem({
+        level: 'info',
+        message: 'log message',
+      });
+
+      expect(spySendLog).not.toHaveBeenCalled();
     });
     it('sendLaunchLog: client.sendLog should be called with parameters', function () {
       const spySendLog = jest.spyOn(reporter.client, 'sendLog');
