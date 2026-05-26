@@ -1,3 +1,5 @@
+
+## [5.5.4] - 2026-05-26
 ### Security
 - Addressed [CVE-2025-69873](https://www.cve.org/CVERecord?id=CVE-2025-69873), [CVE-2026-2950](https://www.cve.org/CVERecord?id=CVE-2026-2950), [CVE-2026-4800](https://www.cve.org/CVERecord?id=CVE-2026-4800), [CVE-2026-26280](https://www.cve.org/CVERecord?id=CVE-2026-26280), [CVE-2026-26318](https://www.cve.org/CVERecord?id=CVE-2026-26318), [CVE-2026-26996](https://www.cve.org/CVERecord?id=CVE-2026-26996), [CVE-2026-27903](https://www.cve.org/CVERecord?id=CVE-2026-27903), [CVE-2026-27904](https://www.cve.org/CVERecord?id=CVE-2026-27904), [CVE-2026-32141](https://www.cve.org/CVERecord?id=CVE-2026-32141), [CVE-2026-33228](https://www.cve.org/CVERecord?id=CVE-2026-33228), [CVE-2026-33671](https://www.cve.org/CVERecord?id=CVE-2026-33671), [CVE-2026-33672](https://www.cve.org/CVERecord?id=CVE-2026-33672), [CVE-2026-33750](https://www.cve.org/CVERecord?id=CVE-2026-33750), [CVE-2026-44724](https://www.cve.org/CVERecord?id=CVE-2026-44724), [CVE-2026-45149](https://www.cve.org/CVERecord?id=CVE-2026-45149).
 ### Added
