@@ -1,6 +1,7 @@
 
 ## [5.5.3] - 2026-02-05
 ### Added
+- Google Analytics improvements.
 - Custom log level support via `cy.customLog` and `cy.customLaunchLog` commands. These commands accept custom log level strings in addition to predefined levels (TRACE, DEBUG, INFO, WARN, ERROR, FATAL), providing more flexibility for logging. Check [Custom log levels](https://github.com/reportportal/agent-js-cypress?tab=readme-ov-file#custom-log-levels) for more details.
 ### Changed
 - `@reportportal/client-javascript` bumped to version `5.5.10`.
