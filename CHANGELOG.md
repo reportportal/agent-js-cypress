@@ -1,7 +1,10 @@
+### Security
+- Addressed [CVE-2025-69873](https://www.cve.org/CVERecord?id=CVE-2025-69873), [CVE-2026-2950](https://www.cve.org/CVERecord?id=CVE-2026-2950), [CVE-2026-4800](https://www.cve.org/CVERecord?id=CVE-2026-4800), [CVE-2026-26280](https://www.cve.org/CVERecord?id=CVE-2026-26280), [CVE-2026-26318](https://www.cve.org/CVERecord?id=CVE-2026-26318), [CVE-2026-26996](https://www.cve.org/CVERecord?id=CVE-2026-26996), [CVE-2026-27903](https://www.cve.org/CVERecord?id=CVE-2026-27903), [CVE-2026-27904](https://www.cve.org/CVERecord?id=CVE-2026-27904), [CVE-2026-32141](https://www.cve.org/CVERecord?id=CVE-2026-32141), [CVE-2026-33228](https://www.cve.org/CVERecord?id=CVE-2026-33228), [CVE-2026-33671](https://www.cve.org/CVERecord?id=CVE-2026-33671), [CVE-2026-33672](https://www.cve.org/CVERecord?id=CVE-2026-33672), [CVE-2026-33750](https://www.cve.org/CVERecord?id=CVE-2026-33750), [CVE-2026-44724](https://www.cve.org/CVERecord?id=CVE-2026-44724), [CVE-2026-45149](https://www.cve.org/CVERecord?id=CVE-2026-45149).
+### Added
+- Google Analytics improvements.
 
 ## [5.5.3] - 2026-02-05
 ### Added
-- Google Analytics improvements.
 - Custom log level support via `cy.customLog` and `cy.customLaunchLog` commands. These commands accept custom log level strings in addition to predefined levels (TRACE, DEBUG, INFO, WARN, ERROR, FATAL), providing more flexibility for logging. Check [Custom log levels](https://github.com/reportportal/agent-js-cypress?tab=readme-ov-file#custom-log-levels) for more details.
 ### Changed
 - `@reportportal/client-javascript` bumped to version `5.5.10`.
