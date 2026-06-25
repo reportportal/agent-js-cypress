@@ -4,6 +4,7 @@
   "description": "This agent helps Cypress to communicate with ReportPortal",
   "main": "index.js",
   "scripts": {
+    "codegraph": "bash scripts/codegraph.sh",
     "lint": "eslint . --quiet",
     "format": "npm run lint -- --fix",
     "test": "jest --detectOpenHandles --config ./jest.config.js",
