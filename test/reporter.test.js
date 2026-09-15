@@ -16,7 +16,7 @@
 
 const mockFS = require('mock-fs');
 const path = require('path');
-const helpers = require('@reportportal/client-javascript/lib/helpers');
+const helpers = require('@reportportal/client-javascript/helpers');
 const { getDefaultConfig, RPClient, currentDate } = require('./mock/mocks');
 const Reporter = require('./../lib/reporter');
 const { entityType } = require('../lib/constants');
