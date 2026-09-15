@@ -15,7 +15,7 @@
  */
 
 const path = require('path');
-const helpers = require('@reportportal/client-javascript/lib/helpers');
+const helpers = require('@reportportal/client-javascript/helpers');
 const {
   getSystemAttribute,
   getLaunchStartObject,
