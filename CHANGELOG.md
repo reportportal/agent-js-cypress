@@ -1,4 +1,5 @@
 ### Changed
+- **Breaking change** Drop support of Node.js 14. The version [5.5.4](https://github.com/reportportal/agent-js-cypress/releases/tag/v5.5.4) is the latest that supports it. The minimum supported Node.js version is now 16.0.0.
 - `@reportportal/client-javascript` bumped to version `5.6.0`.
 
 ## [5.5.4] - 2026-05-26
